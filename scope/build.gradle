@@ -1,19 +1,21 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 17
     buildToolsVersion "19.1.0"
-
     defaultConfig {
         applicationId "org.billthefarmer.scope"
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 17
     }
-
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    productFlavors {
+    }
+}
+
+dependencies {
 }
