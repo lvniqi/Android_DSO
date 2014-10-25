@@ -41,6 +41,7 @@ public class YScale extends View {
         // Get actual dimensions
         width = w;
         height = h;
+
     }
 
     //绘制视图本身
