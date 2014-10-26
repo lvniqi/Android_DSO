@@ -41,11 +41,12 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity
 {
+
     private static final float values[] =
     {0.1f, 0.2f, 0.5f, 1.0f,
      2.0f, 5.0f, 10.0f, 20.0f,
      50.0f, 100.0f, 200.0f, 500.0f};
-	
+
     private static final String strings[] =
     {"0.1 ms", "0.2 ms", "0.5 ms",
      "1.0 ms", "2.0 ms", "5.0 ms",
@@ -60,7 +61,6 @@ public class MainActivity extends Activity
     protected static final int SIZE = 20;
     protected static final float SMALL_SCALE = 200;
     protected static final float LARGE_SCALE = 200000;
-
     protected int timebase;
 
     private Scope scope;

@@ -16,17 +16,18 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+    //值
     private static final float values[] =
             {0.1f, 0.2f, 0.5f, 1.0f,
                     2.0f, 5.0f, 10.0f, 20.0f,
                     50.0f, 100.0f, 200.0f, 500.0f};
-
+    //显示字符
     private static final String strings[] =
             {"0.1 ms", "0.2 ms", "0.5 ms",
                     "1.0 ms", "2.0 ms", "5.0 ms",
                     "10 ms", "20 ms", "50 ms",
                     "0.1 sec", "0.2 sec", "0.5 sec"};
-
+    //采样率？
     private static final int counts[] =
             {256, 512, 1024, 2048,
                     4096, 8192, 16384, 32768,
@@ -40,14 +41,15 @@ public class MainActivity extends Activity {
 
 
     protected int timebase;
-
+    //曲线
     private Wave wave;
-
+    //数据源
     private Data_In data_in;
+    //应用程序上浮动显示信息给用户
     private Toast toast;
+    //子菜单
     private SubMenu submenu;
 
-    //数据
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,17 +79,18 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    //显示警告
     void showAlert(int appName, int errorBuffer)
     {
-        // Create an alert dialog builder
-
+        //新建一个 警告框
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(this);
 
-        // Set the title, message and button
-
+        // 设置 标题
         builder.setTitle(appName);
+        // 设置 消息
         builder.setMessage(errorBuffer);
+        //设置 按钮
         builder.setNeutralButton(android.R.string.ok,
                 new DialogInterface.OnClickListener()
                 {
@@ -100,14 +103,12 @@ public class MainActivity extends Activity {
                         dialog.dismiss();
                     }
                 });
-        // Create the dialog
-
+        //建立
         AlertDialog dialog = builder.create();
-
-        // Show it
-
+        //显示
         dialog.show();
     }
+    //数据输入
     public class Data_In implements Runnable {
         // Preferences
 
