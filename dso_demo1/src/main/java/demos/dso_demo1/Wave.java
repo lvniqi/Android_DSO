@@ -62,17 +62,16 @@ public class Wave extends View {
         Canvas canvas = new Canvas(graticule);
 
         // 背景为黑色
-
         canvas.drawColor(Color.BLACK);
-
         // Set up paint
-
+        //线宽为2
         paint.setStrokeWidth(2);
+        //空心线
         paint.setStyle(Paint.Style.STROKE);
+        //颜色不透明 绿色
         paint.setColor(Color.argb(255, 0, 63, 0));
 
-        // Draw graticule
-
+        //画格子
         for (int i = 0; i < width; i += MainActivity.SIZE)
             canvas.drawLine(i, 0, i, height, paint);
 
