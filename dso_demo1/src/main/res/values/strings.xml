@@ -5,4 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <string name="error_buffer">Error from audio recording! Cannot find a working input sample rate.</string>
+    <string name="error_init">Audio recorder not initialised! Maybe a working input sample rate could not be found.</string>
+
 </resources>

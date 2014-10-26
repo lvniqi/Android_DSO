@@ -34,6 +34,21 @@ public class YScale extends View {
         paint = new Paint();
     }
     //重写父类方法
+    //子控件 放置大小
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+    {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        // Get offered dimension
+        //得到总宽度
+        int h = MeasureSpec.getSize(heightMeasureSpec);
+
+        // Set wanted dimensions
+        //宽度为分割大小
+        setMeasuredDimension(h / WIDTH_FRACTION, h);
+    }
+
     //VIEW大小改变函数 将大小保存
     @Override
     protected  void onSizeChanged(int w, int h, int oldw, int oldh){
