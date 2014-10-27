@@ -127,43 +127,42 @@ public class MainActivity extends Activity {
         protected long length;
 
         // Private data
-
+        //采样率
         private static final int SAMPLES = 524288;
+        //缓冲长度
         private static final int FRAMES = 4096;
 
         private static final int INIT = 0;
         private static final int FIRST = 1;
         private static final int NEXT = 2;
         private static final int LAST = 3;
-
+        //音频输入
         private AudioRecord audioRecord;
+        //缓冲区
         private short buffer[];
 
-        // Constructor
-
+        //数据输入
         protected Data_In() {
             buffer = new short[FRAMES];
             data = new short[SAMPLES];
         }
 
-        // Start audio
 
+        //开始信号采集
         protected void start() {
-            // Start the thread
 
             thread = new Thread(this, "Audio");
             thread.start();
         }
 
-        // Run
 
+        //重写运行
         @Override
         public void run() {
             processAudio();
         }
 
-        // Stop
-
+        //停止运行
         protected void stop() {
             Thread t = thread;
             thread = null;
@@ -174,8 +173,7 @@ public class MainActivity extends Activity {
                 Thread.yield();
         }
 
-        // Process Audio
-
+        // 处理信号
         protected void processAudio() {
             // Assume the output sample will work on the input as
             // there isn't an AudioRecord.getNativeInputSampleRate()
@@ -183,14 +181,13 @@ public class MainActivity extends Activity {
             sample =
                     AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC);
 
-            // Get buffer size
-
+            // 得到缓冲区大小
             int size =
                     AudioRecord.getMinBufferSize(sample,
                             AudioFormat.CHANNEL_IN_MONO,
                             AudioFormat.ENCODING_PCM_16BIT);
-            // Give up if it doesn't work
 
+            // 出错 放弃
             if (size == AudioRecord.ERROR_BAD_VALUE ||
                     size == AudioRecord.ERROR ||
                     size <= 0) {
@@ -206,7 +203,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            // Create the AudioRecord object
+            // 创建线程
 
             audioRecord =
                     new AudioRecord(input, sample,
@@ -214,7 +211,7 @@ public class MainActivity extends Activity {
                             AudioFormat.ENCODING_PCM_16BIT,
                             size);
 
-            // Check audiorecord
+            // 校验
 
             if (audioRecord == null) {
                 runOnUiThread(new Runnable() {
@@ -229,7 +226,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            // Check state
+            // 校验状态
 
             int state = audioRecord.getState();
 
@@ -247,52 +244,38 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            // Start recording
+            // 开始录音
 
             audioRecord.startRecording();
-
             int index = 0;
             int count = 0;
-
             state = INIT;
             short last = 0;
 
-            // Continue until the thread is stopped
-
+            //进程结束前选择
             while (thread != null) {
-                // Read a buffer of data
-
+                //读取缓冲
                 size = audioRecord.read(buffer, 0, FRAMES);
-
-                // Stop the thread if no data
-
+                //如果大小为0 退出
                 if (size == 0) {
                     thread = null;
                     break;
                 }
-
-                // State machine for sync and copying data to display buffer
-
+                //状态机
                 switch (state) {
-                    // INIT: waiting for sync
-
+                    //INIT 等待同步
                     case INIT:
-
                         index = 0;
-
                         if (bright)
                             state++;
-
                         else {
                             if (single && !trigger)
                                 break;
 
-                            // Initialise sync
-
+                            //初始化同步
                             int dx = 0;
 
-                            // Sync polarity
-
+                            //同步极性
                             if (polarity) {
                                 for (int i = 0; i < size; i++) {
                                     dx = buffer[i] - last;
@@ -402,5 +385,4 @@ public class MainActivity extends Activity {
             }
         }
     }
-
 }

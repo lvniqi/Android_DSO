@@ -3,8 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 21
     buildToolsVersion "21.0.1"
+
     defaultConfig {
-        applicationId "demos.dso_demo1"
+        applicationId "demos.dso_demo_graphview"
         minSdkVersion 17
         targetSdkVersion 21
         versionCode 1
@@ -15,8 +16,6 @@ android {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    productFlavors {
     }
 }
 
