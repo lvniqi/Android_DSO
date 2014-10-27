@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -119,15 +120,6 @@ public class Wave extends View {
             canvas.drawBitmap(graticule, 0, 0, null);
             return;
         }
-
-        // Draw the graticule on the bitmap
-
-        if (!storage || clear)
-        {
-            cb.drawBitmap(graticule, 0, -height / 2, null);
-            clear = false;
-        }
-
         // Calculate x scale etc
 
         float xscale = (float)(2.0 / ((data_in.sample / 100000.0) * scale));
@@ -238,5 +230,26 @@ public class Wave extends View {
         }
 
         canvas.drawBitmap(bitmap, 0, 0, null);
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        float x = event.getX();
+        float y = event.getY();
+        // Set the index from the touch dimension
+        switch (event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                index = x;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                index = x;
+                break;
+
+            case MotionEvent.ACTION_UP:
+                index = x;
+                break;
+        }
+        return true;
     }
 }

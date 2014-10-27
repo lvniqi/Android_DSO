@@ -4,5 +4,6 @@
     <string name="app_name">Dso_demo_GraphView</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="text_x1">Hello world!</string>
+    <string name="text_x2">Settings</string>
 </resources>

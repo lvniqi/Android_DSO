@@ -25,6 +25,7 @@ package org.billthefarmer.scope;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -38,59 +39,54 @@ public class YScale extends View
 
     private Paint paint;
 
-    public YScale(Context context, AttributeSet attrs)
-    {
-	super(context, attrs);
+    public YScale(Context context, AttributeSet attrs){
+        super(context, attrs);
 
-	// Create pain
+        // Create pain
 
-	paint = new Paint();
+        paint = new Paint();
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-    {
-	super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-	// Get offered dimension
+        // Get offered dimension
 
-	int h = MeasureSpec.getSize(heightMeasureSpec);
+        int h = MeasureSpec.getSize(heightMeasureSpec);
 
-	// Set wanted dimensions
+        // Set wanted dimensions
 
-	setMeasuredDimension(h / WIDTH_FRACTION, h);
+        setMeasuredDimension(h / WIDTH_FRACTION, h);
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh)
-    {
-	super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh){
+        super.onSizeChanged(w, h, oldw, oldh);
 
-	// Get actual dimensions
+        // Get actual dimensions
 
-	width = w;
-	height = h;
+        width = w;
+        height = h;
     }
 
     @Override
-    protected void onDraw(Canvas canvas)
-    {
-	paint.setStrokeWidth(2);
+    protected void onDraw(Canvas canvas){
+        paint.setStrokeWidth(2);
+        canvas.translate(0, height / 2);
+        canvas.drawColor(Color.GREEN);
+        // Draw scale ticks
 
-	canvas.translate(0, height / 2);
+        for (int i = 0; i < height / 2; i += MainActivity.SIZE)
+        {
+            canvas.drawLine(width * 2 / 3, i, width, i, paint);
+            canvas.drawLine(width * 2 / 3, -i, width, -i, paint);
+        }
 
-	// Draw scale ticks
-
-	for (int i = 0; i < height / 2; i += MainActivity.SIZE)
-	{
-	    canvas.drawLine(width * 2 / 3, i, width, i, paint);
-	    canvas.drawLine(width * 2 / 3, -i, width, -i, paint);
-	}
-
-	for (int i = 0; i < height / 2; i += MainActivity.SIZE * 5)
-	{
-	    canvas.drawLine(width / 3, i, width, i, paint);
-	    canvas.drawLine(width / 3, -i, width, -i, paint);
-	}
+        for (int i = 0; i < height / 2; i += MainActivity.SIZE * 5)
+        {
+            canvas.drawLine(width / 3, i, width, i, paint);
+            canvas.drawLine(width / 3, -i, width, -i, paint);
+        }
     }
 }

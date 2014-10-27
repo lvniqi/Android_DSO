@@ -3,6 +3,7 @@ package demos.dso_demo1;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
         }
         //设置时间间隔
         timebase = 3;
+
     }
 
 
