@@ -3,6 +3,7 @@ package demos.dso_demo_graphview;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +20,18 @@ public class MainActivity extends Activity {
 
     private TextView text_x1;
     public GraphView lineview;
+
+    Handler handler = new Handler();
+    private Runnable myRunnable= new Runnable() {
+        public void run() {
+
+            handler.postDelayed(this, 1000);
+            double x1 = lineview.getViewportSize();
+            text_x1.setText(""+x1);
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +75,9 @@ public class MainActivity extends Activity {
         lineview.getGraphViewStyle().setNumHorizontalLabels(4);
         lineview.getGraphViewStyle().setNumVerticalLabels(4);
         lineview.getGraphViewStyle().setVerticalLabelsWidth(100);
-    }
+        myRunnable.run();
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
