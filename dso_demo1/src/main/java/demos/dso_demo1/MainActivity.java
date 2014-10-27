@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
     protected static final float SMALL_SCALE = 200;
     protected static final float LARGE_SCALE = 200000;
 
-
+    //采样率选择
     protected int timebase;
     //曲线
     private Wave wave;
@@ -54,6 +54,17 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        data_in = new Data_In();
+        wave = (Wave)findViewById(R.id.waves);
+        //如果找到wave
+        if(wave != null)
+        {
+            wave.main = this;
+            wave.data_in = data_in;
+        }
+        //设置时间间隔
+        timebase = 3;
     }
 
 
@@ -303,81 +314,70 @@ public class MainActivity extends Activity {
                             }
                         }
 
-                        // No sync, try next time
+                        // 未同步 下次再说
 
                         if (state == INIT)
                             break;
 
-                        // Reset trigger
+                        // 重置触发
 
                         if (single && trigger)
                             trigger = false;
 
-                        // FIRST: First chunk of data
-
+                    //第一次
                     case FIRST:
 
-                        // Update count
+                        // 更新计数器
 
                         count = counts[timebase];
                         length = count;
 
-                        // Copy data
-
+                        //复制数据
                         System.arraycopy(buffer, index, data, 0, size - index);
                         index = size - index;
 
-                        // If done, wait for sync again
-
+                        // 完成 重新等待
                         if (index >= count)
                             state = INIT;
 
-                            // Else get some more data next time
 
                         else
+                            //转到下一次
                             state++;
                         break;
 
-                    // NEXT: Subsequent chunks of data
-
+                    //下一次采集
                     case NEXT:
 
-                        // Copy data
-
+                        // 复制数据
                         System.arraycopy(buffer, 0, data, index, size);
                         index += size;
 
-                        // Done, wait for sync again
-
+                        // 完成 等待下次同步
                         if (index >= count)
                             state = INIT;
 
-                            // Else if last but one chunk, get last chunk next time
+                    // Else if last but one chunk, get last chunk next time
 
                         else if (index + size >= count)
                             state++;
                         break;
 
-                    // LAST: Last chunk of data
-
+                    // 最后一个数据块
                     case LAST:
-
-                        // Copy data
-
+                        // 复制数据
                         System.arraycopy(buffer, 0, data, index, count - index);
-
-                        // Wait for sync next time
-
+                        //等待下次同步
                         state = INIT;
                         break;
                 }
 
-                // Update display
+                // 更新显示
 
                 wave.postInvalidate();
             }
 
-            // Stop and release the audio recorder
+            // 停止 释放麦克风
 
             if (audioRecord != null) {
                 audioRecord.stop();
