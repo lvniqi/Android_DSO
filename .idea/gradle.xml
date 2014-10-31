@@ -9,11 +9,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/demo0" />
-            <option value="$PROJECT_DIR$/dso_demo0" />
+            <option value="$PROJECT_DIR$/GraphView-debug" />
             <option value="$PROJECT_DIR$/dso_demo1" />
             <option value="$PROJECT_DIR$/dso_demo_graphview" />
-            <option value="$PROJECT_DIR$/myapplication" />
             <option value="$PROJECT_DIR$/scope" />
           </set>
         </option>

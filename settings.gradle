@@ -1,2 +1,1 @@
-include  ':demo0', ':dso_demo0', ':dso_demo1', ':dso_demo_graphview', ':myapplication'
-include ':scope'
+include ':dso_demo1', ':dso_demo_graphview', ':scope', ':GraphView-debug'
