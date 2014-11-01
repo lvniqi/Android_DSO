@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Demos.iml" filepath="$PROJECT_DIR$/Demos.iml" />
       <module fileurl="file://$PROJECT_DIR$/GraphView-debug/GraphView-debug.iml" filepath="$PROJECT_DIR$/GraphView-debug/GraphView-debug.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo0/demo0.iml" filepath="$PROJECT_DIR$/demo0/demo0.iml" />
       <module fileurl="file://$PROJECT_DIR$/dso_demo1/dso_demo1.iml" filepath="$PROJECT_DIR$/dso_demo1/dso_demo1.iml" />
       <module fileurl="file://$PROJECT_DIR$/dso_demo_graphview/dso_demo_graphview.iml" filepath="$PROJECT_DIR$/dso_demo_graphview/dso_demo_graphview.iml" />
       <module fileurl="file://$PROJECT_DIR$/scope/scope.iml" filepath="$PROJECT_DIR$/scope/scope.iml" />
