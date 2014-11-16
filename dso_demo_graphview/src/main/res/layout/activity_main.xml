@@ -15,7 +15,7 @@
         android:layout_width="200dp"
         android:layout_height="400dp"
         android:layout_alignTop="@id/graph1"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_gravity="end">
 
         <TextView
@@ -27,8 +27,8 @@
             android:id="@+id/text_x1"
             android:layout_gravity="start"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignStart="@+id/text_x2" />
+            android:layout_alignParentRight="true"
+            android:layout_alignLeft="@+id/text_x2" />
 
         <TextView
             android:layout_width="50dp"
@@ -39,7 +39,7 @@
             android:id="@+id/text_x2"
             android:layout_gravity="end"
             android:layout_below="@+id/text_x1"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentRight="true" />
     </RelativeLayout>
 
 </RelativeLayout>
