@@ -1,1 +1,1 @@
-include ':dso_demo1', ':dso_demo_graphview', ':scope', ':GraphView-debug'
+include ':dso_demo_graphview', ':scope', ':GraphView-debug', ':surfaceview_demo0'

@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="android-gradle" name="Android-Gradle">
       <configuration>
-        <option name="GRADLE_PROJECT_PATH" value=":dso_demo1" />
+        <option name="GRADLE_PROJECT_PATH" value=":surfaceview_demo0" />
       </configuration>
     </facet>
     <facet type="android" name="Android">
@@ -81,7 +81,6 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="GraphView-3.1.3" level="project" />
   </component>
 </module>
 

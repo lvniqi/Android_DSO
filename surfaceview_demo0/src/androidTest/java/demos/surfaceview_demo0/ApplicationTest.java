@@ -1,4 +1,4 @@
-package demos.dso_demo1;
+package demos.surfaceview_demo0;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
