@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
                         Bundle bundle = new Bundle();
                         bundle = msg.getData();
                         byte [] temp_byte = bundle.getByteArray("str");
-                        float [] temp_float = ByteArrayFunction.bytesToFloat(temp_byte);
+                        float[] temp_float = ByteArrayFunction.BytesToFloat(temp_byte);
                         GraphView.GraphViewData[] data = new GraphView.GraphViewData[temp_float.length];
                         if(temp_float.length != 0) {
                             for(int i=0;i<temp_float.length;i++){

@@ -74,7 +74,7 @@ public class GraphViewUpdate implements Runnable {
         while(true){
             try{
                 loopCount++;
-                canvas = surfaceHolder.lockCanvas(new Rect(20, 0, screen_width, screen_height));
+                canvas = surfaceHolder.lockCanvas(new Rect(0, 0, screen_width, screen_height));
 
                 canvas.drawRect(0, 0, screen_width, screen_height, bgPaint);
                 canvas.drawCircle(cx, cy, BALL_R, paint);

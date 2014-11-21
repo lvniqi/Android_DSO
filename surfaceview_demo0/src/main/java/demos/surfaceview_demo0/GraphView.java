@@ -31,7 +31,7 @@ public class GraphView extends SurfaceView
     public void surfaceChanged(
             SurfaceHolder holder, int format, int width, int height) {
         update_thread.SetWidth(width);
-        update_thread.SetWidth(height);
+        update_thread.SetHeight(height);
     }
 
     @Override
