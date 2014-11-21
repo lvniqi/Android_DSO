@@ -12,96 +12,15 @@ import java.util.List;
  * holds the data, description and styles
  */
 public class GraphViewSeries {
-    /**
-     * graph series style: color and thickness
-     */
-    static public class GraphViewSeriesStyle {
-        public int color = 0xff0077cc;
-        public int thickness = 3;
-        private ValueDependentColor valueDependentColor;
-
-        public GraphViewSeriesStyle() {
-            super();
-        }
-
-        public GraphViewSeriesStyle(int color, int thickness) {
-            super();
-            this.color = color;
-            this.thickness = thickness;
-        }
-
-        public ValueDependentColor getValueDependentColor() {
-            return valueDependentColor;
-        }
-
-        /**
-         * the color depends on the value of the data.
-         * only possible in BarGraphView
-         *
-         * @param valueDependentColor
-         */
-        public void setValueDependentColor(ValueDependentColor valueDependentColor) {
-            this.valueDependentColor = valueDependentColor;
-        }
-    }
-
     final String description;
     final GraphViewSeriesStyle style;
-    private boolean show_max = false;
-    private boolean show_min = false;
-    private boolean sign_curve = false;
+    private final List<GraphView> graphViews = new ArrayList<GraphView>();
     public float series_max;
     public float series_min;
     GraphViewDataInterface[] values;
-
-    //show_max?
-    public boolean GetShowMaxFlag() {
-        return show_max;
-    }
-
-    //show_max!
-    public void SetShowMaxFlag(boolean flag) {
-        show_max = flag;
-        for (GraphView g : graphViews) {
-            g.redrawAll();
-        }
-    }
-
-    //show_min?
-    public boolean GetShowMinFlag() {
-        return show_min;
-    }
-
-    //show_min!
-    public void SetShowMinFlag(boolean flag) {
-        show_min = flag;
-        for (GraphView g : graphViews) {
-            g.redrawAll();
-        }
-    }
-
-    //sign curve?
-    public boolean GetSignCurveFlag() {
-        return sign_curve;
-    }
-
-    //sign curve!
-    public void SetSignCurveFlag(boolean flag) {
-        sign_curve = flag;
-        for (GraphView g : graphViews) {
-            g.redrawAll();
-        }
-    }
-
-    public float GetSeriesMax() {
-        return series_max;
-    }
-
-    public float GetSeriesMin() {
-        return series_min;
-    }
-
-    private final List<GraphView> graphViews = new ArrayList<GraphView>();
+    private boolean show_max = false;
+    private boolean show_min = false;
+    private boolean sign_curve = false;
 
     /**
      * create a series with predefined values
@@ -114,6 +33,73 @@ public class GraphViewSeries {
         this.values = values;
         InitMaxMin(values);
         checkValueOrder();
+    }
+
+    /**
+     * create a series with predefined options
+     *
+     * @param description the name of the series
+     * @param style       custom style. can be null for default styles
+     * @param values      the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
+     */
+    public GraphViewSeries(String description, GraphViewSeriesStyle style, GraphViewDataInterface[] values) {
+        super();
+        this.description = description;
+        if (style == null) {
+            style = new GraphViewSeriesStyle();
+        }
+        this.style = style;
+        this.values = values;
+        //init max and min
+        InitMaxMin(values);
+        checkValueOrder();
+    }
+
+    //show_max?
+    public boolean GetShowMaxFlag() {
+        return show_max;
+    }
+
+    //show_max!
+    public void SetShowMaxFlag(boolean flag) {
+        show_max = flag;
+        for (GraphView g : graphViews) {
+            //g.redrawAll();
+        }
+    }
+
+    //show_min?
+    public boolean GetShowMinFlag() {
+        return show_min;
+    }
+
+    //show_min!
+    public void SetShowMinFlag(boolean flag) {
+        show_min = flag;
+        for (GraphView g : graphViews) {
+            //g.redrawAll();
+        }
+    }
+
+    //sign curve?
+    public boolean GetSignCurveFlag() {
+        return sign_curve;
+    }
+
+    //sign curve!
+    public void SetSignCurveFlag(boolean flag) {
+        sign_curve = flag;
+        for (GraphView g : graphViews) {
+            //g.redrawAll();
+        }
+    }
+
+    public float GetSeriesMax() {
+        return series_max;
+    }
+
+    public float GetSeriesMin() {
+        return series_min;
     }
 
     //get maxmum and minmum
@@ -136,26 +122,6 @@ public class GraphViewSeries {
                 CmpMaxMin(values[i]);
             }
         }
-    }
-
-    /**
-     * create a series with predefined options
-     *
-     * @param description the name of the series
-     * @param style       custom style. can be null for default styles
-     * @param values      the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
-     */
-    public GraphViewSeries(String description, GraphViewSeriesStyle style, GraphViewDataInterface[] values) {
-        super();
-        this.description = description;
-        if (style == null) {
-            style = new GraphViewSeriesStyle();
-        }
-        this.style = style;
-        this.values = values;
-        //init max and min
-        InitMaxMin(values);
-        checkValueOrder();
     }
 
     /**
@@ -190,7 +156,7 @@ public class GraphViewSeries {
         CmpMaxMin(value);
         for (GraphView g : graphViews) {
             if (scrollToEnd) {
-                g.scrollToEnd();
+                //g.scrollToEnd();
             }
         }
     }
@@ -230,7 +196,7 @@ public class GraphViewSeries {
         // update linked graph views
         for (GraphView g : graphViews) {
             if (scrollToEnd) {
-                g.scrollToEnd();
+                //g.scrollToEnd();
             }
         }
     }
@@ -264,7 +230,7 @@ public class GraphViewSeries {
         InitMaxMin(values);
         checkValueOrder();
         for (GraphView g : graphViews) {
-            g.redrawAll();
+            //g.redrawAll();
         }
     }
 
@@ -277,6 +243,39 @@ public class GraphViewSeries {
                 }
                 lx = values[i].getX();
             }
+        }
+    }
+
+    /**
+     * graph series style: color and line_width
+     */
+    static public class GraphViewSeriesStyle {
+        public int color = 0xff0077cc;
+        public int line_width = 3;
+        private ValueDependentColor valueDependentColor;
+
+        public GraphViewSeriesStyle() {
+            super();
+        }
+
+        public GraphViewSeriesStyle(int color, int line_width) {
+            super();
+            this.color = color;
+            this.line_width = line_width;
+        }
+
+        public ValueDependentColor getValueDependentColor() {
+            return valueDependentColor;
+        }
+
+        /**
+         * the color depends on the value of the data.
+         * only possible in BarGraphView
+         *
+         * @param valueDependentColor
+         */
+        public void setValueDependentColor(ValueDependentColor valueDependentColor) {
+            this.valueDependentColor = valueDependentColor;
         }
     }
 }
