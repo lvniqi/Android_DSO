@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by lvniqi on 2014/11/18.
  */
-public class Graphview extends SurfaceView
+public class GraphView extends SurfaceView
         implements Runnable, SurfaceHolder.Callback {
 
     static final long FPS = 20;
@@ -26,7 +26,7 @@ public class Graphview extends SurfaceView
     int xx = 1, yy = 1;
     int screen_width, screen_height;
 
-    public Graphview(Context context) {
+    public GraphView(Context context) {
         super(context);
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
