@@ -2,21 +2,19 @@ package demos.surfaceview_demo0;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceView;
 import android.widget.LinearLayout;
 
 
 public class MainActivity extends Activity {
-    static demos.surfaceview_demo0.GraphView temp;
+    static demos.surfaceview_demo0.Graphview temp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         LinearLayout layout = (LinearLayout) findViewById(R.id.SurfaceView_01);
-        temp = new demos.surfaceview_demo0.GraphView(this);
+        temp = new demos.surfaceview_demo0.Graphview(this);
         layout.addView(temp);
     }
 
