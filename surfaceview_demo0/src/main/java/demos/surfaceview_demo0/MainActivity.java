@@ -10,13 +10,13 @@ import android.widget.LinearLayout;
 
 
 public class MainActivity extends Activity {
-    static Graphview temp;
+    static demos.surfaceview_demo0.GraphView temp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         LinearLayout layout = (LinearLayout) findViewById(R.id.SurfaceView_01);
-        temp = new Graphview(this);
+        temp = new demos.surfaceview_demo0.GraphView(this);
         layout.addView(temp);
     }
 
