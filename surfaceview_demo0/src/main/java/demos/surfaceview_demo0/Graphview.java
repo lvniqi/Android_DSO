@@ -52,8 +52,8 @@ public class Graphview extends SurfaceView
         long waitTime = 0;
         long startTime = System.currentTimeMillis();
 
-        while(thread != null){
-            try{
+        while (thread != null) {
+            try {
                 loopCount++;
                 canvas = surfaceHolder.lockCanvas();
 
@@ -67,16 +67,16 @@ public class Graphview extends SurfaceView
 
                 waitTime = (loopCount * FRAME_TIME) - (System.currentTimeMillis() - startTime);
 
-                if (cx>screen_width-BALL_R) xx = -1;
-                if (cy>screen_height-BALL_R) yy = -1;
-                if (cx<BALL_R) xx = 1;
-                if (cy<BALL_R) yy = 1;
+                if (cx > screen_width - BALL_R) xx = -1;
+                if (cy > screen_height - BALL_R) yy = -1;
+                if (cx < BALL_R) xx = 1;
+                if (cy < BALL_R) yy = 1;
 
-                if( waitTime > 0 ){
+                if (waitTime > 0) {
                     Thread.sleep(waitTime);
                 }
+            } catch (Exception e) {
             }
-            catch(Exception e){}
         }
     }
 
