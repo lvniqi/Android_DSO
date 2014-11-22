@@ -7,6 +7,7 @@ package demos.surfaceview_demo0;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
@@ -17,18 +18,15 @@ import android.view.SurfaceHolder;
  * Created by lvniqi on 2014/11/9.
  */
 public class GraphViewUpdate implements Runnable {
-    static final long FPS = 24;
-    static final long FRAME_TIME = 1000 / FPS;
-    static final int BALL_R = 50;
-    int cx = BALL_R+150, cy = BALL_R;
-    int xx = 30, yy = 30;
+    static final int LENGTH = 250;
+    static final int WAITIME = 500;
     int screen_width, screen_height;
+    int j = 0;
+    private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
-
     //服务函数
     private Handler mHandler;
-
     //创建
     GraphViewUpdate(SurfaceHolder Holder){
         surfaceHolder = Holder;
@@ -38,6 +36,7 @@ public class GraphViewUpdate implements Runnable {
                     case DefinedMessages.ADD_NEW_DATA:
                         break;
                 }
+                HANDLE_COUNT++;
                 super.handleMessage(msg);
             }
         };
@@ -55,69 +54,47 @@ public class GraphViewUpdate implements Runnable {
 
     @Override
     public void run() {
-
-        Canvas canvas = null;
-        Paint paint = new Paint();
-        Paint bgPaint = new Paint();
-
-        // Background
-        bgPaint.setStyle(Paint.Style.FILL);
-        bgPaint.setColor(Color.BLACK);
-        // Ball
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.RED);
-
-        paint.setTextSize(200);
-
-        long loopCount = 0;
-        long waitTime = 0;
-        long startTime = System.currentTimeMillis();
-
         while(true){
             try{
-                loopCount++;
-                canvas = surfaceHolder.lockCanvas(new Rect(0, 0, screen_width, screen_height));
-                canvas.drawRect(0, 0, screen_width, screen_height, bgPaint);
-                canvas.drawCircle(cx, cy, BALL_R, paint);
-                canvas.drawText(String.valueOf(waitTime), 20, 200, paint);
-                cx += xx;
-                cy += yy;
-
-                surfaceHolder.unlockCanvasAndPost(canvas);
-
-                waitTime = (loopCount * FRAME_TIME) - (System.currentTimeMillis() - startTime);
-
-                if (cx>screen_width-BALL_R) xx = -xx;
-                if (cy>screen_height-BALL_R) yy = -yy;
-                if (cx<BALL_R) xx = Math.abs(xx);
-                if (cy<BALL_R) yy = Math.abs(yy);
-
-                if( waitTime > 0 ){
-                    Thread.sleep(waitTime);
+                j++;
+                double v = 0;
+                int[] a = new int[LENGTH];
+                for (int i = 0; i < LENGTH; i++) {
+                    a[i] = (int) (100 * Math.sin((double) (v + j))) + 200;
+                    v += 0.05;
+                    v += 0.05;
                 }
+                DrawLine(a);
+                Thread.sleep(WAITIME);
             }
             catch(Exception e){}
         }
     }
 
     private void DrawLine(int[] data) {
-        Canvas canvas = null;
+        Canvas canvas = surfaceHolder.lockCanvas(new Rect(0, 0, screen_width, screen_height));
         Paint paint = new Paint();
         Paint bgPaint = new Paint();
-
+        Path mpath = new Path();
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setColor(Color.YELLOW);
+        paint.setStrokeWidth(3);
+        paint.setAntiAlias(true);
         // Background
-        bgPaint.setStyle(Paint.Style.FILL);
         bgPaint.setColor(Color.BLACK);
         // Ball
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.RED);
-        paint.setStrokeWidth(5);
-        canvas = surfaceHolder.lockCanvas(new Rect(0, 0, screen_width, screen_height));
+
+        mpath.moveTo(0, 0);
         canvas.drawRect(0, 0, screen_width, screen_height, bgPaint);
-        for (int i = 0; i < data.length - 1; i++) {
-            canvas.drawLine(i, data[i], i + 1, data[i + 1], paint);
+        for (int i = 1; i < data.length; i++) {
+            canvas.drawLine((i - 1), data[i - 1], i, data[i], paint);
         }
         surfaceHolder.unlockCanvasAndPost(canvas);
     }
+
+    private void DrawGrid() {
+    }
+
+    ;
 }
 
