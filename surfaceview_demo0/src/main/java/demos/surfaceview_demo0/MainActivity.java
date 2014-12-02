@@ -1,21 +1,29 @@
 package demos.surfaceview_demo0;
 
 import android.app.Activity;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 
 public class MainActivity extends Activity {
-    static demos.surfaceview_demo0.GraphView temp;
+    static GraphView graphView_temp;
+    static GridView gridView_temp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        LinearLayout layout = (LinearLayout) findViewById(R.id.SurfaceView_01);
-        temp = new demos.surfaceview_demo0.GraphView(this);
-        layout.addView(temp);
+        FrameLayout graphView_layout = (FrameLayout) findViewById(R.id.SurfaceView_01);
+        FrameLayout grid_layout = (FrameLayout) findViewById(R.id.GridView_01);
+        graphView_temp = new GraphView(this);
+        gridView_temp = new GridView(this);
+        graphView_temp.setZOrderOnTop(true);// 这句不能少
+        graphView_temp.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        graphView_layout.addView(graphView_temp);
+        grid_layout.addView(gridView_temp);
+        gridView_temp.postInvalidate();
     }
 
 

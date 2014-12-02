@@ -11,14 +11,14 @@ public class GraphView extends SurfaceView
         implements SurfaceHolder.Callback {
 
     Thread thread;
-    GraphViewUpdate update_thread;
+    GraphViewSeriesUpdate update_thread;
 
     public GraphView(Context context) {
         super(context);
         SurfaceHolder surfaceHolder;
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
-        update_thread = new GraphViewUpdate(surfaceHolder);
+        update_thread = new GraphViewSeriesUpdate(surfaceHolder);
     }
 
     @Override
