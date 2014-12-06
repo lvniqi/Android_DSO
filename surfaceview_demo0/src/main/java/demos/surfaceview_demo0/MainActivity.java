@@ -1,7 +1,6 @@
 package demos.surfaceview_demo0;
 
 import android.app.Activity;
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,21 +8,13 @@ import android.widget.FrameLayout;
 
 
 public class MainActivity extends Activity {
-    static GraphView graphView_temp;
-    static GridView gridView_temp;
+    static GraphView graphView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FrameLayout graphView_layout = (FrameLayout) findViewById(R.id.SurfaceView_01);
-        FrameLayout grid_layout = (FrameLayout) findViewById(R.id.GridView_01);
-        graphView_temp = new GraphView(this);
-        gridView_temp = new GridView(this);
-        graphView_temp.setZOrderOnTop(true);// 这句不能少
-        graphView_temp.getHolder().setFormat(PixelFormat.TRANSPARENT);
-        graphView_layout.addView(graphView_temp);
-        grid_layout.addView(gridView_temp);
-        gridView_temp.postInvalidate();
+        graphView = new GraphView(this);
+        ((FrameLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
     }
 
 

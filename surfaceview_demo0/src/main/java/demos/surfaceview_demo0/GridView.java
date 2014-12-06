@@ -25,23 +25,134 @@ public class GridView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mygrid.SetWidth(getWidth());
-        mygrid.SetHeight(getHeight());
+        mygrid.setTop(100);
+        mygrid.setLeft(100);
+        mygrid.setWidth(getWidth() - 200);
+        mygrid.setHeight(getHeight() - 200);
+        mygrid.setBorder(50);
         mygrid.DrawRect(canvas);
         mygrid.DrawGrid(canvas);
         Paint paint = new Paint();
         paint.setTextSize(50);
-        paint.setColor(Color.GREEN);
+        paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        for (Float i : mygrid.GetxAxis()) {
-            for (Float j : mygrid.GetyAxis()) {
+        ArrayList<String> temp = new ArrayList<String>();
+        for (int i = 0; i < 6; i++) {
+            temp.add(i + "ms");
+        }
+        mygrid.getxAxis().setLabel(temp);
+        mygrid.getxAxis().DrawAxis(canvas, mygrid.GetTop() + mygrid.GetHeight() + mygrid.getxAxis().getTxpaint().getTextSize(), true);
+        mygrid.getyAxis().setLabel(temp);
+        mygrid.getyAxis().DrawAxis(canvas, mygrid.GetLeft(), false);
+        /*for (Float i : mygrid.getxAxis().getAxis()) {
+            for (Float j : mygrid.getyAxis().getAxis()) {
                 canvas.drawText("50ms", i, j, paint);
             }
-        }
+        }*/
     }
 
     public Grid GetGrid() {
         return mygrid;
+    }
+}
+
+/**
+ * Axis_Label
+ * 坐标轴类
+ *
+ * @see demos.surfaceview_demo0.Axis_Label
+ */
+class Axis_Label {
+    private ArrayList<Float> axis;
+    private ArrayList<String> label;
+    private Paint Txpaint;
+
+    /**
+     * 坐标位置
+     *
+     * @param axis
+     */
+    Axis_Label(ArrayList<Float> axis) {
+        this.axis = axis;
+        Txpaint = new Paint();
+        Txpaint.setTextSize(30);
+        Txpaint.setColor(Color.WHITE);
+        label = new ArrayList<String>();
+    }
+
+    /**
+     * 得到坐标字符串
+     *
+     * @return label
+     */
+    public ArrayList<String> getLabel() {
+        return label;
+    }
+
+    /**
+     * 设置坐标值符串
+     *
+     * @param label
+     */
+    public void setLabel(ArrayList<String> label) {
+        this.label = label;
+    }
+
+    /**
+     * 得到坐标位置
+     *
+     * @return
+     */
+    public ArrayList<Float> getAxis() {
+        return axis;
+    }
+
+    /**
+     * 设置坐标位置
+     *
+     * @param axis
+     */
+    public void setAxis(ArrayList<Float> axis) {
+        this.axis = axis;
+    }
+
+    /**
+     * 得到画笔颜色
+     *
+     * @return Txpaint
+     */
+    public Paint getTxpaint() {
+        return Txpaint;
+    }
+
+    /**
+     * 设置画笔颜色
+     *
+     * @param paint
+     */
+    public void setTxpaint(Paint paint) {
+        Txpaint = paint;
+    }
+
+    public void DrawAxis(Canvas canvas, float otherSide, boolean isX) {
+        if (isX) {
+            Txpaint.setTextAlign(Paint.Align.LEFT);
+            canvas.drawText(label.get(0), axis.get(0), otherSide, Txpaint);
+            Txpaint.setTextAlign(Paint.Align.CENTER);
+            for (int i = 1; i < axis.size() - 1; i++) {
+
+                canvas.drawText(label.get(i), axis.get(i), otherSide, Txpaint);
+            }
+            Txpaint.setTextAlign(Paint.Align.RIGHT);
+            canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), otherSide, Txpaint);
+        } else {
+
+            Txpaint.setTextAlign(Paint.Align.RIGHT);
+            for (int i = 0; i < axis.size(); i++) {
+                canvas.drawText(label.get(i), otherSide, axis.get(i), Txpaint);
+            }
+        }
+
     }
 }
 
@@ -54,49 +165,44 @@ public class GridView extends View {
 class Grid extends BackGround {
     private int div = 5;
     private Paint gPaint;
-    private ArrayList<Float> xAxis;
-    private ArrayList<Float> yAxis;
+    private Axis_Label xAxis;
+    private Axis_Label yAxis;
+    private int border = 10;
 
     Grid(int left, int top, int width, int height) {
         super(left, top, width, height);
-        xAxis = new ArrayList<Float>();
-        yAxis = new ArrayList<Float>();
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.RED);
+        gPaint.setColor(Color.WHITE);
     }
 
     Grid(Rect rect) {
         super(rect);
-        xAxis = new ArrayList<Float>();
-        yAxis = new ArrayList<Float>();
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.RED);
+        gPaint.setColor(Color.WHITE);
     }
 
     Grid() {
         super();
-        xAxis = new ArrayList<Float>();
-        yAxis = new ArrayList<Float>();
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.RED);
+        gPaint.setColor(Color.WHITE);
     }
 
-    public ArrayList<Float> GetxAxis() {
+    public Axis_Label getxAxis() {
         return xAxis;
     }
 
-    public ArrayList<Float> GetyAxis() {
+    public Axis_Label getyAxis() {
         return yAxis;
     }
 
-    public void SetGridColor(int color) {
+    public void setGridColor(int color) {
         gPaint.setColor(color);
     }
 
-    public void SetGirdPoint(Paint paint) {
+    public void setGirdPoint(Paint paint) {
         this.gPaint = paint;
     }
 
@@ -108,8 +214,17 @@ class Grid extends BackGround {
         return gPaint;
     }
 
-    public void SetDiv(int div) {
+    public void setDiv(int div) {
         this.div = div;
+    }
+
+    public int getBorder() {
+        return border;
+    }
+
+    public void setBorder(int border) {
+        this.border = border;
+        this.setHeight(this.GetHeight() - border);
     }
 
     /**
@@ -118,13 +233,13 @@ class Grid extends BackGround {
      * @param canvas
      */
     public void DrawRect(Canvas canvas) {
-        gPaint.setStrokeWidth(5);
+        gPaint.setStrokeWidth(2);
         gPaint.setAlpha(255);
         //外边框
-        canvas.drawLine(left, top + 2, left + width, top + 2, gPaint);
-        canvas.drawLine(left, top + height - 2, left + width, top + height - 2, gPaint);
-        canvas.drawLine(left + 2, top, left + 2, top + height, gPaint);
-        canvas.drawLine(left + width - 2, top, left + width - 2, top + height, gPaint);
+        canvas.drawLine(left, top, left + width, top, gPaint);
+        canvas.drawLine(left, top + height, left + width, top + height, gPaint);
+        canvas.drawLine(left, top, left, top + height, gPaint);
+        canvas.drawLine(left + width, top, left + width, top + height, gPaint);
     }
 
     public void DrawXlabel(Canvas canvas) {
@@ -141,19 +256,25 @@ class Grid extends BackGround {
         gPaint.setStrokeWidth(1);
         gPaint.setAlpha(100);
         //纵向线
-        xAxis = new ArrayList<Float>();
-        yAxis = new ArrayList<Float>();
+        ArrayList<Float> xList = new ArrayList<Float>();
+        ArrayList<Float> yList = new ArrayList<Float>();
         float div_x = ((float) width) / div;
+        xList.add((float) left);
         for (float x = left + div_x; x < width; x += div_x) {
-            xAxis.add(x);
+            xList.add(x);
             canvas.drawLine(x, top, x, top + height, gPaint);
         }
+        xList.add((float) (left + width));
         //横向线
+        yList.add((float) top);
         float div_y = ((float) height) / div;
         for (float y = top + div_y; y < height; y += div_y) {
-            yAxis.add(y);
+            yList.add(y);
             canvas.drawLine(left, y, left + width, y, gPaint);
         }
+        yList.add((float) (top + height));
+        xAxis = new Axis_Label(xList);
+        yAxis = new Axis_Label(yList);
     }
 
     public void DrawPartGrid(int left, int top, int width, int height, Canvas canvas) {
@@ -231,24 +352,28 @@ class BackGround {
     }
 
     BackGround() {
+        this.left = 0;
+        this.top = 0;
+        this.width = 0;
+        this.height = 0;
         bgPaint = new Paint();
         bgPaint.setStrokeCap(Paint.Cap.ROUND);
-        bgPaint.setColor(Color.RED);
+        bgPaint.setColor(Color.WHITE);
     }
 
-    public void SetWidth(int width) {
+    public void setWidth(int width) {
         this.width = width;
     }
 
-    public void SetHeight(int height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 
-    public void SetLeft(int left) {
+    public void setLeft(int left) {
         this.left = left;
     }
 
-    public void SetTop(int top) {
+    public void setTop(int top) {
         this.top = top;
     }
 
@@ -268,11 +393,11 @@ class BackGround {
         return top;
     }
 
-    public void SetBgColor(int color) {
+    public void setBgColor(int color) {
         bgPaint.setColor(color);
     }
 
-    public void SetBgPoint(Paint paint) {
+    public void setBgPoint(Paint paint) {
         this.bgPaint = paint;
     }
 

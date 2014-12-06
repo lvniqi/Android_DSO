@@ -18,12 +18,12 @@ import android.view.SurfaceHolder;
 /**
  * Created by lvniqi on 2014/11/9.
  * <p/>
- * GraphViewSeriesUpdate
+ * SeriesViewUpdate
  * 用于更新GraphView
  *
  * @see java.lang.Runnable
  */
-public class GraphViewSeriesUpdate implements Runnable {
+public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 500;
     static final int WAITIME = 20;
     int screen_width, screen_height;
@@ -35,7 +35,7 @@ public class GraphViewSeriesUpdate implements Runnable {
     private Handler mHandler;
 
     //创建
-    GraphViewSeriesUpdate(SurfaceHolder Holder) {
+    SeriesViewUpdate(SurfaceHolder Holder) {
         surfaceHolder = Holder;
 
         mHandler = new Handler() {
@@ -56,12 +56,12 @@ public class GraphViewSeriesUpdate implements Runnable {
     }
 
     //设置宽度
-    public void SetWidth(int width) {
+    public void setWidth(int width) {
         screen_width = width;
     }
 
     //设置高度
-    public void SetHeight(int height) {
+    public void setHeight(int height) {
         screen_height = height;
     }
 
@@ -114,21 +114,3 @@ public class GraphViewSeriesUpdate implements Runnable {
     }
 }
 
-
-class Labels {
-    private Paint TxPaint;
-
-    Labels() {
-        TxPaint.setColor(Color.YELLOW);
-        TxPaint.setTextAlign(Paint.Align.CENTER);
-        TxPaint.setTextSize(10);
-    }
-
-    public void SetTxPoint(Paint paint) {
-        this.TxPaint = paint;
-    }
-
-    public void DrawLabel(Canvas canvas) {
-        canvas.drawColor(TxPaint.getColor());
-    }
-}
