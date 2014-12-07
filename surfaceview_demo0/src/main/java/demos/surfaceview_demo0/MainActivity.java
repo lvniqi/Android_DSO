@@ -1,6 +1,7 @@
 package demos.surfaceview_demo0;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,14 +10,20 @@ import android.widget.FrameLayout;
 
 public class MainActivity extends Activity {
     static GraphView graphView;
+    private static Context mContext;
+
+    public static Context getmContext() {
+        return mContext;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         graphView = new GraphView(this);
         ((FrameLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

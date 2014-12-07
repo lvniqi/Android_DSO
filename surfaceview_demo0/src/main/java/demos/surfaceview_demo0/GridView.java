@@ -41,120 +41,19 @@ public class GridView extends View {
             temp.add(i + "ms");
         }
         mygrid.getxAxis().setLabel(temp);
-        mygrid.getxAxis().DrawAxis(canvas, mygrid.GetTop() + mygrid.GetHeight() + mygrid.getxAxis().getTxpaint().getTextSize(), true);
+        mygrid.getxAxis().setisX(true);
+        mygrid.getxAxis().setOtherSide(mygrid.GetTop() + mygrid.GetHeight() + mygrid.getxAxis().getPaint().getTextSize());
+        //mygrid.getxAxis().postInvalidate();
         mygrid.getyAxis().setLabel(temp);
         mygrid.getyAxis().DrawAxis(canvas, mygrid.GetLeft(), false);
-        /*for (Float i : mygrid.getxAxis().getAxis()) {
-            for (Float j : mygrid.getyAxis().getAxis()) {
-                canvas.drawText("50ms", i, j, paint);
-            }
-        }*/
     }
 
-    public Grid GetGrid() {
+    public Grid getGrid() {
         return mygrid;
     }
 }
 
-/**
- * Axis_Label
- * 坐标轴类
- *
- * @see demos.surfaceview_demo0.Axis_Label
- */
-class Axis_Label {
-    private ArrayList<Float> axis;
-    private ArrayList<String> label;
-    private Paint Txpaint;
 
-    /**
-     * 坐标位置
-     *
-     * @param axis
-     */
-    Axis_Label(ArrayList<Float> axis) {
-        this.axis = axis;
-        Txpaint = new Paint();
-        Txpaint.setTextSize(30);
-        Txpaint.setColor(Color.WHITE);
-        label = new ArrayList<String>();
-    }
-
-    /**
-     * 得到坐标字符串
-     *
-     * @return label
-     */
-    public ArrayList<String> getLabel() {
-        return label;
-    }
-
-    /**
-     * 设置坐标值符串
-     *
-     * @param label
-     */
-    public void setLabel(ArrayList<String> label) {
-        this.label = label;
-    }
-
-    /**
-     * 得到坐标位置
-     *
-     * @return
-     */
-    public ArrayList<Float> getAxis() {
-        return axis;
-    }
-
-    /**
-     * 设置坐标位置
-     *
-     * @param axis
-     */
-    public void setAxis(ArrayList<Float> axis) {
-        this.axis = axis;
-    }
-
-    /**
-     * 得到画笔颜色
-     *
-     * @return Txpaint
-     */
-    public Paint getTxpaint() {
-        return Txpaint;
-    }
-
-    /**
-     * 设置画笔颜色
-     *
-     * @param paint
-     */
-    public void setTxpaint(Paint paint) {
-        Txpaint = paint;
-    }
-
-    public void DrawAxis(Canvas canvas, float otherSide, boolean isX) {
-        if (isX) {
-            Txpaint.setTextAlign(Paint.Align.LEFT);
-            canvas.drawText(label.get(0), axis.get(0), otherSide, Txpaint);
-            Txpaint.setTextAlign(Paint.Align.CENTER);
-            for (int i = 1; i < axis.size() - 1; i++) {
-
-                canvas.drawText(label.get(i), axis.get(i), otherSide, Txpaint);
-            }
-            Txpaint.setTextAlign(Paint.Align.RIGHT);
-            canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), otherSide, Txpaint);
-        } else {
-
-            Txpaint.setTextAlign(Paint.Align.RIGHT);
-            for (int i = 0; i < axis.size(); i++) {
-                canvas.drawText(label.get(i), otherSide, axis.get(i), Txpaint);
-            }
-        }
-
-    }
-}
 
 /**
  * Grid
@@ -165,8 +64,8 @@ class Axis_Label {
 class Grid extends BackGround {
     private int div = 5;
     private Paint gPaint;
-    private Axis_Label xAxis;
-    private Axis_Label yAxis;
+    private AxisView xAxis;
+    private AxisView yAxis;
     private int border = 10;
 
     Grid(int left, int top, int width, int height) {
@@ -190,12 +89,20 @@ class Grid extends BackGround {
         gPaint.setColor(Color.WHITE);
     }
 
-    public Axis_Label getxAxis() {
+    public AxisView getxAxis() {
         return xAxis;
     }
 
-    public Axis_Label getyAxis() {
+    public void setxAxis(AxisView xAxis) {
+        this.xAxis = xAxis;
+    }
+
+    public AxisView getyAxis() {
         return yAxis;
+    }
+
+    public void setyAxis(AxisView yAxis) {
+        this.yAxis = yAxis;
     }
 
     public void setGridColor(int color) {
@@ -260,7 +167,7 @@ class Grid extends BackGround {
         ArrayList<Float> yList = new ArrayList<Float>();
         float div_x = ((float) width) / div;
         xList.add((float) left);
-        for (float x = left + div_x; x < width; x += div_x) {
+        for (float x = left + div_x; x < left + width; x += div_x) {
             xList.add(x);
             canvas.drawLine(x, top, x, top + height, gPaint);
         }
@@ -268,13 +175,13 @@ class Grid extends BackGround {
         //横向线
         yList.add((float) top);
         float div_y = ((float) height) / div;
-        for (float y = top + div_y; y < height; y += div_y) {
+        for (float y = top + div_y; y < top + height; y += div_y) {
             yList.add(y);
             canvas.drawLine(left, y, left + width, y, gPaint);
         }
         yList.add((float) (top + height));
-        xAxis = new Axis_Label(xList);
-        yAxis = new Axis_Label(yList);
+        xAxis.setAxis(xList);
+        yAxis.setAxis(yList);
     }
 
     public void DrawPartGrid(int left, int top, int width, int height, Canvas canvas) {
