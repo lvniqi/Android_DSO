@@ -119,9 +119,9 @@ class AxisView extends View {
             paint.setTextAlign(Paint.Align.RIGHT);
             canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), otherSide, paint);
         } else {
-
             paint.setTextAlign(Paint.Align.RIGHT);
-            for (int i = 0; i < axis.size(); i++) {
+            canvas.drawText(label.get(0), otherSide, axis.get(0) + paint.getTextSize() / 2, paint);
+            for (int i = 1; i < axis.size(); i++) {
                 canvas.drawText(label.get(i), otherSide, axis.get(i), paint);
             }
         }

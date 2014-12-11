@@ -26,18 +26,24 @@ import android.view.SurfaceHolder;
 public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 500;
     static final int WAITIME = 20;
-    int screen_width, screen_height;
+    static private boolean Sizechanged;
     int j = 0;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
     //服务函数
     private Handler mHandler;
-
+    //左侧留白
+    private int left = 0;
+    //底部留白
+    private int yBorder = 0;
+    private int top = 0;
+    private int width = 0;
+    private int height = 0;
     //创建
     SeriesViewUpdate(SurfaceHolder Holder) {
         surfaceHolder = Holder;
-
+        Sizechanged = false;
         mHandler = new Handler() {
             /**
              * 消息接收函数
@@ -57,14 +63,36 @@ public class SeriesViewUpdate implements Runnable {
 
     //设置宽度
     public void setWidth(int width) {
-        screen_width = width;
+        this.width = width;
     }
 
     //设置高度
     public void setHeight(int height) {
-        screen_height = height;
+        this.height = height;
     }
 
+    //设置左侧宽度
+    public void setLeft(int left) {
+        if (this.left != left) {
+            this.left = left;
+            Sizechanged = true;
+        }
+    }
+
+    //设置顶部
+    public void setTop(int top) {
+        if (this.top != top) {
+            this.top = top;
+            Sizechanged = true;
+        }
+    }
+
+    public void setyBorder(int yBorder) {
+        if (this.yBorder != yBorder) {
+            this.yBorder = yBorder;
+            Sizechanged = true;
+        }
+    }
     /**
      * Run
      * 运行函数
@@ -74,13 +102,17 @@ public class SeriesViewUpdate implements Runnable {
     public void run() {
         while (true) {
             try {
-                Canvas canvas = surfaceHolder.lockCanvas(new Rect(0, 0, screen_width, screen_height));
-
+                Canvas canvas;
+                if (!Sizechanged) {
+                    canvas = surfaceHolder.lockCanvas(new Rect(left, 0, width - left, height - yBorder));
+                } else {
+                    canvas = surfaceHolder.lockCanvas();
+                }
                 j++;
                 double v = 0;
                 int[] a = new int[LENGTH];
                 for (int i = 0; i < LENGTH; i++) {
-                    a[i] = (int) (100 * Math.sin((double) (v + j))) + 200;
+                    a[i] = (int) (100 * Math.sin((double) (v + 0.1 * j))) + (int) (0.05 * j);
                     v += 0.05;
                 }
                 clear(canvas);
@@ -92,6 +124,11 @@ public class SeriesViewUpdate implements Runnable {
         }
     }
 
+    /**
+     * 清除画布上的所有东西
+     *
+     * @param canvas
+     */
     private void clear(Canvas canvas) {
         Paint paint = new Paint();
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
@@ -99,6 +136,11 @@ public class SeriesViewUpdate implements Runnable {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
     }
 
+    /**
+     * 绘制曲线
+     * @param data
+     * @param canvas
+     */
     private void DrawLines(int[] data, Canvas canvas) {
 
         Paint paint = new Paint();
@@ -107,10 +149,45 @@ public class SeriesViewUpdate implements Runnable {
         paint.setColor(Color.YELLOW);
         paint.setStrokeWidth(3);
         paint.setAntiAlias(true);
-        // Background
-        for (int i = 1; i < data.length; i++) {
+        //偏移
+        canvas.translate(left, top);
+        //快速修正后
+        int[] afterFix = FastFix(data, 4);
+        /*for (int i = 1; i < data.length; i++) {
             canvas.drawLine((i - 1), data[i - 1], i, data[i], paint);
+        }*/
+
+        for (int i = 1; i < afterFix.length; i++) {
+            canvas.drawLine(4 * (i - 1), afterFix[i - 1], 4 * i, afterFix[i], paint);
         }
+
+    }
+
+    private int[] FastFix(int[] data, int step) {
+        if (step < 2) {
+            return data;
+        }
+        int count = data.length / step;
+        int[] data_out = new int[count];
+
+        for (int i = 0; i < count; i++) {
+            int max = i * step, min = i * step;
+            for (int j = i * step; j < i * step + step; j++) {
+                if (data[j] > data[max]) {
+                    max = j;
+                } else if (data[j] < data[min]) {
+                    min = j;
+                }
+            }
+            if (max > min) {
+                data_out[i] = data[min];
+                //data_out[i/step*2+1] = data[max];
+            } else {
+                data_out[i] = data[max];
+                //data_out[i/step*2+1] = data[min];
+            }
+        }
+        return data_out;
     }
 }
 

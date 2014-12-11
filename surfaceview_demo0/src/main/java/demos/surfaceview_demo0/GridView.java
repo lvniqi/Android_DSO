@@ -16,20 +16,22 @@ import java.util.ArrayList;
  */
 public class GridView extends View {
     private Grid mygrid;
-
+    private ArrayList<SeriesViewUpdate> seriesViewUpdates;
     GridView(Context context) {
         super(context);
         mygrid = new Grid();
+        seriesViewUpdates = new ArrayList<SeriesViewUpdate>();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mygrid.setTop(100);
-        mygrid.setLeft(100);
-        mygrid.setWidth(getWidth() - 200);
-        mygrid.setHeight(getHeight() - 200);
-        mygrid.setBorder(50);
+        mygrid.setTop(150);
+        mygrid.setLeft(5);
+        mygrid.setWidth(getWidth() - 10);
+        mygrid.setHeight(getHeight() - 150);
+        mygrid.setyBorder(50);
+        mygrid.setxBorder(80);
         mygrid.DrawRect(canvas);
         mygrid.DrawGrid(canvas);
         Paint paint = new Paint();
@@ -42,12 +44,30 @@ public class GridView extends View {
         }
         mygrid.getxAxis().setLabel(temp);
         mygrid.getxAxis().setisX(true);
-        mygrid.getxAxis().setOtherSide(mygrid.GetTop() + mygrid.GetHeight() + mygrid.getxAxis().getPaint().getTextSize());
-        //mygrid.getxAxis().postInvalidate();
+        mygrid.getxAxis().setOtherSide(mygrid.getTop() + mygrid.getHeight() + mygrid.getxAxis().getPaint().getTextSize());
         mygrid.getyAxis().setLabel(temp);
-        mygrid.getyAxis().DrawAxis(canvas, mygrid.GetLeft(), false);
+        mygrid.getyAxis().setisX(false);
+        mygrid.getyAxis().setOtherSide(mygrid.getLeft());
+        for (SeriesViewUpdate x : seriesViewUpdates) {
+            x.setLeft(getxBorder() + 5);
+            x.setyBorder(getyBorder());
+            x.setTop(mygrid.getTop());
+            x.setWidth(mygrid.getWidth());
+            x.setHeight(mygrid.getHeight());
+        }
     }
 
+    public int getxBorder() {
+        return mygrid.getxBorder();
+    }
+
+    public ArrayList<SeriesViewUpdate> getSeriesViewUpdates() {
+        return seriesViewUpdates;
+    }
+
+    public int getyBorder() {
+        return mygrid.getyBorder();
+    }
     public Grid getGrid() {
         return mygrid;
     }
@@ -66,8 +86,8 @@ class Grid extends BackGround {
     private Paint gPaint;
     private AxisView xAxis;
     private AxisView yAxis;
-    private int border = 10;
-
+    private int yBorder;
+    private int xBorder;
     Grid(int left, int top, int width, int height) {
         super(left, top, width, height);
         gPaint = new Paint();
@@ -105,16 +125,16 @@ class Grid extends BackGround {
         this.yAxis = yAxis;
     }
 
-    public void setGridColor(int color) {
-        gPaint.setColor(color);
-    }
-
     public void setGirdPoint(Paint paint) {
         this.gPaint = paint;
     }
 
-    public int GetGridColor() {
+    public int getGridColor() {
         return gPaint.getColor();
+    }
+
+    public void setGridColor(int color) {
+        gPaint.setColor(color);
     }
 
     public Paint GeGridtPoint() {
@@ -125,13 +145,23 @@ class Grid extends BackGround {
         this.div = div;
     }
 
-    public int getBorder() {
-        return border;
+    public int getyBorder() {
+        return yBorder;
     }
 
-    public void setBorder(int border) {
-        this.border = border;
-        this.setHeight(this.GetHeight() - border);
+    public void setyBorder(int yBorder) {
+        this.yBorder = yBorder;
+        this.setHeight(this.getHeight() - yBorder);
+    }
+
+    public int getxBorder() {
+        return xBorder;
+    }
+
+    public void setxBorder(int xBorder) {
+        this.xBorder = xBorder;
+        this.setLeft(left + xBorder);
+        this.setWidth(width - xBorder);
     }
 
     /**
@@ -268,48 +298,48 @@ class BackGround {
         bgPaint.setColor(Color.WHITE);
     }
 
+    public int getWidth() {
+        return width;
+    }
+
     public void setWidth(int width) {
         this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     public void setHeight(int height) {
         this.height = height;
     }
 
+    public int getLeft() {
+        return left;
+    }
+
     public void setLeft(int left) {
         this.left = left;
+    }
+
+    public int getTop() {
+        return top;
     }
 
     public void setTop(int top) {
         this.top = top;
     }
 
-    public int GetWidth() {
-        return width;
-    }
-
-    public int GetHeight() {
-        return height;
-    }
-
-    public int GetLeft() {
-        return left;
-    }
-
-    public int GetTop() {
-        return top;
-    }
-
-    public void setBgColor(int color) {
-        bgPaint.setColor(color);
-    }
-
     public void setBgPoint(Paint paint) {
         this.bgPaint = paint;
     }
 
-    public int GetBgColor() {
+    public int getBgColor() {
         return bgPaint.getColor();
+    }
+
+    public void setBgColor(int color) {
+        bgPaint.setColor(color);
     }
 
     public Paint GeBgtPoint() {

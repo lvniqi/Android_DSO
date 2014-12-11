@@ -24,8 +24,8 @@ public class SeriesView extends SurfaceView
     @Override
     public void surfaceChanged(
             SurfaceHolder holder, int format, int width, int height) {
-        update_thread.setWidth(width);
-        update_thread.setHeight(height);
+        //update_thread.setWidth(width);
+        //update_thread.setHeight(height);
     }
 
     @Override
@@ -37,5 +37,10 @@ public class SeriesView extends SurfaceView
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         thread = null;
+    }
+
+    //得到更新进程
+    public SeriesViewUpdate getUpdate_thread() {
+        return update_thread;
     }
 }
