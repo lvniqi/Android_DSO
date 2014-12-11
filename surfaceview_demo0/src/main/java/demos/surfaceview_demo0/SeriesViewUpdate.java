@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.SurfaceHolder;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by lvniqi on 2014/11/9.
@@ -41,6 +43,8 @@ public class SeriesViewUpdate implements Runnable {
     private int top = 0;
     private int width = 0;
     private int height = 0;
+    private int movex = 0;
+    private int movey = 0;
     private boolean Sizechanged;
     //创建
     SeriesViewUpdate(SurfaceHolder Holder) {
@@ -179,6 +183,13 @@ public class SeriesViewUpdate implements Runnable {
         }
     }
 
+    /**
+     * 快速绘线设置函数
+     *
+     * @param data
+     * @param step
+     * @return data_out
+     */
     private int[] FastFix(int[] data, int step) {
         if (step < 2) {
             return data;
@@ -204,5 +215,36 @@ public class SeriesViewUpdate implements Runnable {
         return data_out;
     }
 
+    /**
+     * 设置x轴坐标
+     *
+     * @param temp
+     * @return
+     */
+    public boolean setXlabel(ArrayList<String> temp) {
+        if (xAxis != null && xAxis.getAxis().size() == temp.size()) {
+            xAxis.setLabel(temp);
+            xAxis.postInvalidate();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 设置y轴坐标
+     *
+     * @param temp
+     * @return
+     */
+    public boolean setYlabel(ArrayList<String> temp) {
+        if (yAxis != null && yAxis.getAxis().size() == temp.size()) {
+            yAxis.setLabel(temp);
+            yAxis.postInvalidate();
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
