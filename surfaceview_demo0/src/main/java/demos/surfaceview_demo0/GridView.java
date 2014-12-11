@@ -50,10 +50,11 @@ public class GridView extends View {
         mygrid.getyAxis().setOtherSide(mygrid.getLeft());
         for (SeriesViewUpdate x : seriesViewUpdates) {
             x.setLeft(getxBorder() + 5);
-            x.setyBorder(getyBorder());
             x.setTop(mygrid.getTop());
             x.setWidth(mygrid.getWidth());
             x.setHeight(mygrid.getHeight());
+            x.setxAxis(mygrid.getxAxis());
+            x.setyAxis(mygrid.getyAxis());
         }
     }
 

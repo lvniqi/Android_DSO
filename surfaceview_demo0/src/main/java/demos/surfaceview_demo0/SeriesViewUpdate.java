@@ -24,22 +24,24 @@ import android.view.SurfaceHolder;
  * @see java.lang.Runnable
  */
 public class SeriesViewUpdate implements Runnable {
-    static final int LENGTH = 500;
+    static final int LENGTH = 1000;
     static final int WAITIME = 20;
-    static private boolean Sizechanged;
     int j = 0;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
+    //x轴注册
+    private AxisView xAxis;
+    //y轴注册
+    private AxisView yAxis;
     //服务函数
     private Handler mHandler;
-    //左侧留白
+    //左侧位置
     private int left = 0;
-    //底部留白
-    private int yBorder = 0;
     private int top = 0;
     private int width = 0;
     private int height = 0;
+    private boolean Sizechanged;
     //创建
     SeriesViewUpdate(SurfaceHolder Holder) {
         surfaceHolder = Holder;
@@ -87,11 +89,14 @@ public class SeriesViewUpdate implements Runnable {
         }
     }
 
-    public void setyBorder(int yBorder) {
-        if (this.yBorder != yBorder) {
-            this.yBorder = yBorder;
-            Sizechanged = true;
-        }
+    //设置x轴
+    public void setxAxis(AxisView xAxis) {
+        this.xAxis = xAxis;
+    }
+
+    //设置y轴
+    public void setyAxis(AxisView yAxis) {
+        this.yAxis = yAxis;
     }
     /**
      * Run
@@ -104,7 +109,7 @@ public class SeriesViewUpdate implements Runnable {
             try {
                 Canvas canvas;
                 if (!Sizechanged) {
-                    canvas = surfaceHolder.lockCanvas(new Rect(left, 0, width - left, height - yBorder));
+                    canvas = surfaceHolder.lockCanvas(new Rect(left, top, width + left, top + height));
                 } else {
                     canvas = surfaceHolder.lockCanvas();
                 }
@@ -112,12 +117,21 @@ public class SeriesViewUpdate implements Runnable {
                 double v = 0;
                 int[] a = new int[LENGTH];
                 for (int i = 0; i < LENGTH; i++) {
-                    a[i] = (int) (100 * Math.sin((double) (v + 0.1 * j))) + (int) (0.05 * j);
+                    a[i] = (int) (100 * Math.sin((double) (v + 0.1 * j))) + j;
                     v += 0.05;
                 }
                 clear(canvas);
                 DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
+                /* 测试x轴设置可用
+                if(xAxis != null){
+                    ArrayList<String> temp = new ArrayList<String>();
+                    for(int z = 0;z<xAxis.getAxis().size();z++) {
+                        temp.add(j+z+"");
+                    }
+                    xAxis.setLabel(temp);
+                    xAxis.postInvalidate();
+                }*/
                 Thread.sleep(WAITIME);
             } catch (Exception e) {
             }
@@ -151,16 +165,18 @@ public class SeriesViewUpdate implements Runnable {
         paint.setAntiAlias(true);
         //偏移
         canvas.translate(left, top);
+        canvas.clipRect(0, 0, width, height);
         //快速修正后
-        int[] afterFix = FastFix(data, 4);
-        /*for (int i = 1; i < data.length; i++) {
-            canvas.drawLine((i - 1), data[i - 1], i, data[i], paint);
-        }*/
+        int[] afterFix = FastFix(data, 5);
+
 
         for (int i = 1; i < afterFix.length; i++) {
-            canvas.drawLine(4 * (i - 1), afterFix[i - 1], 4 * i, afterFix[i], paint);
+            int startX = i - 1;
+            int startY = height - afterFix[i - 1];
+            int endX = i;
+            int endY = height - afterFix[i];
+            canvas.drawLine(5 * startX, startY, 5 * endX, endY, paint);
         }
-
     }
 
     private int[] FastFix(int[] data, int step) {
@@ -181,13 +197,12 @@ public class SeriesViewUpdate implements Runnable {
             }
             if (max > min) {
                 data_out[i] = data[min];
-                //data_out[i/step*2+1] = data[max];
             } else {
                 data_out[i] = data[max];
-                //data_out[i/step*2+1] = data[min];
             }
         }
         return data_out;
     }
+
 }
 

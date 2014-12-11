@@ -3,6 +3,7 @@ package demos.surfaceview_demo0;
 import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 /**
  * Created by lvniqi on 2014/11/18.
@@ -15,6 +16,7 @@ public class SeriesView extends SurfaceView
 
     public SeriesView(Context context) {
         super(context);
+        setLayerType(View.LAYER_TYPE_HARDWARE, null);
         SurfaceHolder surfaceHolder;
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
