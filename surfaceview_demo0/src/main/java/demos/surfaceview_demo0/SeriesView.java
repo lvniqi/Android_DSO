@@ -16,6 +16,8 @@ public class SeriesView extends SurfaceView
 
     Thread thread;
     SeriesViewUpdate update_thread;
+    private int nowX = 0;
+    private int nowY = 0;
 
     public SeriesView(Context context) {
         super(context);
@@ -49,18 +51,21 @@ public class SeriesView extends SurfaceView
         super.onTouchEvent(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                moveX((int) event.getX());
-                moveY((int) event.getY());
+                nowX = (int) event.getX();
+                nowY = (int) event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                moveX((int) event.getX());
-                moveY((int) event.getY());
+                moveX((int) event.getX() - nowX);
+                nowX = (int) event.getX();
+                moveY((int) event.getY() - nowY);
+                nowY = (int) event.getY();
                 break;
         }
         return true;
     }
 
     private void moveX(int x) {
+        update_thread.setMovex(x);
         ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(x + "x");
@@ -69,6 +74,7 @@ public class SeriesView extends SurfaceView
     }
 
     private void moveY(int y) {
+        update_thread.setMovey(y);
         ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(y + "y");

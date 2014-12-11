@@ -27,7 +27,7 @@ import java.util.ArrayList;
  */
 public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 1000;
-    static final int WAITIME = 20;
+    static final int WAITIME = 5;
     int j = 0;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
@@ -102,6 +102,24 @@ public class SeriesViewUpdate implements Runnable {
     public void setyAxis(AxisView yAxis) {
         this.yAxis = yAxis;
     }
+
+    /**
+     * 设置x轴移动
+     * @param movex
+     */
+    public void setMovex(int movex) {
+        this.movex += movex;
+    }
+
+    /**
+     * 设置Y轴移动
+     *
+     * @param movey
+     */
+    public void setMovey(int movey) {
+        this.movey += movey;
+    }
+
     /**
      * Run
      * 运行函数
@@ -121,7 +139,7 @@ public class SeriesViewUpdate implements Runnable {
                 double v = 0;
                 int[] a = new int[LENGTH];
                 for (int i = 0; i < LENGTH; i++) {
-                    a[i] = (int) (100 * Math.sin((double) (v + 0.1 * j))) + j;
+                    a[i] = (int) (100 * Math.sin((double) (v + 0.05 * j))) + (int) (0.2*j);
                     v += 0.05;
                 }
                 clear(canvas);
@@ -168,10 +186,10 @@ public class SeriesViewUpdate implements Runnable {
         paint.setStrokeWidth(3);
         paint.setAntiAlias(true);
         //偏移
-        canvas.translate(left, top);
-        canvas.clipRect(0, 0, width, height);
+        canvas.translate(left + movex, top + movey);
+        canvas.clipRect(-movex, -movey, width - movex, height -movey);
         //快速修正后
-        int[] afterFix = FastFix(data, 5);
+        int[] afterFix = FastFix(data, 4);
 
 
         for (int i = 1; i < afterFix.length; i++) {
@@ -179,7 +197,7 @@ public class SeriesViewUpdate implements Runnable {
             int startY = height - afterFix[i - 1];
             int endX = i;
             int endY = height - afterFix[i];
-            canvas.drawLine(5 * startX, startY, 5 * endX, endY, paint);
+            canvas.drawLine(4 * startX, startY, 4 * endX, endY, paint);
         }
     }
 
