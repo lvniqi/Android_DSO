@@ -6,8 +6,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.util.ArrayList;
-
 /**
  * Created by lvniqi on 2014/11/18.
  */
@@ -53,12 +51,21 @@ public class SeriesView extends SurfaceView
             case MotionEvent.ACTION_DOWN:
                 nowX = (int) event.getX();
                 nowY = (int) event.getY();
+                update_thread.setWAITIME(0);
                 break;
             case MotionEvent.ACTION_MOVE:
-                moveX((int) event.getX() - nowX);
+                int dx = (int) event.getX() - nowX;
+                int dy = (int) event.getY() - nowY;
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
+                    moveX(dx);
+                } else if (Math.abs(dy) > 2) {
+                    moveY(dy);
+                }
                 nowX = (int) event.getX();
-                moveY((int) event.getY() - nowY);
                 nowY = (int) event.getY();
+                break;
+            case MotionEvent.ACTION_UP:
+                update_thread.setWAITIME(50);
                 break;
         }
         return true;
@@ -66,20 +73,20 @@ public class SeriesView extends SurfaceView
 
     private void moveX(int x) {
         update_thread.setMovex(x);
-        ArrayList<String> temp = new ArrayList<String>();
+        /*ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(x + "x");
         }
-        update_thread.setXlabel(temp);
+        update_thread.setXlabel(temp);*/
     }
 
     private void moveY(int y) {
         update_thread.setMovey(y);
-        ArrayList<String> temp = new ArrayList<String>();
+        /*ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(y + "y");
         }
-        update_thread.setYlabel(temp);
+        update_thread.setYlabel(temp);*/
     }
     //得到更新进程
     public SeriesViewUpdate getUpdate_thread() {

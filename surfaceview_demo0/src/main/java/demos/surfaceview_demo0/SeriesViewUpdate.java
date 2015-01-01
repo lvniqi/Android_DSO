@@ -26,9 +26,10 @@ import java.util.ArrayList;
  * @see java.lang.Runnable
  */
 public class SeriesViewUpdate implements Runnable {
-    static final int LENGTH = 1000;
-    static final int WAITIME = 5;
+    static final int LENGTH = 2048;
+    ArrayList<CosData> test;
     int j = 0;
+    private int WAITIME = 30;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
@@ -50,6 +51,8 @@ public class SeriesViewUpdate implements Runnable {
     SeriesViewUpdate(SurfaceHolder Holder) {
         surfaceHolder = Holder;
         Sizechanged = false;
+        test = new ArrayList<CosData>();
+        test.add(new CosData());
         mHandler = new Handler() {
             /**
              * 消息接收函数
@@ -109,6 +112,11 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMovex(int movex) {
         this.movex += movex;
+        //测试显示坐标
+        String temp = this.movex + "";
+        xAxis.getLabel().remove(0);
+        xAxis.getLabel().add(temp);
+        xAxis.postInvalidate();
     }
 
     /**
@@ -118,6 +126,11 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMovey(int movey) {
         this.movey += movey;
+        //测试显示坐标
+        String temp = this.movey + "";
+        yAxis.getLabel().remove(0);
+        yAxis.getLabel().add(temp);
+        yAxis.postInvalidate();
     }
 
     /**
@@ -137,23 +150,16 @@ public class SeriesViewUpdate implements Runnable {
                 }
                 j++;
                 double v = 0;
-                int[] a = new int[LENGTH];
+                ArrayList<Integer> a2 = new ArrayList<>();
                 for (int i = 0; i < LENGTH; i++) {
-                    a[i] = (int) (100 * Math.sin((double) (v + 0.05 * j))) + (int) (0.2*j);
-                    v += 0.05;
+                    int temp = (int) (100 * Math.sin((double) (v + 0.05 * j))) + (int) (0.2 * j);
+                    a2.add(temp);
+                    v += 0.02;
                 }
+                Integer[] a = a2.toArray(new Integer[0]);
                 clear(canvas);
                 DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
-                /* 测试x轴设置可用
-                if(xAxis != null){
-                    ArrayList<String> temp = new ArrayList<String>();
-                    for(int z = 0;z<xAxis.getAxis().size();z++) {
-                        temp.add(j+z+"");
-                    }
-                    xAxis.setLabel(temp);
-                    xAxis.postInvalidate();
-                }*/
                 Thread.sleep(WAITIME);
             } catch (Exception e) {
             }
@@ -177,7 +183,7 @@ public class SeriesViewUpdate implements Runnable {
      * @param data
      * @param canvas
      */
-    private void DrawLines(int[] data, Canvas canvas) {
+    private void DrawLines(Integer[] data, Canvas canvas) {
 
         Paint paint = new Paint();
 
@@ -189,8 +195,13 @@ public class SeriesViewUpdate implements Runnable {
         canvas.translate(left + movex, top + movey);
         canvas.clipRect(-movex, -movey, width - movex, height -movey);
         //快速修正后
-        int[] afterFix = FastFix(data, 4);
-
+        Integer[] afterFix = FastFix(data, 4);
+        //防止越界
+        if (movex < width - data.length) {
+            movex = width - data.length;
+        } else if (movex > 0) {
+            movex = 0;
+        }
 
         for (int i = 1; i < afterFix.length; i++) {
             int startX = i - 1;
@@ -199,6 +210,14 @@ public class SeriesViewUpdate implements Runnable {
             int endY = height - afterFix[i];
             canvas.drawLine(4 * startX, startY, 4 * endX, endY, paint);
         }
+        /* 减少画线数量
+        for (int i = 1-movex/4; i <= -movex/4+width/4; i++) {
+            int startX = i - 1;
+            int startY = height - afterFix[i - 1];
+            int endX = i;
+            int endY = height - afterFix[i];
+            canvas.drawLine(4 * startX, startY, 4 * endX, endY, paint);
+        }*/
     }
 
     /**
@@ -208,12 +227,12 @@ public class SeriesViewUpdate implements Runnable {
      * @param step
      * @return data_out
      */
-    private int[] FastFix(int[] data, int step) {
+    private Integer[] FastFix(Integer[] data, int step) {
         if (step < 2) {
             return data;
         }
         int count = data.length / step;
-        int[] data_out = new int[count];
+        Integer[] data_out = new Integer[count];
 
         for (int i = 0; i < count; i++) {
             int max = i * step, min = i * step;
@@ -247,6 +266,7 @@ public class SeriesViewUpdate implements Runnable {
         } else {
             return false;
         }
+
     }
 
     /**
@@ -264,5 +284,40 @@ public class SeriesViewUpdate implements Runnable {
             return false;
         }
     }
+
+    public void setWAITIME(int WAITIME) {
+        this.WAITIME = WAITIME;
+    }
 }
 
+class CosData implements DataInterface {
+    private ArrayList<Integer> data;
+    private int Lenth;
+
+    CosData() {
+        data = new ArrayList<Integer>();
+    }
+
+    @Override
+    public int getX(int index) {
+        return index;
+    }
+
+    @Override
+    public int getY(int index) {
+        return data.get(index);
+    }
+
+    @Override
+    public int getLenth() {
+        return Lenth;
+    }
+
+    public ArrayList<Integer> getData() {
+        return data;
+    }
+
+    public void setData(ArrayList<Integer> data) {
+        this.data = data;
+    }
+}

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class GridView extends View {
     private Grid mygrid;
     private ArrayList<SeriesViewUpdate> seriesViewUpdates;
+
     GridView(Context context) {
         super(context);
         mygrid = new Grid();
@@ -26,10 +27,10 @@ public class GridView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mygrid.setTop(150);
+        mygrid.setTop(5);
         mygrid.setLeft(5);
         mygrid.setWidth(getWidth() - 10);
-        mygrid.setHeight(getHeight() - 150);
+        mygrid.setHeight(getHeight() - 5);
         mygrid.setyBorder(50);
         mygrid.setxBorder(80);
         mygrid.DrawRect(canvas);
@@ -69,11 +70,11 @@ public class GridView extends View {
     public int getyBorder() {
         return mygrid.getyBorder();
     }
+
     public Grid getGrid() {
         return mygrid;
     }
 }
-
 
 
 /**
@@ -89,6 +90,7 @@ class Grid extends BackGround {
     private AxisView yAxis;
     private int yBorder;
     private int xBorder;
+
     Grid(int left, int top, int width, int height) {
         super(left, top, width, height);
         gPaint = new Paint();
