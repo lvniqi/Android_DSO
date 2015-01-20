@@ -15,6 +15,7 @@ import java.util.ArrayList;
  * Created by lvniqi on 2014/12/2.
  */
 public class GridView extends View {
+    private static int getwidth_flag = 0;
     private Grid mygrid;
     private ArrayList<SeriesViewUpdate> seriesViewUpdates;
 
@@ -27,14 +28,10 @@ public class GridView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mygrid.setTop(5);
-        mygrid.setLeft(5);
-        mygrid.setWidth(getWidth() - 10);
-        mygrid.setHeight(getHeight() - 5);
-        mygrid.setyBorder(50);
-        mygrid.setxBorder(80);
-        mygrid.DrawRect(canvas);
-        mygrid.DrawGrid(canvas);
+        mygrid.setWidth(getWidth());
+        mygrid.setHeight(getHeight());
+        mygrid.setyBorder(0);
+        mygrid.setxBorder(0);
         Paint paint = new Paint();
         paint.setTextSize(50);
         paint.setColor(Color.WHITE);
@@ -45,18 +42,17 @@ public class GridView extends View {
         }
         mygrid.getxAxis().setLabel(temp);
         mygrid.getxAxis().setisX(true);
-        mygrid.getxAxis().setOtherSide(mygrid.getTop() + mygrid.getHeight() + mygrid.getxAxis().getPaint().getTextSize());
         mygrid.getyAxis().setLabel(temp);
         mygrid.getyAxis().setisX(false);
-        mygrid.getyAxis().setOtherSide(mygrid.getLeft());
         for (SeriesViewUpdate x : seriesViewUpdates) {
             x.setLeft(getxBorder() + 5);
-            x.setTop(mygrid.getTop());
             x.setWidth(mygrid.getWidth());
             x.setHeight(mygrid.getHeight());
             x.setxAxis(mygrid.getxAxis());
             x.setyAxis(mygrid.getyAxis());
         }
+        mygrid.DrawRect(canvas);
+        mygrid.DrawGrid(canvas);
     }
 
     public int getxBorder() {
@@ -163,7 +159,6 @@ class Grid extends BackGround {
 
     public void setxBorder(int xBorder) {
         this.xBorder = xBorder;
-        this.setLeft(left + xBorder);
         this.setWidth(width - xBorder);
     }
 
@@ -173,23 +168,24 @@ class Grid extends BackGround {
      * @param canvas
      */
     public void DrawRect(Canvas canvas) {
-        gPaint.setStrokeWidth(2);
+        gPaint.setStrokeWidth(3);
         gPaint.setAlpha(255);
         //外边框
-        canvas.drawLine(left, top, left + width, top, gPaint);
-        canvas.drawLine(left, top + height, left + width, top + height, gPaint);
-        canvas.drawLine(left, top, left, top + height, gPaint);
-        canvas.drawLine(left + width, top, left + width, top + height, gPaint);
+        canvas.drawLine(0, 1, width, 1, gPaint);
+        canvas.drawLine(1, 0, 1, height, gPaint);
+        canvas.drawLine(width - 1, 0, width - 1, height, gPaint);
+        canvas.drawLine(0, height - 1, width, height - 1, gPaint);
+
     }
 
     public void DrawXlabel(Canvas canvas) {
         gPaint.setStrokeWidth(5);
         gPaint.setAlpha(255);
         //外边框
-        canvas.drawLine(left, top + 2, left + width, top + 2, gPaint);
-        canvas.drawLine(left, top + height - 2, left + width, top + height - 2, gPaint);
-        canvas.drawLine(left + 2, top, left + 2, top + height, gPaint);
-        canvas.drawLine(left + width - 2, top, left + width - 2, top + height, gPaint);
+        canvas.drawLine(0, 1, width, 1, gPaint);
+        canvas.drawLine(0, height - 1, width, height - 1, gPaint);
+        canvas.drawLine(1, 0, 1, height, gPaint);
+        canvas.drawLine(width - 1, 0, width - 2, height, gPaint);
     }
 
     public void DrawGrid(Canvas canvas) {
@@ -199,20 +195,20 @@ class Grid extends BackGround {
         ArrayList<Float> xList = new ArrayList<Float>();
         ArrayList<Float> yList = new ArrayList<Float>();
         float div_x = ((float) width) / div;
-        xList.add((float) left);
-        for (float x = left + div_x; x < left + width; x += div_x) {
+        xList.add((float) 0);
+        for (float x = div_x; x < width; x += div_x) {
             xList.add(x);
-            canvas.drawLine(x, top, x, top + height, gPaint);
+            canvas.drawLine(x, 0, x, height, gPaint);
         }
-        xList.add((float) (left + width));
+        xList.add((float) width);
         //横向线
-        yList.add((float) top);
+        yList.add((float) 0);
         float div_y = ((float) height) / div;
-        for (float y = top + div_y; y < top + height; y += div_y) {
+        for (float y = div_y; y < height; y += div_y) {
             yList.add(y);
-            canvas.drawLine(left, y, left + width, y, gPaint);
+            canvas.drawLine(0, y, width, y, gPaint);
         }
-        yList.add((float) (top + height));
+        yList.add((float) (height));
         xAxis.setAxis(xList);
         yAxis.setAxis(yList);
     }
@@ -224,20 +220,20 @@ class Grid extends BackGround {
         float div_x = ((float) this.width) / div;
         //纵向间隔
         float div_y = ((float) this.height) / div;
-        float temp_start_x = this.left + div_x;
-        float temp_start_y = this.top + div_y;
+        float temp_start_x = div_x;
+        float temp_start_y = div_y;
         //输入错误检查
-        if (left > this.left + this.width) {
+        if (left > this.width) {
             return;
         }
-        if (width + left > this.left + this.width) {
-            width = this.left + this.width - left;
+        if (width + left > this.width) {
+            width = this.width - left;
         }
-        if (top > this.top + this.height) {
+        if (top > this.height) {
             return;
         }
-        if (top + height > this.top + this.height) {
-            height = this.top + this.height;
+        if (top + height > this.height) {
+            height = this.height;
         }
         //得到起始x
         while (temp_start_x < left) {
@@ -266,24 +262,18 @@ class BackGround {
     //长宽高...
     protected int width;
     protected int height;
-    protected int left;
-    protected int top;
     //背景画笔
     private Paint bgPaint;
 
     BackGround(int left, int top, int width, int height) {
         this.width = width;
         this.height = height;
-        this.left = left;
-        this.top = top;
         bgPaint = new Paint();
         bgPaint.setStrokeCap(Paint.Cap.ROUND);
         bgPaint.setColor(Color.BLACK);
     }
 
     BackGround(Rect rect) {
-        this.left = rect.left;
-        this.top = rect.top;
         this.width = rect.right - rect.left;
         this.height = rect.bottom - rect.top;
         bgPaint = new Paint();
@@ -292,8 +282,6 @@ class BackGround {
     }
 
     BackGround() {
-        this.left = 0;
-        this.top = 0;
         this.width = 0;
         this.height = 0;
         bgPaint = new Paint();
@@ -315,22 +303,6 @@ class BackGround {
 
     public void setHeight(int height) {
         this.height = height;
-    }
-
-    public int getLeft() {
-        return left;
-    }
-
-    public void setLeft(int left) {
-        this.left = left;
-    }
-
-    public int getTop() {
-        return top;
-    }
-
-    public void setTop(int top) {
-        this.top = top;
     }
 
     public void setBgPoint(Paint paint) {
@@ -362,23 +334,23 @@ class BackGround {
             canvas.drawPaint(paint);
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
         } else {
-            canvas.drawRect(left, top, width + left, height + top, bgPaint);
+            canvas.drawRect(0, 0, width, height, bgPaint);
         }
     }
 
     public void DrawPartBackground(int left, int top, int width, int height, Canvas canvas) {
         //输入错误检查
-        if (left > this.left + this.width) {
+        if (left > this.width) {
             return;
         }
-        if (width + left > this.left + this.width) {
-            width = this.left + this.width - left;
+        if (width + left > this.width) {
+            width = this.width - left;
         }
-        if (top > this.top + this.height) {
+        if (top > this.height) {
             return;
         }
-        if (top + height > this.top + this.height) {
-            height = this.top + this.height;
+        if (top + height > this.height) {
+            height = this.height;
         }
         canvas.drawRect(left, top, width + left, height + top, bgPaint);
     }

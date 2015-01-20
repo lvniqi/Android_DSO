@@ -3,9 +3,11 @@ package demos.surfaceview_demo0;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 
 public class MainActivity extends Activity {
@@ -22,7 +24,11 @@ public class MainActivity extends Activity {
         mContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         graphView = new GraphView(this);
-        ((FrameLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
+        ((RelativeLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Log.i("view", "height:" + display.getHeight());
+        Log.i("view", "width:" + display.getWidth());
     }
 
     @Override

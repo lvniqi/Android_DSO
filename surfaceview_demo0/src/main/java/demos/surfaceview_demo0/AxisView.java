@@ -23,7 +23,6 @@ class AxisView extends View {
     private ArrayList<Float> axis;
     private ArrayList<String> label;
     private Paint paint;
-    private float otherSide;
 
     /**
      * 构造函数
@@ -35,6 +34,8 @@ class AxisView extends View {
         paint = new Paint();
         paint.setTextSize(30);
         paint.setColor(Color.WHITE);
+        axis = new ArrayList<Float>();
+        label = new ArrayList<String>();
     }
 
     /**
@@ -99,30 +100,22 @@ class AxisView extends View {
         this.isX = isX;
     }
 
-    public float getOtherSide() {
-        return otherSide;
-    }
-
-    public void setOtherSide(float otherSide) {
-        this.otherSide = otherSide;
-    }
-
-    public void DrawAxis(Canvas canvas, float otherSide, boolean isX) {
+    public void DrawAxis(Canvas canvas, boolean isX) {
         if (isX) {
             paint.setTextAlign(Paint.Align.LEFT);
-            canvas.drawText(label.get(0), axis.get(0), otherSide, paint);
+            canvas.drawText(label.get(0), axis.get(0), paint.getTextSize(), paint);
             paint.setTextAlign(Paint.Align.CENTER);
             for (int i = 1; i < axis.size() - 1; i++) {
 
-                canvas.drawText(label.get(i), axis.get(i), otherSide, paint);
+                canvas.drawText(label.get(i), axis.get(i), paint.getTextSize(), paint);
             }
             paint.setTextAlign(Paint.Align.RIGHT);
-            canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), otherSide, paint);
+            canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), paint.getTextSize(), paint);
         } else {
             paint.setTextAlign(Paint.Align.RIGHT);
-            canvas.drawText(label.get(0), otherSide, axis.get(0) + paint.getTextSize() / 2, paint);
+            canvas.drawText(label.get(0), paint.getTextSize(), axis.get(0) + paint.getTextSize() / 2, paint);
             for (int i = 1; i < axis.size(); i++) {
-                canvas.drawText(label.get(i), otherSide, axis.get(i), paint);
+                canvas.drawText(label.get(i), paint.getTextSize(), axis.get(i), paint);
             }
         }
 
@@ -132,7 +125,7 @@ class AxisView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (getAxis().size() != 0 && getLabel().size() != 0) {
-            DrawAxis(canvas, this.getOtherSide(), this.getisX());
+            DrawAxis(canvas, this.getisX());
         }
     }
 }

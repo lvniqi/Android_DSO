@@ -1,32 +1,51 @@
 package demos.surfaceview_demo0;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.os.Build;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 /**
  * Created by lvniqi on 2014/12/3.
  */
-public class GraphView extends FrameLayout {
+public class GraphView extends RelativeLayout {
     private SeriesView seriesView;
     private GridView gridView;
     private AxisView xAxis;
     private AxisView yAxis;
     private int border;
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     GraphView(Context context) {
         super(context);
-        gridView = new GridView(context);//背景帧
-        gridView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        xAxis = new AxisView(context);//x轴帧
-        gridView.getGrid().setxAxis(xAxis);
-        xAxis.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
+        //Y轴
+        RelativeLayout.LayoutParams yAxis_layoutParams = new RelativeLayout.LayoutParams(DensityUtil.dip2px(context, 30), ViewGroup.LayoutParams.WRAP_CONTENT);
+        yAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         yAxis = new AxisView(context);//y轴帧
+        this.addView(yAxis, yAxis_layoutParams);
+        yAxis.setId(generateViewId());
+        //x轴
+        RelativeLayout.LayoutParams xAxis_layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 20));
+        xAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        xAxis_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
+        xAxis = new AxisView(context);//x轴帧
+        this.addView(xAxis, xAxis_layoutParams);
+        xAxis.setId(generateViewId());
+        //网格帧
+        RelativeLayout.LayoutParams grid_view_layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        grid_view_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
+        grid_view_layoutParams.addRule(RelativeLayout.ABOVE, xAxis.getId());
+        gridView = new GridView(context);
         gridView.getGrid().setyAxis(yAxis);
+        gridView.getGrid().setxAxis(xAxis);
+        this.addView(gridView, grid_view_layoutParams);
+        //gridView.setPadding(DensityUtil.dip2px(context,50),0,0,0);
+
 
         seriesView = new SeriesView(context);//波形帧
         seriesView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -39,13 +58,9 @@ public class GraphView extends FrameLayout {
         //seriesFl.setMargins(a, 0, 0, 0);
         //seriesView.setLayoutParams(seriesFl);
         //gridView.setLayoutParams(seriesFl);
-
-        //背景布局添加
-        this.addView(gridView);
+        Log.i("view", "dip2px:" + DensityUtil.dip2px(context, 10));
         //曲线布局添加
-        this.addView(seriesView);
-        this.addView(xAxis);
-        this.addView(yAxis);
+        this.addView(seriesView, grid_view_layoutParams);
         this.setBackgroundColor(Color.rgb(45, 15, 0));
     }
 }
