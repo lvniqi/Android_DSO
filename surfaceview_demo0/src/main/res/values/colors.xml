@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="menu">#000000</color>
+    <color name="hello_world">#000000</color>
+    <color name="action_settings">#000000</color>
+
+</resources>

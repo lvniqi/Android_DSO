@@ -30,8 +30,6 @@ public class GridView extends View {
         super.onDraw(canvas);
         mygrid.setWidth(getWidth());
         mygrid.setHeight(getHeight());
-        mygrid.setyBorder(0);
-        mygrid.setxBorder(0);
         Paint paint = new Paint();
         paint.setTextSize(50);
         paint.setColor(Color.WHITE);
@@ -40,12 +38,16 @@ public class GridView extends View {
         for (int i = 0; i < 6; i++) {
             temp.add(i + "ms");
         }
-        mygrid.getxAxis().setLabel(temp);
-        mygrid.getxAxis().setisX(true);
-        mygrid.getyAxis().setLabel(temp);
-        mygrid.getyAxis().setisX(false);
+        //初始化x轴字符
+        if (mygrid.getxAxis().getLabel() == null) {
+            mygrid.getxAxis().setLabel(temp);
+            mygrid.getxAxis().setisX(true);
+        }
+        if (mygrid.getyAxis().getLabel() == null) {
+            mygrid.getyAxis().setLabel(temp);
+            mygrid.getyAxis().setisX(false);
+        }
         for (SeriesViewUpdate x : seriesViewUpdates) {
-            x.setLeft(getxBorder() + 5);
             x.setWidth(mygrid.getWidth());
             x.setHeight(mygrid.getHeight());
             x.setxAxis(mygrid.getxAxis());
@@ -55,17 +57,11 @@ public class GridView extends View {
         mygrid.DrawGrid(canvas);
     }
 
-    public int getxBorder() {
-        return mygrid.getxBorder();
-    }
 
     public ArrayList<SeriesViewUpdate> getSeriesViewUpdates() {
         return seriesViewUpdates;
     }
 
-    public int getyBorder() {
-        return mygrid.getyBorder();
-    }
 
     public Grid getGrid() {
         return mygrid;
@@ -84,8 +80,6 @@ class Grid extends BackGround {
     private Paint gPaint;
     private AxisView xAxis;
     private AxisView yAxis;
-    private int yBorder;
-    private int xBorder;
 
     Grid(int left, int top, int width, int height) {
         super(left, top, width, height);
@@ -144,23 +138,6 @@ class Grid extends BackGround {
         this.div = div;
     }
 
-    public int getyBorder() {
-        return yBorder;
-    }
-
-    public void setyBorder(int yBorder) {
-        this.yBorder = yBorder;
-        this.setHeight(this.getHeight() - yBorder);
-    }
-
-    public int getxBorder() {
-        return xBorder;
-    }
-
-    public void setxBorder(int xBorder) {
-        this.xBorder = xBorder;
-        this.setWidth(width - xBorder);
-    }
 
     /**
      * 绘制外边框

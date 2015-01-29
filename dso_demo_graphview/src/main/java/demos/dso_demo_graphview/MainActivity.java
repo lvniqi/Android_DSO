@@ -18,24 +18,10 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.GraphViewStyle;
 import com.jjoe64.graphview.LineGraphView;
 
-import java.net.MulticastSocket;
-
 
 public class MainActivity extends Activity {
 
-    private TextView text_x1;
-    public GraphView lineview;
-    static  boolean temp_flag = true;
-    Handler handler = new Handler();
-    static double j = 0;
-    //测试用
-    UdpService udpservice;
-    public static Handler mHandler;
     public static final int MSG_SUCCESS = 0;//获取图片成功的标识
-    //WIFI控制器
-    private WifiManager wifiManager;
-    public static WifiManager.MulticastLock mlock;
-
     /*private Runnable myRunnable = new Runnable() {
         public void run() {
 
@@ -58,8 +44,20 @@ public class MainActivity extends Activity {
         }
     };*/
     static final int num = 512;
-    GraphViewSeries series;
     GraphView.GraphViewData[] data2 = new GraphView.GraphViewData[num];
+    public static Handler mHandler;
+    public static WifiManager.MulticastLock mlock;
+    static boolean temp_flag = true;
+    static double j = 0;
+    public GraphView lineview;
+    Handler handler = new Handler();
+    //测试用
+    UdpService udpservice;
+    GraphViewSeries series;
+    private TextView text_x1;
+    //WIFI控制器
+    private WifiManager wifiManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,12 +74,12 @@ public class MainActivity extends Activity {
                     case MainActivity.MSG_SUCCESS:
                         Bundle bundle = new Bundle();
                         bundle = msg.getData();
-                        byte [] temp_byte = bundle.getByteArray("str");
+                        byte[] temp_byte = bundle.getByteArray("str");
                         float[] temp_float = ByteArrayFunction.BytesToFloat(temp_byte);
                         GraphView.GraphViewData[] data = new GraphView.GraphViewData[temp_float.length];
-                        if(temp_float.length != 0) {
-                            for(int i=0;i<temp_float.length;i++){
-                                data[i] = new GraphView.GraphViewData(i,temp_float[i]);
+                        if (temp_float.length != 0) {
+                            for (int i = 0; i < temp_float.length; i++) {
+                                data[i] = new GraphView.GraphViewData(i, temp_float[i]);
                             }
                             series.resetData(data);
                         }
@@ -99,21 +97,21 @@ public class MainActivity extends Activity {
         for (int i = 0; i < num; i++) {
             v += 0.2;
             data[i] = new GraphView.GraphViewData(i, Math.sin(v));
-            data2[i] = new GraphView.GraphViewData(i, Math.sin(v/2 + 2)-2);
+            data2[i] = new GraphView.GraphViewData(i, Math.sin(v / 2 + 2) - 2);
         }
-        GraphViewSeries series1 =new GraphViewSeries(data);
+        GraphViewSeries series1 = new GraphViewSeries(data);
         lineview = new LineGraphView(this, "");
         //series1.SetShowMaxFlag(true);
         //series1.SetShowMinFlag(true);
         series = new GraphViewSeries(null, new GraphViewSeries.GraphViewSeriesStyle(Color.rgb(255, 255, 0), 4), data2);
-        //series.SetShowMaxFlag(true);
-        //series.SetShowMinFlag(true);
-        //series.SetSignCurveFlag(true);
+        series.SetShowMaxFlag(true);
+        series.SetShowMinFlag(true);
+        series.SetSignCurveFlag(true);
 // add data
-        lineview.addSeries(series1);
+        //lineview.addSeries(series1);
         lineview.addSeries(series);
         lineview.setViewPort(40, 40);
-        lineview.setManualYAxisBounds(255,0);
+        lineview.setManualYAxisBounds(255, 0);
         lineview.setScrollable(true);
 
 // optional - activate scaling / zooming
@@ -121,11 +119,11 @@ public class MainActivity extends Activity {
         lineview.getGraphViewStyle().setGridStyle(GraphViewStyle.GridStyle.BOTH);
         LinearLayout layout = (LinearLayout) findViewById(R.id.graph1);
         layout.addView(lineview);
-        text_x1 = (TextView) findViewById(R.id.text_x1);
-        double x1 = lineview.getViewportSize();
-        text_x1.setText("" + x1);
+        //text_x1 = (TextView) findViewById(R.id.text_x1);
+        //double x1 = lineview.getViewportSize();
+        //text_x1.setText("" + x1);
 
-        lineview.getGraphViewStyle().setGridColor(Color.argb(100,0,128,0));
+        lineview.getGraphViewStyle().setGridColor(Color.argb(100, 0, 128, 0));
         lineview.getGraphViewStyle().setHorizontalLabelsColor(Color.YELLOW);
         lineview.getGraphViewStyle().setVerticalLabelsColor(Color.RED);
         lineview.getGraphViewStyle().setNumHorizontalLabels(5);
@@ -135,15 +133,13 @@ public class MainActivity extends Activity {
         CustomLabelFormatter LabelFormatter = new CustomLabelFormatter() {
             @Override
             public String formatLabel(double value, boolean isValueX) {
-                if (isValueX&&temp_flag) {
-                    return (int)value+"ms";
-                }
-                else{
-                    return  (double)((int)(value*10))/10+"V";
+                if (isValueX && temp_flag) {
+                    return (int) value + "ms";
+                } else {
+                    return (double) ((int) (value * 1000 * 3.3 / 256)) / 1000 + "V";
                 }
             }
-        }
-        ;
+        };
         lineview.setCustomLabelFormatter(LabelFormatter);
         Thread tReceived = new Thread(udpservice);
         tReceived.start();

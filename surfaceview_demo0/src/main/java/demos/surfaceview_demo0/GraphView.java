@@ -24,20 +24,23 @@ public class GraphView extends RelativeLayout {
     GraphView(Context context) {
         super(context);
         //Y轴
-        RelativeLayout.LayoutParams yAxis_layoutParams = new RelativeLayout.LayoutParams(DensityUtil.dip2px(context, 30), ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams yAxis_layoutParams = new RelativeLayout.LayoutParams(
+                DensityUtil.dip2px(context, 30), ViewGroup.LayoutParams.WRAP_CONTENT);
         yAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         yAxis = new AxisView(context);//y轴帧
         this.addView(yAxis, yAxis_layoutParams);
         yAxis.setId(generateViewId());
         //x轴
-        RelativeLayout.LayoutParams xAxis_layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 20));
+        RelativeLayout.LayoutParams xAxis_layoutParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 20));
         xAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         xAxis_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
         xAxis = new AxisView(context);//x轴帧
         this.addView(xAxis, xAxis_layoutParams);
         xAxis.setId(generateViewId());
         //网格帧
-        RelativeLayout.LayoutParams grid_view_layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams grid_view_layoutParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         grid_view_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
         grid_view_layoutParams.addRule(RelativeLayout.ABOVE, xAxis.getId());
         gridView = new GridView(context);

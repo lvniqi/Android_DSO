@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 2048;
     ArrayList<CosData> test;
-    int j = 0;
+    int yTrans = 0;
     private int WAITIME = 30;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
@@ -40,8 +40,6 @@ public class SeriesViewUpdate implements Runnable {
     //服务函数
     private Handler mHandler;
     //左侧位置
-    private int left = 0;
-    private int top = 0;
     private int width = 0;
     private int height = 0;
     private int movex = 0;
@@ -80,21 +78,6 @@ public class SeriesViewUpdate implements Runnable {
         this.height = height;
     }
 
-    //设置左侧宽度
-    public void setLeft(int left) {
-        if (this.left != left) {
-            this.left = left;
-            Sizechanged = true;
-        }
-    }
-
-    //设置顶部
-    public void setTop(int top) {
-        if (this.top != top) {
-            this.top = top;
-            Sizechanged = true;
-        }
-    }
 
     //设置x轴
     public void setxAxis(AxisView xAxis) {
@@ -144,23 +127,27 @@ public class SeriesViewUpdate implements Runnable {
             try {
                 Canvas canvas;
                 if (!Sizechanged) {
-                    canvas = surfaceHolder.lockCanvas(new Rect(left, top, width + left, top + height));
+                    canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                 } else {
                     canvas = surfaceHolder.lockCanvas();
                 }
-                j++;
+                yTrans++;
                 double v = 0;
-                ArrayList<Integer> a2 = new ArrayList<>();
+                ArrayList<Integer> a2 = new ArrayList<Integer>();
                 for (int i = 0; i < LENGTH; i++) {
-                    int temp = (int) (100 * Math.sin((double) (v + 0.05 * j))) + (int) (0.2 * j);
+                    int temp = (int) (300 * Math.sin((double) yTrans / 100 * (v + 0.05 * yTrans))) + (int) (0.2 * yTrans);
                     a2.add(temp);
+                    //a2.add(100);
+                    //a2.add(-100);
                     v += 0.02;
                 }
                 Integer[] a = a2.toArray(new Integer[0]);
                 clear(canvas);
                 DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
-                Thread.sleep(WAITIME);
+                if (WAITIME != 0) {
+                    //Thread.sleep(WAITIME);
+                }
             } catch (Exception e) {
             }
         }
@@ -184,40 +171,77 @@ public class SeriesViewUpdate implements Runnable {
      * @param canvas
      */
     private void DrawLines(Integer[] data, Canvas canvas) {
-
+        final int FIX_LENGTH = 4;
         Paint paint = new Paint();
-
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(Color.YELLOW);
         paint.setStrokeWidth(3);
         paint.setAntiAlias(true);
-        //偏移
-        canvas.translate(left + movex, top + movey);
-        canvas.clipRect(-movex, -movey, width - movex, height -movey);
-        //快速修正后
-        Integer[] afterFix = FastFix(data, 4);
         //防止越界
         if (movex < width - data.length) {
             movex = width - data.length;
         } else if (movex > 0) {
             movex = 0;
         }
-
-        for (int i = 1; i < afterFix.length; i++) {
-            int startX = i - 1;
-            int startY = height - afterFix[i - 1];
-            int endX = i;
-            int endY = height - afterFix[i];
-            canvas.drawLine(4 * startX, startY, 4 * endX, endY, paint);
+        //偏移
+        canvas.translate(movex, movey);
+        canvas.clipRect(-movex, -movey, width - movex, height - movey);
+        //快速修正后
+        Integer[] afterFix = FastFix(data, FIX_LENGTH);
+        int startX = 0;
+        int startY = height - afterFix[0];
+        int endX = 1;
+        int endY = height - afterFix[1];
+        for (int i = 1; i < afterFix.length / 2; i++) {
+            int j = 1;
+            for (; j < FIX_LENGTH; j++) {
+                if (Math.abs(data[FIX_LENGTH * i + j] - data[FIX_LENGTH * i + j - 1]) > 50) {
+                    break;
+                }
+            }
+            //如果有峰峰值大于阀值
+            if (j < FIX_LENGTH) {
+                int temp_start = height - afterFix[i];
+                int temp_end = height - afterFix[afterFix.length / 2 + i];
+                //如果后面大于前面
+                if (temp_end > temp_start) {
+                    if (startY < temp_start) {
+                        temp_start = startY;
+                    } else if (startY > temp_end) {
+                        temp_end = startY;
+                    }
+                    canvas.drawRect(FIX_LENGTH * startX,
+                            temp_start - 1,
+                            FIX_LENGTH * endX,
+                            temp_end + 1,
+                            paint);
+                }
+                //如果前面大于后面
+                else {
+                    if (startY > temp_start) {
+                        temp_start = startY;
+                    } else if (startY < temp_end) {
+                        temp_end = startY;
+                    }
+                    canvas.drawRect(FIX_LENGTH * startX,
+                            temp_end - 1,
+                            FIX_LENGTH * endX,
+                            temp_start + 1,
+                            paint);
+                }
+                endY = height - afterFix[afterFix.length / 2 + i];
+            }
+            //正常绘图
+            else {
+                canvas.drawLine(FIX_LENGTH * startX, startY, FIX_LENGTH * endX, endY, paint);
+            }
+            startX = i;
+            startY = endY;
+            if (i < afterFix.length - 1) {
+                endX = i + 1;
+                endY = height - afterFix[i + 1];
+            }
         }
-        /* 减少画线数量
-        for (int i = 1-movex/4; i <= -movex/4+width/4; i++) {
-            int startX = i - 1;
-            int startY = height - afterFix[i - 1];
-            int endX = i;
-            int endY = height - afterFix[i];
-            canvas.drawLine(4 * startX, startY, 4 * endX, endY, paint);
-        }*/
     }
 
     /**
@@ -232,7 +256,7 @@ public class SeriesViewUpdate implements Runnable {
             return data;
         }
         int count = data.length / step;
-        Integer[] data_out = new Integer[count];
+        Integer[] data_out = new Integer[count * 2];
 
         for (int i = 0; i < count; i++) {
             int max = i * step, min = i * step;
@@ -245,13 +269,47 @@ public class SeriesViewUpdate implements Runnable {
             }
             if (max > min) {
                 data_out[i] = data[min];
+                data_out[count + i] = data[max];
             } else {
                 data_out[i] = data[max];
+                data_out[count + i] = data[min];
             }
         }
         return data_out;
     }
 
+    private Integer[] FastFix_Sample(Integer[] data, int step) {
+        if (step < 2) {
+            return data;
+        }
+        int count = data.length / step;
+        Integer[] data_out = new Integer[count];
+
+        for (int i = 0; i < count; i++) {
+            data_out[i] = data[i * step];
+        }
+        return data_out;
+    }
+
+    private Integer GetMax(Integer[] data, int start, int end) {
+        Integer temp_data = data[start];
+        for (int i = start; i < end; i++) {
+            if (temp_data < data[i]) {
+                temp_data = data[i];
+            }
+        }
+        return temp_data;
+    }
+
+    private Integer GetMin(Integer[] data, int start, int end) {
+        Integer temp_data = data[start];
+        for (int i = start; i < end; i++) {
+            if (temp_data > data[i]) {
+                temp_data = data[i];
+            }
+        }
+        return temp_data;
+    }
     /**
      * 设置x轴坐标
      *

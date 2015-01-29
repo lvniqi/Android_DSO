@@ -65,7 +65,7 @@ public class SeriesView extends SurfaceView
                 nowY = (int) event.getY();
                 break;
             case MotionEvent.ACTION_UP:
-                update_thread.setWAITIME(50);
+                update_thread.setWAITIME(100);
                 break;
         }
         return true;
@@ -88,6 +88,7 @@ public class SeriesView extends SurfaceView
         }
         update_thread.setYlabel(temp);*/
     }
+
     //得到更新进程
     public SeriesViewUpdate getUpdate_thread() {
         return update_thread;

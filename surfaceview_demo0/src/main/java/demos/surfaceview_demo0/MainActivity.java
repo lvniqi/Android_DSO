@@ -3,8 +3,6 @@ package demos.surfaceview_demo0;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
@@ -26,9 +24,9 @@ public class MainActivity extends Activity {
         graphView = new GraphView(this);
         ((RelativeLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Log.i("view", "height:" + display.getHeight());
-        Log.i("view", "width:" + display.getWidth());
+        //Display display = getWindowManager().getDefaultDisplay();
+        //Log.i("view", "height:" + display.getHeight());
+        //Log.i("view", "width:" + display.getWidth());
     }
 
     @Override

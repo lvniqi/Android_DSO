@@ -34,8 +34,8 @@ class AxisView extends View {
         paint = new Paint();
         paint.setTextSize(30);
         paint.setColor(Color.WHITE);
-        axis = new ArrayList<Float>();
-        label = new ArrayList<String>();
+        //axis = new ArrayList<Float>();
+        //label = new ArrayList<String>();
     }
 
     /**
@@ -113,9 +113,9 @@ class AxisView extends View {
             canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), paint.getTextSize(), paint);
         } else {
             paint.setTextAlign(Paint.Align.RIGHT);
-            canvas.drawText(label.get(0), paint.getTextSize(), axis.get(0) + paint.getTextSize() / 2, paint);
+            canvas.drawText(label.get(0), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 30 / 2), axis.get(0) + paint.getTextSize() / 2, paint);
             for (int i = 1; i < axis.size(); i++) {
-                canvas.drawText(label.get(i), paint.getTextSize(), axis.get(i), paint);
+                canvas.drawText(label.get(i), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 30 / 2), axis.get(i), paint);
             }
         }
 
@@ -124,7 +124,7 @@ class AxisView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (getAxis().size() != 0 && getLabel().size() != 0) {
+        if (getAxis() != null && getLabel() != null && getAxis().size() != 0 && getLabel().size() != 0) {
             DrawAxis(canvas, this.getisX());
         }
     }
