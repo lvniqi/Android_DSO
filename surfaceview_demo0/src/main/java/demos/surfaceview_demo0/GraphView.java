@@ -48,8 +48,6 @@ public class GraphView extends RelativeLayout {
         gridView.getGrid().setxAxis(xAxis);
         this.addView(gridView, grid_view_layoutParams);
         //gridView.setPadding(DensityUtil.dip2px(context,50),0,0,0);
-
-
         seriesView = new SeriesView(context);//波形帧
         seriesView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         //设置透明

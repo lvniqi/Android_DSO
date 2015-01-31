@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
             @Override
             public String formatLabel(double value, boolean isValueX) {
                 if (isValueX && temp_flag) {
-                    return (int) value + "ms";
+                    return (double) ((int) (value * 100 / 380)) / 100 + "ms";
                 } else {
                     return (double) ((int) (value * 1000 * 3.3 / 256)) / 1000 + "V";
                 }

@@ -16,7 +16,10 @@ public class SeriesView extends SurfaceView
     SeriesViewUpdate update_thread;
     private int nowX = 0;
     private int nowY = 0;
-
+    //触摸模式
+    private int touchMode = 0;
+    //开启触摸
+    private boolean touchEnable = true;
     public SeriesView(Context context) {
         super(context);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -46,27 +49,42 @@ public class SeriesView extends SurfaceView
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        super.onTouchEvent(event);
-        switch (event.getAction()) {
+        if (!touchEnable) {
+            super.onTouchEvent(event);
+        }
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                touchMode = 1;
                 nowX = (int) event.getX();
                 nowY = (int) event.getY();
-                update_thread.setWAITIME(0);
                 break;
-            case MotionEvent.ACTION_MOVE:
-                int dx = (int) event.getX() - nowX;
-                int dy = (int) event.getY() - nowY;
-                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
-                    moveX(dx);
-                } else if (Math.abs(dy) > 2) {
-                    moveY(dy);
-                }
-                nowX = (int) event.getX();
-                nowY = (int) event.getY();
+            case MotionEvent.ACTION_POINTER_DOWN:
+                touchMode += 1;
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                touchMode -= 1;
                 break;
             case MotionEvent.ACTION_UP:
-                update_thread.setWAITIME(100);
+                touchMode = 0;
                 break;
+            case MotionEvent.ACTION_MOVE:
+                if (1 == touchMode) {
+                    int dx = (int) event.getX() - nowX;
+                    int dy = (int) event.getY() - nowY;
+                    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
+                        moveX(dx);
+                    } else if (Math.abs(dy) > 2) {
+                        moveY(dy);
+                    }
+                    nowX = (int) event.getX();
+                    nowY = (int) event.getY();
+                }
+                break;
+        }
+        if (1 == touchMode) {
+            update_thread.setWAITIME(0);
+        } else {
+            update_thread.setWAITIME(500);
         }
         return true;
     }

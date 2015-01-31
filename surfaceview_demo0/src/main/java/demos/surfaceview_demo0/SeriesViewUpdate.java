@@ -29,7 +29,7 @@ public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 2048;
     ArrayList<CosData> test;
     int yTrans = 0;
-    private int WAITIME = 30;
+    private int WAITIME = 500;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
@@ -44,11 +44,10 @@ public class SeriesViewUpdate implements Runnable {
     private int height = 0;
     private int movex = 0;
     private int movey = 0;
-    private boolean Sizechanged;
+
     //创建
     SeriesViewUpdate(SurfaceHolder Holder) {
         surfaceHolder = Holder;
-        Sizechanged = false;
         test = new ArrayList<CosData>();
         test.add(new CosData());
         mHandler = new Handler() {
@@ -91,6 +90,7 @@ public class SeriesViewUpdate implements Runnable {
 
     /**
      * 设置x轴移动
+     *
      * @param movex
      */
     public void setMovex(int movex) {
@@ -126,16 +126,13 @@ public class SeriesViewUpdate implements Runnable {
         while (true) {
             try {
                 Canvas canvas;
-                if (!Sizechanged) {
-                    canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
-                } else {
-                    canvas = surfaceHolder.lockCanvas();
-                }
+                canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                 yTrans++;
                 double v = 0;
                 ArrayList<Integer> a2 = new ArrayList<Integer>();
                 for (int i = 0; i < LENGTH; i++) {
-                    int temp = (int) (300 * Math.sin((double) yTrans / 100 * (v + 0.05 * yTrans))) + (int) (0.2 * yTrans);
+                    //int temp = (int) (300 * Math.sin((double) yTrans / 100 * (v + 0.05 * yTrans))) + (int) (0.2 * yTrans);
+                    int temp = (int) (300 * Math.sin((double) yTrans * (v))) + (int) (0.2 * yTrans);
                     a2.add(temp);
                     //a2.add(100);
                     //a2.add(-100);
@@ -146,7 +143,7 @@ public class SeriesViewUpdate implements Runnable {
                 DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
                 if (WAITIME != 0) {
-                    //Thread.sleep(WAITIME);
+                    Thread.sleep(WAITIME);
                 }
             } catch (Exception e) {
             }
@@ -167,6 +164,7 @@ public class SeriesViewUpdate implements Runnable {
 
     /**
      * 绘制曲线
+     *
      * @param data
      * @param canvas
      */
@@ -211,9 +209,9 @@ public class SeriesViewUpdate implements Runnable {
                         temp_end = startY;
                     }
                     canvas.drawRect(FIX_LENGTH * startX,
-                            temp_start - 1,
+                            temp_start,
                             FIX_LENGTH * endX,
-                            temp_end + 1,
+                            temp_end,
                             paint);
                 }
                 //如果前面大于后面
@@ -224,9 +222,9 @@ public class SeriesViewUpdate implements Runnable {
                         temp_end = startY;
                     }
                     canvas.drawRect(FIX_LENGTH * startX,
-                            temp_end - 1,
+                            temp_end,
                             FIX_LENGTH * endX,
-                            temp_start + 1,
+                            temp_start,
                             paint);
                 }
                 endY = height - afterFix[afterFix.length / 2 + i];
@@ -310,6 +308,7 @@ public class SeriesViewUpdate implements Runnable {
         }
         return temp_data;
     }
+
     /**
      * 设置x轴坐标
      *
