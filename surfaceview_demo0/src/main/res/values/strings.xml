@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SurfaceView_demo0</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">SurfaceView_demo1</string>
+    <string name="hello_world" translatable="false">Hello world!</string>
+    <string name="action_settings" translatable="false">Settings</string>
+    <string name="trigger_type">Trigger Type</string>
+    <string name="in_source">Input Source</string>
+    <string name="in_source1">CH1</string>
+    <string name="in_source2">CH2</string>
+    <string name="trigger1">UP</string>
+    <string name="trigger2">DOWN</string>
 
 </resources>

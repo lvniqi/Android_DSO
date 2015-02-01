@@ -7,7 +7,6 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 /**
@@ -32,7 +31,7 @@ public class GraphView extends RelativeLayout {
         yAxis.setId(generateViewId());
         //x轴
         RelativeLayout.LayoutParams xAxis_layoutParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 20));
+                ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 30));
         xAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         xAxis_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
         xAxis = new AxisView(context);//x轴帧
@@ -46,22 +45,19 @@ public class GraphView extends RelativeLayout {
         gridView = new GridView(context);
         gridView.getGrid().setyAxis(yAxis);
         gridView.getGrid().setxAxis(xAxis);
+        gridView.setBackgroundColor(Color.TRANSPARENT);
         this.addView(gridView, grid_view_layoutParams);
-        //gridView.setPadding(DensityUtil.dip2px(context,50),0,0,0);
         seriesView = new SeriesView(context);//波形帧
-        seriesView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        //seriesView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         //设置透明
         seriesView.setZOrderOnTop(true);
         seriesView.getHolder().setFormat(PixelFormat.TRANSPARENT);
         gridView.getSeriesViewUpdates().add(0, seriesView.getUpdate_thread());
-        //FrameLayout.LayoutParams seriesFl = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        //int a = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 65, getResources().getDisplayMetrics());
-        //seriesFl.setMargins(a, 0, 0, 0);
-        //seriesView.setLayoutParams(seriesFl);
-        //gridView.setLayoutParams(seriesFl);
         Log.i("view", "dip2px:" + DensityUtil.dip2px(context, 10));
         //曲线布局添加
         this.addView(seriesView, grid_view_layoutParams);
+        this.setBackgroundColor(Color.TRANSPARENT);
         this.setBackgroundColor(Color.rgb(45, 15, 0));
     }
 }

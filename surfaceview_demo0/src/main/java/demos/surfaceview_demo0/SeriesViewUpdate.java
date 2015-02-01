@@ -97,9 +97,11 @@ public class SeriesViewUpdate implements Runnable {
         this.movex += movex;
         //测试显示坐标
         String temp = this.movex + "";
-        xAxis.getLabel().remove(0);
-        xAxis.getLabel().add(temp);
-        xAxis.postInvalidate();
+        if (xAxis.getLabel() != null) {
+            xAxis.getLabel().remove(0);
+            xAxis.getLabel().add(temp);
+            xAxis.postInvalidate();
+        }
     }
 
     /**
@@ -111,9 +113,11 @@ public class SeriesViewUpdate implements Runnable {
         this.movey += movey;
         //测试显示坐标
         String temp = this.movey + "";
-        yAxis.getLabel().remove(0);
-        yAxis.getLabel().add(temp);
-        yAxis.postInvalidate();
+        if (yAxis.getLabel() != null) {
+            yAxis.getLabel().remove(0);
+            yAxis.getLabel().add(temp);
+            yAxis.postInvalidate();
+        }
     }
 
     /**
@@ -124,15 +128,16 @@ public class SeriesViewUpdate implements Runnable {
     @Override
     public void run() {
         while (true) {
+            Canvas canvas = null;
             try {
-                Canvas canvas;
                 canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                 yTrans++;
                 double v = 0;
                 ArrayList<Integer> a2 = new ArrayList<Integer>();
                 for (int i = 0; i < LENGTH; i++) {
                     //int temp = (int) (300 * Math.sin((double) yTrans / 100 * (v + 0.05 * yTrans))) + (int) (0.2 * yTrans);
-                    int temp = (int) (300 * Math.sin((double) yTrans * (v))) + (int) (0.2 * yTrans);
+                    //int temp = (int) (300 * Math.sin((double) yTrans * (v))) + (int) (0.2 * yTrans);
+                    int temp = (int) (300 * Math.sin((double) yTrans / 100 * v)) + (int) (0.2 * yTrans);
                     a2.add(temp);
                     //a2.add(100);
                     //a2.add(-100);
@@ -143,9 +148,12 @@ public class SeriesViewUpdate implements Runnable {
                 DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
                 if (WAITIME != 0) {
-                    Thread.sleep(WAITIME);
+                    //Thread.sleep(WAITIME);
                 }
             } catch (Exception e) {
+                if (canvas != null) {
+                    surfaceHolder.unlockCanvasAndPost(canvas);
+                }
             }
         }
     }
@@ -187,7 +195,7 @@ public class SeriesViewUpdate implements Runnable {
         //快速修正后
         Integer[] afterFix = FastFix(data, FIX_LENGTH);
         int startX = 0;
-        int startY = height - afterFix[0];
+        int startY = height - (afterFix[0] + afterFix[afterFix.length / 2]) / 2;
         int endX = 1;
         int endY = height - afterFix[1];
         for (int i = 1; i < afterFix.length / 2; i++) {
@@ -227,7 +235,7 @@ public class SeriesViewUpdate implements Runnable {
                             temp_start,
                             paint);
                 }
-                endY = height - afterFix[afterFix.length / 2 + i];
+                endY = height - (afterFix[i] + afterFix[i + afterFix.length / 2]) / 2;
             }
             //正常绘图
             else {

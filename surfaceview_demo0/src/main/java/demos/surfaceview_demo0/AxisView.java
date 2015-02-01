@@ -32,7 +32,7 @@ class AxisView extends View {
     AxisView(Context context) {
         super(context);
         paint = new Paint();
-        paint.setTextSize(30);
+        paint.setTextSize(DensityUtil.dip2px(MainActivity.getmContext(), 15));
         paint.setColor(Color.WHITE);
         //axis = new ArrayList<Float>();
         //label = new ArrayList<String>();
@@ -113,9 +113,9 @@ class AxisView extends View {
             canvas.drawText(label.get(axis.size() - 1), axis.get(axis.size() - 1), paint.getTextSize(), paint);
         } else {
             paint.setTextAlign(Paint.Align.RIGHT);
-            canvas.drawText(label.get(0), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 30 / 2), axis.get(0) + paint.getTextSize(), paint);
+            canvas.drawText(label.get(0), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 15), axis.get(0) + paint.getTextSize(), paint);
             for (int i = 1; i < axis.size(); i++) {
-                canvas.drawText(label.get(i), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 30 / 2), axis.get(i), paint);
+                canvas.drawText(label.get(i), paint.getTextSize() + DensityUtil.dip2px(MainActivity.getmContext(), 15), axis.get(i), paint);
             }
         }
 

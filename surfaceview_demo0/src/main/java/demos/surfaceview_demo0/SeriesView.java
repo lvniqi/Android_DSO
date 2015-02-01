@@ -1,6 +1,7 @@
 package demos.surfaceview_demo0;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -17,9 +18,23 @@ public class SeriesView extends SurfaceView
     private int nowX = 0;
     private int nowY = 0;
     //触摸模式
-    private int touchMode = 0;
+    private int pointCount = 0;
     //开启触摸
     private boolean touchEnable = true;
+    //手指0
+    private int mPointerId0;
+    //手指1
+    private int mPointerId1;
+
+    public SeriesView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        SurfaceHolder surfaceHolder;
+        surfaceHolder = getHolder();
+        surfaceHolder.addCallback(this);
+        update_thread = new SeriesViewUpdate(surfaceHolder);
+    }
+
     public SeriesView(Context context) {
         super(context);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -40,53 +55,74 @@ public class SeriesView extends SurfaceView
     public void surfaceCreated(SurfaceHolder holder) {
         thread = new Thread(update_thread);
         thread.start();
+
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        thread = null;
+        thread.interrupt();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        boolean handled = false;
+        final int pointerIndex0 = event.findPointerIndex(mPointerId0);
+        final int pointerIndex1 = event.findPointerIndex(mPointerId1);
         if (!touchEnable) {
             super.onTouchEvent(event);
         }
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                touchMode = 1;
+                pointCount = 1;
+                mPointerId0 = event.getPointerId(0);
                 nowX = (int) event.getX();
                 nowY = (int) event.getY();
+                handled = true;
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-                touchMode += 1;
+                pointCount++;
+                if (2 == pointCount) {
+                    mPointerId1 = event.getPointerId(1);
+                }
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                touchMode -= 1;
+                pointCount--;
+                // 获取离开屏幕的手指的索引
+                int pointerIndexLeave = event.getActionIndex();
+                int pointerIdLeave = event.getPointerId(pointerIndexLeave);
+                // 离开屏幕的正是目前的有效手指，此处需要重新调整
+                if (mPointerId0 == pointerIdLeave) {
+                    int reIndex = pointerIndexLeave == 0 ? 1 : 0;
+                    mPointerId0 = event.getPointerId(reIndex);
+                    nowX = (int) event.getX(reIndex);
+                    nowY = (int) event.getY(reIndex);
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                touchMode = 0;
+                pointCount = 0;
+                handled = true;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (1 == touchMode) {
-                    int dx = (int) event.getX() - nowX;
-                    int dy = (int) event.getY() - nowY;
+                if (1 == pointCount) {
+                    int dx = (int) event.getX(pointerIndex0) - nowX;
+                    int dy = (int) event.getY(pointerIndex0) - nowY;
                     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
                         moveX(dx);
                     } else if (Math.abs(dy) > 2) {
                         moveY(dy);
                     }
-                    nowX = (int) event.getX();
-                    nowY = (int) event.getY();
+                    handled = true;
                 }
+                nowX = (int) event.getX(pointerIndex0);
+                nowY = (int) event.getY(pointerIndex0);
                 break;
         }
-        if (1 == touchMode) {
+        if (1 == pointCount) {
             update_thread.setWAITIME(0);
         } else {
             update_thread.setWAITIME(500);
         }
-        return true;
+        return handled;
     }
 
     private void moveX(int x) {

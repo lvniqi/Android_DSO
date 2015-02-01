@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">无线示波器测试版</string>
+    <string name="trigger_type">触发方式</string>
+    <string name="in_source">输入源</string>
+    <string name="in_source1">通道1</string>
+    <string name="in_source2">通道2</string>
+    <string name="trigger1">上升沿</string>
+    <string name="trigger2">下降沿</string>
+</resources>

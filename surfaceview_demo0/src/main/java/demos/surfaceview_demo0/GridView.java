@@ -31,7 +31,6 @@ public class GridView extends View {
         mygrid.setWidth(getWidth());
         mygrid.setHeight(getHeight());
         Paint paint = new Paint();
-        paint.setTextSize(50);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
         ArrayList<String> temp = new ArrayList<String>();
@@ -145,28 +144,20 @@ class Grid extends BackGround {
      * @param canvas
      */
     public void DrawRect(Canvas canvas) {
-        gPaint.setStrokeWidth(3);
+        float paintWidth = DensityUtil.dip2px(MainActivity.getmContext(), (float) 1.5);
+        gPaint.setStrokeWidth(paintWidth);
         gPaint.setAlpha(255);
         //外边框
-        canvas.drawLine(0, 1, width, 1, gPaint);
-        canvas.drawLine(1, 0, 1, height, gPaint);
-        canvas.drawLine(width - 1, 0, width - 1, height, gPaint);
-        canvas.drawLine(0, height - 1, width, height - 1, gPaint);
+        canvas.drawLine(0, paintWidth / 2, width, paintWidth / 2, gPaint);
+        canvas.drawLine(paintWidth / 2, 0, paintWidth / 2, height, gPaint);
+        canvas.drawLine(width - paintWidth / 2, 0, width - paintWidth / 2, height, gPaint);
+        canvas.drawLine(0, height - paintWidth / 2, width, height - paintWidth / 2, gPaint);
 
-    }
-
-    public void DrawXlabel(Canvas canvas) {
-        gPaint.setStrokeWidth(5);
-        gPaint.setAlpha(255);
-        //外边框
-        canvas.drawLine(0, 1, width, 1, gPaint);
-        canvas.drawLine(0, height - 1, width, height - 1, gPaint);
-        canvas.drawLine(1, 0, 1, height, gPaint);
-        canvas.drawLine(width - 1, 0, width - 2, height, gPaint);
     }
 
     public void DrawGrid(Canvas canvas) {
-        gPaint.setStrokeWidth(1);
+        float paintWidth = DensityUtil.dip2px(MainActivity.getmContext(), (float) 0.8);
+        gPaint.setStrokeWidth(paintWidth);
         gPaint.setAlpha(100);
         //纵向线
         ArrayList<Float> xList = new ArrayList<Float>();
