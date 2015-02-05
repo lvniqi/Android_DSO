@@ -7,4 +7,6 @@
     <string name="in_source2">通道2</string>
     <string name="trigger1">上升沿</string>
     <string name="trigger2">下降沿</string>
+    <string name="no_source_in">无信号输入！</string>
+    <string name="menu_open" translatable="false">关闭菜单以显示</string>
 </resources>

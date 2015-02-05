@@ -2,7 +2,6 @@ package demos.surfaceview_demo0;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.Log;
@@ -45,7 +44,7 @@ public class GraphView extends RelativeLayout {
         gridView = new GridView(context);
         gridView.getGrid().setyAxis(yAxis);
         gridView.getGrid().setxAxis(xAxis);
-        gridView.setBackgroundColor(Color.TRANSPARENT);
+        //gridView.setBackgroundColor(Color.TRANSPARENT);
         this.addView(gridView, grid_view_layoutParams);
         seriesView = new SeriesView(context);//波形帧
 
@@ -57,7 +56,11 @@ public class GraphView extends RelativeLayout {
         Log.i("view", "dip2px:" + DensityUtil.dip2px(context, 10));
         //曲线布局添加
         this.addView(seriesView, grid_view_layoutParams);
-        this.setBackgroundColor(Color.TRANSPARENT);
-        this.setBackgroundColor(Color.rgb(45, 15, 0));
+        //this.setBackgroundColor(Color.TRANSPARENT);
+        //this.setBackgroundColor(Color.rgb(45, 15, 0));
+    }
+
+    public SeriesViewUpdate getUpdate_thread() {
+        return seriesView.getUpdate_thread();
     }
 }

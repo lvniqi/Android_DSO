@@ -84,21 +84,21 @@ class Grid extends BackGround {
         super(left, top, width, height);
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.WHITE);
+        gPaint.setColor(Color.argb(0x33, 0x99, 0x99, 0x99));
     }
 
     Grid(Rect rect) {
         super(rect);
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.WHITE);
+        gPaint.setColor(Color.argb(0x33, 0x99, 0x99, 0x99));
     }
 
     Grid() {
         super();
         gPaint = new Paint();
         gPaint.setStrokeCap(Paint.Cap.ROUND);
-        gPaint.setColor(Color.WHITE);
+        gPaint.setColor(Color.argb(0x33, 0x99, 0x99, 0x99));
     }
 
     public AxisView getxAxis() {

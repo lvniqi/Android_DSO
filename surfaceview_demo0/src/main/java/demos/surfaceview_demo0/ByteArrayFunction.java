@@ -12,7 +12,7 @@ public class ByteArrayFunction {
         return data_out;
     }
 
-    static public int[] BytesToint(byte[] data_in) {
+    static public int[] BytesToInt(byte[] data_in) {
         int[] data_out = new int[data_in.length];
         for (int i = 0; i < data_in.length; i++) {
             data_out[i] = data_in[i];

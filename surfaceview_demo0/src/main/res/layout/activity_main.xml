@@ -10,11 +10,46 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/Status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/blue_semi_transparent_pressed">
+        <!--- android:layout_below="@id/text_view" -->
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/_textView1_cencer"
+            android:text="CH1字符"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/_textView1_cencer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+
+            />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/_textView1_cencer"
+            android:text="CH2字符"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/SurfaceView_01"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentRight="true">
-    <!--- android:layout_below="@id/text_view" -->
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/Status"
+        android:background="@color/holo_gray_light">
+        <!--- android:layout_below="@id/text_view" -->
 
     </RelativeLayout>
 
@@ -27,12 +62,11 @@
             android:id="@+id/textView_insource1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="103dp"
-            android:layout_marginEnd="86dp"
-            android:layout_marginRight="86dp"
+            android:layout_above="@+id/action_insource1"
+            android:layout_alignRight="@+id/action_insource1"
+            android:layout_marginBottom="@dimen/string2button_y"
+            android:layout_marginEnd="@dimen/string2button_x"
+            android:layout_marginRight="@dimen/string2button_x"
             android:text="@string/in_source1"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="14dp" />
@@ -44,20 +78,19 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="108dp"
+            android:layout_marginBottom="@dimen/float_button_level1"
             android:layout_marginEnd="0dp"
-            android:layout_marginRight="70dp" />
+            android:layout_marginRight="@dimen/float_button_class1" />
 
         <TextView
             android:id="@+id/textView_insource2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="103dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginRight="15dp"
-            android:layout_toLeftOf="@+id/action_insource1"
-            android:layout_toStartOf="@+id/action_insource1"
+            android:layout_above="@+id/action_insource2"
+            android:layout_alignRight="@+id/action_insource2"
+            android:layout_marginBottom="@dimen/string2button_y"
+            android:layout_marginEnd="@dimen/string2button_x"
+            android:layout_marginRight="@dimen/string2button_x"
             android:text="@string/in_source2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="14dp" />
@@ -74,10 +107,11 @@
             android:id="@+id/textView_trigger1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/textView_insource1"
-            android:layout_alignEnd="@+id/textView_insource1"
-            android:layout_alignRight="@+id/textView_insource1"
-            android:layout_marginBottom="58dp"
+            android:layout_above="@+id/action_trigger1"
+            android:layout_alignRight="@+id/action_trigger1"
+            android:layout_marginBottom="@dimen/string2button_y"
+            android:layout_marginEnd="@dimen/string2button_x"
+            android:layout_marginRight="@dimen/string2button_x"
             android:text="@string/trigger1"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="14dp" />
@@ -85,19 +119,23 @@
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/action_trigger1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/action_insource1"
-            android:layout_alignEnd="@+id/action_insource1"
-            android:layout_alignRight="@+id/action_insource1"
-            android:layout_marginBottom="4dp" />
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/float_button_level2"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="@dimen/float_button_class1" />
 
         <TextView
             android:id="@+id/textView_trigger2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/textView_insource2"
-            android:layout_alignRight="@+id/textView_insource2"
-            android:layout_alignTop="@+id/textView_trigger1"
+            android:layout_above="@+id/action_trigger2"
+            android:layout_alignRight="@+id/action_trigger2"
+            android:layout_marginBottom="@dimen/string2button_y"
+            android:layout_marginEnd="@dimen/string2button_x"
+            android:layout_marginRight="@dimen/string2button_x"
             android:text="@string/trigger2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="14dp" />
@@ -109,22 +147,28 @@
             android:layout_alignTop="@+id/action_trigger1"
             android:layout_toLeftOf="@+id/action_trigger1"
             android:layout_toStartOf="@+id/action_trigger1" />
+
+
+        <com.getbase.floatingactionbutton.FloatingActionsMenu
+            android:id="@+id/multiple_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/float_button_start"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            fab:fab_addButtonColorNormal="@color/white"
+            fab:fab_addButtonColorPressed="@color/white_pressed"
+            fab:fab_addButtonPlusIconColor="@color/half_black"
+            fab:fab_expandDirection="up"
+            fab:fab_labelStyle="@style/menu_labels_style" />
+
+
     </RelativeLayout>
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/multiple_actions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="30dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginRight="0dp"
-        fab:fab_addButtonColorNormal="@color/white"
-        fab:fab_addButtonColorPressed="@color/white_pressed"
-        fab:fab_addButtonPlusIconColor="@color/half_black"
-        fab:fab_labelStyle="@style/menu_labels_style" />
+
     <!---<TextView
         android:id="@+id/text_view"
         android:layout_width="wrap_content"

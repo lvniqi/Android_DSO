@@ -10,8 +10,10 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
@@ -27,9 +29,10 @@ import java.util.ArrayList;
  */
 public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 2048;
-    ArrayList<CosData> test;
+    //服务函数
+    private static Handler mHandler;
+    CosData test;
     int yTrans = 0;
-    private int WAITIME = 500;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
@@ -37,19 +40,23 @@ public class SeriesViewUpdate implements Runnable {
     private AxisView xAxis;
     //y轴注册
     private AxisView yAxis;
-    //服务函数
-    private Handler mHandler;
     //左侧位置
     private int width = 0;
     private int height = 0;
     private int movex = 0;
     private int movey = 0;
+    //暂停
+    private boolean showFlag = true;
+    private boolean ch1Flag = false;
+    private boolean ch2Flag = false;
+    final boolean suspendShowFlag = (ch1Flag | ch2Flag) & (!showFlag);
+    //暂停字符
+    private String suspendShowString;
 
     //创建
     SeriesViewUpdate(SurfaceHolder Holder) {
-        surfaceHolder = Holder;
-        test = new ArrayList<CosData>();
-        test.add(new CosData());
+        setSurfaceHolder(Holder);
+
         mHandler = new Handler() {
             /**
              * 消息接收函数
@@ -59,12 +66,46 @@ public class SeriesViewUpdate implements Runnable {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case DefinedMessages.ADD_NEW_DATA:
+                        Log.d("UDP Demo", "已经接收");
+                        Bundle bundle = new Bundle();
+                        bundle = msg.getData();
+                        byte[] temp_byte = bundle.getByteArray("str");
+                        int[] temp_float = ByteArrayFunction.BytesToInt(temp_byte);
+                        test = new CosData(temp_float);
                         break;
                 }
                 HANDLE_COUNT++;
                 super.handleMessage(msg);
             }
         };
+    }
+
+    public void setCh1Flag(boolean ch1Flag) {
+        this.ch1Flag = ch1Flag;
+    }
+
+    public void setCh2Flag(boolean ch2Flag) {
+        this.ch2Flag = ch2Flag;
+    }
+
+    public void setSuspendShowString(String suspendShowString) {
+        this.suspendShowString = suspendShowString;
+    }
+
+    public boolean isShow() {
+        return showFlag;
+    }
+
+    public void setShow(boolean showFlag) {
+        this.showFlag = showFlag;
+    }
+
+    public Handler getmHandler() {
+        return mHandler;
+    }
+
+    public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
+        this.surfaceHolder = surfaceHolder;
     }
 
     //设置宽度
@@ -130,29 +171,37 @@ public class SeriesViewUpdate implements Runnable {
         while (true) {
             Canvas canvas = null;
             try {
+                canvas = null;
                 canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
-                yTrans++;
-                double v = 0;
-                ArrayList<Integer> a2 = new ArrayList<Integer>();
-                for (int i = 0; i < LENGTH; i++) {
-                    //int temp = (int) (300 * Math.sin((double) yTrans / 100 * (v + 0.05 * yTrans))) + (int) (0.2 * yTrans);
-                    //int temp = (int) (300 * Math.sin((double) yTrans * (v))) + (int) (0.2 * yTrans);
-                    int temp = (int) (300 * Math.sin((double) yTrans / 100 * v)) + (int) (0.2 * yTrans);
-                    a2.add(temp);
-                    //a2.add(100);
-                    //a2.add(-100);
-                    v += 0.02;
+                if (!(ch1Flag | ch2Flag)) {
+                    clear(canvas);
+                    DrawText(canvas, Color.RED, MainActivity.getmContext().getString(R.string.no_source_in));
+                } else if (isShow()) {
+                    /*yTrans++;
+                    double v = 0;
+                    ArrayList<Integer> a2 = new ArrayList<Integer>();
+                    for (int i = 0; i < LENGTH; i++) {
+                        //int temp = (int) (300 * Math.sin((double) v+1));
+                        int temp = (int) (300  * Math.sin(10*v));
+                        //int temp = (int) (300 * Math.sin((double) yTrans / 100 * v)) + (int) (0.2 * yTrans);
+                        a2.add(temp);
+                        //a2.add(100);
+                        //a2.add(-100);
+                        v += 0.02;
+                    }*/
+
+                    Integer[] a = test.getData().toArray(new Integer[0]);
+                    clear(canvas);
+                    DrawLines(a, canvas);
+                } else {
+                    clear(canvas);
+                    DrawText(canvas, Color.BLUE, MainActivity.getmContext().getString(R.string.menu_open));
                 }
-                Integer[] a = a2.toArray(new Integer[0]);
-                clear(canvas);
-                DrawLines(a, canvas);
                 surfaceHolder.unlockCanvasAndPost(canvas);
-                if (WAITIME != 0) {
-                    //Thread.sleep(WAITIME);
-                }
             } catch (Exception e) {
                 if (canvas != null) {
                     surfaceHolder.unlockCanvasAndPost(canvas);
+                    canvas = null;
                 }
             }
         }
@@ -197,7 +246,7 @@ public class SeriesViewUpdate implements Runnable {
         int startX = 0;
         int startY = height - (afterFix[0] + afterFix[afterFix.length / 2]) / 2;
         int endX = 1;
-        int endY = height - afterFix[1];
+        int endY = height - (afterFix[1] + afterFix[1 + afterFix.length / 2]) / 2;
         for (int i = 1; i < afterFix.length / 2; i++) {
             int j = 1;
             for (; j < FIX_LENGTH; j++) {
@@ -235,7 +284,7 @@ public class SeriesViewUpdate implements Runnable {
                             temp_start,
                             paint);
                 }
-                endY = height - (afterFix[i] + afterFix[i + afterFix.length / 2]) / 2;
+                endY = height - afterFix[i + afterFix.length / 2];
             }
             //正常绘图
             else {
@@ -245,11 +294,39 @@ public class SeriesViewUpdate implements Runnable {
             startY = endY;
             if (i < afterFix.length - 1) {
                 endX = i + 1;
-                endY = height - afterFix[i + 1];
+                endY = height - (afterFix[i + 1] + afterFix[i + 1 + afterFix.length / 2]) / 2;
             }
         }
     }
 
+    private void DrawText(Canvas canvas, int color, String string) {
+        Paint paint = new Paint();
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setColor(color);
+        paint.setTextSize(DensityUtil.dip2px(MainActivity.getmContext(), 50));
+        paint.setAntiAlias(true);
+        float[] widths = new float[string.length()];
+        float toalwidth = 0;
+        float height = paint.getTextSize();
+        int index = 0;
+        paint.getTextWidths(string, widths);
+        for (int i = 0; i < string.length(); i++) {
+            toalwidth += widths[i];
+            if (toalwidth > width) {
+                i--;
+                String text = string.substring(index, i);
+                canvas.drawText(text, 0, height + paint.getTextSize(), paint);
+                index = i;
+                height += paint.getTextSize();
+                toalwidth = 0;
+            }
+        }
+        if (toalwidth > 1) {
+            String text = string.substring(index, string.length());
+            canvas.drawText(text, 0, height + paint.getTextSize(), paint);
+        }
+        //canvas.drawText(string,0,paint.getTextSize(),paint);
+    }
     /**
      * 快速绘线设置函数
      *
@@ -349,10 +426,6 @@ public class SeriesViewUpdate implements Runnable {
             return false;
         }
     }
-
-    public void setWAITIME(int WAITIME) {
-        this.WAITIME = WAITIME;
-    }
 }
 
 class CosData implements DataInterface {
@@ -363,6 +436,12 @@ class CosData implements DataInterface {
         data = new ArrayList<Integer>();
     }
 
+    CosData(int[] a) {
+        data = new ArrayList<Integer>();
+        for (int x : a) {
+            data.add(x);
+        }
+    }
     @Override
     public int getX(int index) {
         return index;

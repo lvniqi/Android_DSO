@@ -33,7 +33,7 @@ class AxisView extends View {
         super(context);
         paint = new Paint();
         paint.setTextSize(DensityUtil.dip2px(MainActivity.getmContext(), 15));
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.rgb(0xF0, 0xF0, 0xF0));
         //axis = new ArrayList<Float>();
         //label = new ArrayList<String>();
     }

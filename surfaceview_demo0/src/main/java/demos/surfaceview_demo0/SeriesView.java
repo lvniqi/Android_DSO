@@ -23,8 +23,6 @@ public class SeriesView extends SurfaceView
     private boolean touchEnable = true;
     //手指0
     private int mPointerId0;
-    //手指1
-    private int mPointerId1;
 
     public SeriesView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -42,6 +40,7 @@ public class SeriesView extends SurfaceView
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
         update_thread = new SeriesViewUpdate(surfaceHolder);
+        thread = new Thread(update_thread);
     }
 
     @Override
@@ -53,9 +52,10 @@ public class SeriesView extends SurfaceView
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new Thread(update_thread);
-        thread.start();
-
+        update_thread.setSurfaceHolder(getHolder());
+        if (!thread.isAlive()) {
+            thread.start();
+        }
     }
 
     @Override
@@ -67,60 +67,52 @@ public class SeriesView extends SurfaceView
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
         final int pointerIndex0 = event.findPointerIndex(mPointerId0);
-        final int pointerIndex1 = event.findPointerIndex(mPointerId1);
-        if (!touchEnable) {
+        if (!touchEnable || !getUpdate_thread().isShow()) {
             super.onTouchEvent(event);
-        }
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-                pointCount = 1;
-                mPointerId0 = event.getPointerId(0);
-                nowX = (int) event.getX();
-                nowY = (int) event.getY();
-                handled = true;
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                pointCount++;
-                if (2 == pointCount) {
-                    mPointerId1 = event.getPointerId(1);
-                }
-                break;
-            case MotionEvent.ACTION_POINTER_UP:
-                pointCount--;
-                // 获取离开屏幕的手指的索引
-                int pointerIndexLeave = event.getActionIndex();
-                int pointerIdLeave = event.getPointerId(pointerIndexLeave);
-                // 离开屏幕的正是目前的有效手指，此处需要重新调整
-                if (mPointerId0 == pointerIdLeave) {
-                    int reIndex = pointerIndexLeave == 0 ? 1 : 0;
-                    mPointerId0 = event.getPointerId(reIndex);
-                    nowX = (int) event.getX(reIndex);
-                    nowY = (int) event.getY(reIndex);
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                pointCount = 0;
-                handled = true;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (1 == pointCount) {
-                    int dx = (int) event.getX(pointerIndex0) - nowX;
-                    int dy = (int) event.getY(pointerIndex0) - nowY;
-                    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
-                        moveX(dx);
-                    } else if (Math.abs(dy) > 2) {
-                        moveY(dy);
-                    }
-                    handled = true;
-                }
-                nowX = (int) event.getX(pointerIndex0);
-                nowY = (int) event.getY(pointerIndex0);
-                break;
-        }
-        if (1 == pointCount) {
-            update_thread.setWAITIME(0);
         } else {
-            update_thread.setWAITIME(500);
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    pointCount = 1;
+                    mPointerId0 = event.getPointerId(0);
+                    nowX = (int) event.getX();
+                    nowY = (int) event.getY();
+                    handled = true;
+                    break;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    pointCount++;
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                    pointCount--;
+                    // 获取离开屏幕的手指的索引
+                    int pointerIndexLeave = event.getActionIndex();
+                    int pointerIdLeave = event.getPointerId(pointerIndexLeave);
+                    // 离开屏幕的正是目前的有效手指，此处需要重新调整
+                    if (mPointerId0 == pointerIdLeave) {
+                        int reIndex = pointerIndexLeave == 0 ? 1 : 0;
+                        mPointerId0 = event.getPointerId(reIndex);
+                        nowX = (int) event.getX(reIndex);
+                        nowY = (int) event.getY(reIndex);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    pointCount = 0;
+                    handled = true;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (1 == pointCount) {
+                        int dx = (int) event.getX(pointerIndex0) - nowX;
+                        int dy = (int) event.getY(pointerIndex0) - nowY;
+                        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
+                            moveX(dx);
+                        } else if (Math.abs(dy) > 2) {
+                            moveY(dy);
+                        }
+                        handled = true;
+                    }
+                    nowX = (int) event.getX(pointerIndex0);
+                    nowY = (int) event.getY(pointerIndex0);
+                    break;
+            }
         }
         return handled;
     }
@@ -147,4 +139,5 @@ public class SeriesView extends SurfaceView
     public SeriesViewUpdate getUpdate_thread() {
         return update_thread;
     }
+
 }

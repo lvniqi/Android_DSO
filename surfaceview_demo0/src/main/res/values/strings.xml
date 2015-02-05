@@ -10,5 +10,7 @@
     <string name="in_source2">CH2</string>
     <string name="trigger1">UP</string>
     <string name="trigger2">DOWN</string>
+    <string name="no_source_in">No source input!</string>
+    <string name="menu_open">Close Menu to Show</string>
 
 </resources>
