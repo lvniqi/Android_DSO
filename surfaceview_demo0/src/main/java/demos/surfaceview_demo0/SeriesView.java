@@ -2,6 +2,7 @@ package demos.surfaceview_demo0;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -40,27 +41,30 @@ public class SeriesView extends SurfaceView
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
         update_thread = new SeriesViewUpdate(surfaceHolder);
-        thread = new Thread(update_thread);
     }
 
     @Override
     public void surfaceChanged(
             SurfaceHolder holder, int format, int width, int height) {
-        //update_thread.setWidth(width);
-        //update_thread.setHeight(height);
+        Log.i("SeriesView", "surfaceChanged");
+        update_thread.setWidth(width);
+        update_thread.setHeight(height);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         update_thread.setSurfaceHolder(getHolder());
-        if (!thread.isAlive()) {
-            thread.start();
-        }
+        update_thread.setContinue(true);
+        Log.i("SeriesView", "surfaceCreated");
+        thread = new Thread(update_thread);
+        thread.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        thread.interrupt();
+        //thread.interrupt();
+        update_thread.setContinue(false);
+        Log.i("SeriesView", "surfaceDestroyed");
     }
 
     @Override

@@ -7,7 +7,6 @@ package demos.surfaceview_demo0;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.format.Time;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -47,7 +46,7 @@ public class UdpService implements Runnable {
             try {
                 while (!IsThreadDisable) {
                     // 准备接收数据
-                    Log.d("UDP Demo", "准备接受");
+                    //Log.d("UDP Demo", "准备接受");
                     datagramSocket.receive(datagramPacket);
                     byte[] temp = new byte[datagramPacket.getLength()];
                     System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset(), temp, 0, datagramPacket.getLength());

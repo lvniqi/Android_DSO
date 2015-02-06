@@ -13,7 +13,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
@@ -29,13 +28,15 @@ import java.util.ArrayList;
  */
 public class SeriesViewUpdate implements Runnable {
     static final int LENGTH = 2048;
-    //服务函数
-    private static Handler mHandler;
     CosData test;
     int yTrans = 0;
+    //服务函数
+    private Handler mHandler;
     private int HANDLE_COUNT = 0;
     //surfaceview lock
     private SurfaceHolder surfaceHolder;
+    //继续运行？
+    private boolean isContinue = true;
     //x轴注册
     private AxisView xAxis;
     //y轴注册
@@ -66,7 +67,6 @@ public class SeriesViewUpdate implements Runnable {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case DefinedMessages.ADD_NEW_DATA:
-                        Log.d("UDP Demo", "已经接收");
                         Bundle bundle = new Bundle();
                         bundle = msg.getData();
                         byte[] temp_byte = bundle.getByteArray("str");
@@ -78,6 +78,10 @@ public class SeriesViewUpdate implements Runnable {
                 super.handleMessage(msg);
             }
         };
+    }
+
+    public void setContinue(boolean isContinue) {
+        this.isContinue = isContinue;
     }
 
     public void setCh1Flag(boolean ch1Flag) {
@@ -168,7 +172,7 @@ public class SeriesViewUpdate implements Runnable {
      */
     @Override
     public void run() {
-        while (true) {
+        while (isContinue) {
             Canvas canvas = null;
             try {
                 canvas = null;
@@ -189,10 +193,11 @@ public class SeriesViewUpdate implements Runnable {
                         //a2.add(-100);
                         v += 0.02;
                     }*/
-
-                    Integer[] a = test.getData().toArray(new Integer[0]);
                     clear(canvas);
-                    DrawLines(a, canvas);
+                    if (test != null && (test.getData().size() > 0)) {
+                        Integer[] a = test.getData().toArray(new Integer[0]);
+                        DrawLines(a, canvas);
+                    }
                 } else {
                     clear(canvas);
                     DrawText(canvas, Color.BLUE, MainActivity.getmContext().getString(R.string.menu_open));
@@ -226,38 +231,41 @@ public class SeriesViewUpdate implements Runnable {
      * @param canvas
      */
     private void DrawLines(Integer[] data, Canvas canvas) {
-        final int FIX_LENGTH = 4;
+        final float WINDOW_SIZE = (float) 0.5;
+        final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), (float) 2) * 1.5 / WINDOW_SIZE);
+        final float FIX_LENGTH = (FIX_SIZE * WINDOW_SIZE);
+        final float SIZE = (float) 2.5;
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(Color.YELLOW);
-        paint.setStrokeWidth(3);
+        paint.setStrokeWidth(DensityUtil.dip2px(MainActivity.getmContext(), 2));
         paint.setAntiAlias(true);
+        //快速修正后
+        Integer[] afterFix = FastFix(data, FIX_SIZE);
         //防止越界
-        if (movex < width - data.length) {
-            movex = width - data.length;
+        if (movex < width - FIX_LENGTH * (afterFix.length / 2 - 1)) {
+            movex = (int) (width - FIX_LENGTH * (afterFix.length / 2 - 1));
         } else if (movex > 0) {
             movex = 0;
         }
         //偏移
         canvas.translate(movex, movey);
         canvas.clipRect(-movex, -movey, width - movex, height - movey);
-        //快速修正后
-        Integer[] afterFix = FastFix(data, FIX_LENGTH);
-        int startX = 0;
-        int startY = height - (afterFix[0] + afterFix[afterFix.length / 2]) / 2;
-        int endX = 1;
-        int endY = height - (afterFix[1] + afterFix[1 + afterFix.length / 2]) / 2;
+        float startX = 0;
+        float startY = height - SIZE * (afterFix[0] + afterFix[afterFix.length / 2]) / 2;
+        float endX = 1;
+        float endY = height - SIZE * (afterFix[1] + afterFix[1 + afterFix.length / 2]) / 2;
         for (int i = 1; i < afterFix.length / 2; i++) {
             int j = 1;
-            for (; j < FIX_LENGTH; j++) {
-                if (Math.abs(data[FIX_LENGTH * i + j] - data[FIX_LENGTH * i + j - 1]) > 50) {
+            for (; j < FIX_SIZE; j++) {
+                if (Math.abs(data[FIX_SIZE * i + j] - data[FIX_SIZE * i + j - 1]) > 10) {
                     break;
                 }
             }
             //如果有峰峰值大于阀值
-            if (j < FIX_LENGTH) {
-                int temp_start = height - afterFix[i];
-                int temp_end = height - afterFix[afterFix.length / 2 + i];
+            if (j < FIX_SIZE) {
+                float temp_start = height - SIZE * afterFix[i];
+                float temp_end = height - SIZE * afterFix[afterFix.length / 2 + i];
                 //如果后面大于前面
                 if (temp_end > temp_start) {
                     if (startY < temp_start) {
@@ -284,7 +292,7 @@ public class SeriesViewUpdate implements Runnable {
                             temp_start,
                             paint);
                 }
-                endY = height - afterFix[i + afterFix.length / 2];
+                endY = height - SIZE * afterFix[i + afterFix.length / 2];
             }
             //正常绘图
             else {
@@ -294,7 +302,7 @@ public class SeriesViewUpdate implements Runnable {
             startY = endY;
             if (i < afterFix.length - 1) {
                 endX = i + 1;
-                endY = height - (afterFix[i + 1] + afterFix[i + 1 + afterFix.length / 2]) / 2;
+                endY = height - SIZE * (afterFix[i + 1] + afterFix[i + 1 + afterFix.length / 2]) / 2;
             }
         }
     }
@@ -335,27 +343,32 @@ public class SeriesViewUpdate implements Runnable {
      * @return data_out
      */
     private Integer[] FastFix(Integer[] data, int step) {
-        if (step < 2) {
-            return data;
+        if (step < 1) {
+            step = 1;
         }
         int count = data.length / step;
         Integer[] data_out = new Integer[count * 2];
-
-        for (int i = 0; i < count; i++) {
-            int max = i * step, min = i * step;
-            for (int j = i * step; j < i * step + step; j++) {
-                if (data[j] > data[max]) {
-                    max = j;
-                } else if (data[j] < data[min]) {
-                    min = j;
-                }
+        if (step < 2) {
+            for (int i = 0; i < count; i++) {
+                data_out[i] = data_out[count + i] = data[i];
             }
-            if (max > min) {
-                data_out[i] = data[min];
-                data_out[count + i] = data[max];
-            } else {
-                data_out[i] = data[max];
-                data_out[count + i] = data[min];
+        } else {
+            for (int i = 0; i < count; i++) {
+                int max = i * step, min = i * step;
+                for (int j = i * step; j < i * step + step; j++) {
+                    if (data[j] > data[max]) {
+                        max = j;
+                    } else if (data[j] < data[min]) {
+                        min = j;
+                    }
+                }
+                if (max > min) {
+                    data_out[i] = data[min];
+                    data_out[count + i] = data[max];
+                } else {
+                    data_out[i] = data[max];
+                    data_out[count + i] = data[min];
+                }
             }
         }
         return data_out;
