@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
@@ -44,8 +45,13 @@ public class SeriesViewUpdate implements Runnable {
     //左侧位置
     private int width = 0;
     private int height = 0;
-    private int movex = 0;
-    private int movey = 0;
+    private int moveX = 0;
+    private int moveY = 0;
+    //y轴缩放
+    //y最大值
+    private float manualMaxYValue = 256;
+    //y最小值
+    private float manualMinYValue = 0;
     //暂停
     private boolean showFlag = true;
     private boolean ch1Flag = false;
@@ -122,6 +128,13 @@ public class SeriesViewUpdate implements Runnable {
         this.height = height;
     }
 
+    public void setScalingY(float scalingY, float startpos) {
+        float realPos = startpos / height;
+        Log.i(startpos + "", realPos + "");
+        float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
+        manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
+        manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
+    }
 
     //设置x轴
     public void setxAxis(AxisView xAxis) {
@@ -136,12 +149,12 @@ public class SeriesViewUpdate implements Runnable {
     /**
      * 设置x轴移动
      *
-     * @param movex
+     * @param moveX
      */
-    public void setMovex(int movex) {
-        this.movex += movex;
+    public void setMoveX(int moveX) {
+        this.moveX += moveX;
         //测试显示坐标
-        String temp = this.movex + "";
+        String temp = this.moveX + "";
         if (xAxis.getLabel() != null) {
             xAxis.getLabel().remove(0);
             xAxis.getLabel().add(temp);
@@ -152,15 +165,18 @@ public class SeriesViewUpdate implements Runnable {
     /**
      * 设置Y轴移动
      *
-     * @param movey
+     * @param moveY
      */
-    public void setMovey(int movey) {
-        this.movey += movey;
+    public void setMoveY(int moveY) {
+        //this.moveY += moveY;
+        float size = manualMaxYValue - manualMinYValue;
+        this.manualMaxYValue += moveY * size / height;
+        this.manualMinYValue += moveY * size / height;
         //测试显示坐标
-        String temp = this.movey + "";
+        //String temp = (int)(this.moveY/(manualMaxYValue-manualMinYValue)) + "";
         if (yAxis.getLabel() != null) {
             yAxis.getLabel().remove(0);
-            yAxis.getLabel().add(temp);
+            yAxis.getLabel().add(((int) manualMinYValue) + "");
             yAxis.postInvalidate();
         }
     }
@@ -179,20 +195,8 @@ public class SeriesViewUpdate implements Runnable {
                 canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                 if (!(ch1Flag | ch2Flag)) {
                     clear(canvas);
-                    DrawText(canvas, Color.RED, MainActivity.getmContext().getString(R.string.no_source_in));
+                    DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
                 } else if (isShow()) {
-                    /*yTrans++;
-                    double v = 0;
-                    ArrayList<Integer> a2 = new ArrayList<Integer>();
-                    for (int i = 0; i < LENGTH; i++) {
-                        //int temp = (int) (300 * Math.sin((double) v+1));
-                        int temp = (int) (300  * Math.sin(10*v));
-                        //int temp = (int) (300 * Math.sin((double) yTrans / 100 * v)) + (int) (0.2 * yTrans);
-                        a2.add(temp);
-                        //a2.add(100);
-                        //a2.add(-100);
-                        v += 0.02;
-                    }*/
                     clear(canvas);
                     if (test != null && (test.getData().size() > 0)) {
                         Integer[] a = test.getData().toArray(new Integer[0]);
@@ -200,7 +204,7 @@ public class SeriesViewUpdate implements Runnable {
                     }
                 } else {
                     clear(canvas);
-                    DrawText(canvas, Color.BLUE, MainActivity.getmContext().getString(R.string.menu_open));
+                    DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
                 }
                 surfaceHolder.unlockCanvasAndPost(canvas);
             } catch (Exception e) {
@@ -231,10 +235,9 @@ public class SeriesViewUpdate implements Runnable {
      * @param canvas
      */
     private void DrawLines(Integer[] data, Canvas canvas) {
-        final float WINDOW_SIZE = (float) 0.5;
+        final float WINDOW_SIZE = (float) 5;
         final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), (float) 2) * 1.5 / WINDOW_SIZE);
         final float FIX_LENGTH = (FIX_SIZE * WINDOW_SIZE);
-        final float SIZE = (float) 2.5;
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(Color.YELLOW);
@@ -243,29 +246,27 @@ public class SeriesViewUpdate implements Runnable {
         //快速修正后
         Integer[] afterFix = FastFix(data, FIX_SIZE);
         //防止越界
-        if (movex < width - FIX_LENGTH * (afterFix.length / 2 - 1)) {
-            movex = (int) (width - FIX_LENGTH * (afterFix.length / 2 - 1));
-        } else if (movex > 0) {
-            movex = 0;
+        float x_edge = width - FIX_LENGTH * (afterFix.length / 2 - 1);
+        if (x_edge > 0) {
+            moveX = 0;
+        } else if (moveX < x_edge) {
+            moveX = (int) (width - FIX_LENGTH * (afterFix.length / 2 - 1));
+        } else if (moveX > 0) {
+            moveX = 0;
         }
+        float sizeY = manualMaxYValue - manualMinYValue;
         //偏移
-        canvas.translate(movex, movey);
-        canvas.clipRect(-movex, -movey, width - movex, height - movey);
+        canvas.translate(moveX, manualMinYValue * height / sizeY);
+        canvas.clipRect(-moveX, -manualMinYValue * height / sizeY, width - moveX, height - manualMinYValue * height / sizeY);
         float startX = 0;
-        float startY = height - SIZE * (afterFix[0] + afterFix[afterFix.length / 2]) / 2;
+        float startY = height - ((afterFix[0] + afterFix[afterFix.length / 2]) / 2) * height / (manualMaxYValue - manualMinYValue);
         float endX = 1;
-        float endY = height - SIZE * (afterFix[1] + afterFix[1 + afterFix.length / 2]) / 2;
+        float endY = height - (afterFix[1] + afterFix[1 + afterFix.length / 2]) / 2 * height / (manualMaxYValue - manualMinYValue);
         for (int i = 1; i < afterFix.length / 2; i++) {
-            int j = 1;
-            for (; j < FIX_SIZE; j++) {
-                if (Math.abs(data[FIX_SIZE * i + j] - data[FIX_SIZE * i + j - 1]) > 10) {
-                    break;
-                }
-            }
             //如果有峰峰值大于阀值
-            if (j < FIX_SIZE) {
-                float temp_start = height - SIZE * afterFix[i];
-                float temp_end = height - SIZE * afterFix[afterFix.length / 2 + i];
+            if (Math.abs(afterFix[i - 1] - afterFix[afterFix.length / 2 + i - 1]) > 100) {
+                float temp_start = height - afterFix[i] * height / (manualMaxYValue - manualMinYValue);
+                float temp_end = height - afterFix[afterFix.length / 2 + i] * height / (manualMaxYValue - manualMinYValue);
                 //如果后面大于前面
                 if (temp_end > temp_start) {
                     if (startY < temp_start) {
@@ -292,7 +293,7 @@ public class SeriesViewUpdate implements Runnable {
                             temp_start,
                             paint);
                 }
-                endY = height - SIZE * afterFix[i + afterFix.length / 2];
+                endY = height - afterFix[i + afterFix.length / 2] * height / (manualMaxYValue - manualMinYValue);
             }
             //正常绘图
             else {
@@ -302,7 +303,7 @@ public class SeriesViewUpdate implements Runnable {
             startY = endY;
             if (i < afterFix.length - 1) {
                 endX = i + 1;
-                endY = height - SIZE * (afterFix[i + 1] + afterFix[i + 1 + afterFix.length / 2]) / 2;
+                endY = height - (afterFix[i + 1] + afterFix[i + 1 + afterFix.length / 2]) / 2 * height / (manualMaxYValue - manualMinYValue);
             }
         }
     }
@@ -405,39 +406,6 @@ public class SeriesViewUpdate implements Runnable {
             }
         }
         return temp_data;
-    }
-
-    /**
-     * 设置x轴坐标
-     *
-     * @param temp
-     * @return
-     */
-    public boolean setXlabel(ArrayList<String> temp) {
-        if (xAxis != null && xAxis.getAxis().size() == temp.size()) {
-            xAxis.setLabel(temp);
-            xAxis.postInvalidate();
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    /**
-     * 设置y轴坐标
-     *
-     * @param temp
-     * @return
-     */
-    public boolean setYlabel(ArrayList<String> temp) {
-        if (yAxis != null && yAxis.getAxis().size() == temp.size()) {
-            yAxis.setLabel(temp);
-            yAxis.postInvalidate();
-            return true;
-        } else {
-            return false;
-        }
     }
 }
 

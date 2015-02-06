@@ -16,8 +16,11 @@ public class SeriesView extends SurfaceView
 
     Thread thread;
     SeriesViewUpdate update_thread;
-    private int nowX = 0;
-    private int nowY = 0;
+    private int nowX1 = 0;
+    private int nowX2 = 0;
+    private int nowY1 = 0;
+    private int nowY2 = 0;
+    private int startCenterY = 0;
     //触摸模式
     private int pointCount = 0;
     //开启触摸
@@ -47,8 +50,8 @@ public class SeriesView extends SurfaceView
     public void surfaceChanged(
             SurfaceHolder holder, int format, int width, int height) {
         Log.i("SeriesView", "surfaceChanged");
-        update_thread.setWidth(width);
-        update_thread.setHeight(height);
+        //update_thread.setWidth(width);
+        //update_thread.setHeight(height);
     }
 
     @Override
@@ -71,6 +74,7 @@ public class SeriesView extends SurfaceView
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
         final int pointerIndex0 = event.findPointerIndex(mPointerId0);
+        final int pointerIndex1 = event.findPointerIndex(mPointerId0) == 0 ? 1 : 0;
         if (!touchEnable || !getUpdate_thread().isShow()) {
             super.onTouchEvent(event);
         } else {
@@ -78,12 +82,17 @@ public class SeriesView extends SurfaceView
                 case MotionEvent.ACTION_DOWN:
                     pointCount = 1;
                     mPointerId0 = event.getPointerId(0);
-                    nowX = (int) event.getX();
-                    nowY = (int) event.getY();
+                    nowX1 = (int) event.getX();
+                    nowY1 = (int) event.getY();
                     handled = true;
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     pointCount++;
+                    if (2 == pointCount) {
+                        nowX2 = (int) event.getX(pointerIndex1);
+                        nowY2 = (int) event.getY(pointerIndex1);
+                        startCenterY = (nowY1 + nowY2) / 2;
+                    }
                     break;
                 case MotionEvent.ACTION_POINTER_UP:
                     pointCount--;
@@ -94,8 +103,8 @@ public class SeriesView extends SurfaceView
                     if (mPointerId0 == pointerIdLeave) {
                         int reIndex = pointerIndexLeave == 0 ? 1 : 0;
                         mPointerId0 = event.getPointerId(reIndex);
-                        nowX = (int) event.getX(reIndex);
-                        nowY = (int) event.getY(reIndex);
+                        nowX1 = (int) event.getX(reIndex);
+                        nowY1 = (int) event.getY(reIndex);
                     }
                     break;
                 case MotionEvent.ACTION_UP:
@@ -104,17 +113,25 @@ public class SeriesView extends SurfaceView
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (1 == pointCount) {
-                        int dx = (int) event.getX(pointerIndex0) - nowX;
-                        int dy = (int) event.getY(pointerIndex0) - nowY;
+                        int dx = (int) event.getX(pointerIndex0) - nowX1;
+                        int dy = (int) event.getY(pointerIndex0) - nowY1;
                         if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 2) {
                             moveX(dx);
                         } else if (Math.abs(dy) > 2) {
                             moveY(dy);
                         }
                         handled = true;
+                    } else if (2 == pointCount) {
+                        int dy_before = nowY2 - nowY1;
+                        nowY2 = (int) event.getY(pointerIndex1);
+                        nowY1 = (int) event.getY(pointerIndex0);
+                        int dy_now = nowY2 - nowY1;
+                        if (Math.abs(dy_now - dy_before) > 2) {
+                            update_thread.setScalingY((float) dy_now / dy_before, startCenterY);
+                        }
                     }
-                    nowX = (int) event.getX(pointerIndex0);
-                    nowY = (int) event.getY(pointerIndex0);
+                    nowX1 = (int) event.getX(pointerIndex0);
+                    nowY1 = (int) event.getY(pointerIndex0);
                     break;
             }
         }
@@ -122,7 +139,7 @@ public class SeriesView extends SurfaceView
     }
 
     private void moveX(int x) {
-        update_thread.setMovex(x);
+        update_thread.setMoveX(x);
         /*ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(x + "x");
@@ -131,7 +148,7 @@ public class SeriesView extends SurfaceView
     }
 
     private void moveY(int y) {
-        update_thread.setMovey(y);
+        update_thread.setMoveY(y);
         /*ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
             temp.add(y + "y");
