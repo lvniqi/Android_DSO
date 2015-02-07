@@ -73,8 +73,8 @@ public class SeriesView extends SurfaceView
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
-        final int pointerIndex0 = event.findPointerIndex(mPointerId0);
-        final int pointerIndex1 = event.findPointerIndex(mPointerId0) == 0 ? 1 : 0;
+        final Integer pointerIndex0 = event.findPointerIndex(mPointerId0);
+        final Integer pointerIndex1 = event.findPointerIndex(mPointerId0) == 0 ? 1 : 0;
         if (!touchEnable || !getUpdate_thread().isShow()) {
             super.onTouchEvent(event);
         } else {
@@ -120,18 +120,37 @@ public class SeriesView extends SurfaceView
                         } else if (Math.abs(dy) > 2) {
                             moveY(dy);
                         }
+                        nowX1 = (int) event.getX(pointerIndex0);
+                        nowY1 = (int) event.getY(pointerIndex0);
                         handled = true;
                     } else if (2 == pointCount) {
                         int dy_before = nowY2 - nowY1;
-                        nowY2 = (int) event.getY(pointerIndex1);
-                        nowY1 = (int) event.getY(pointerIndex0);
-                        int dy_now = nowY2 - nowY1;
-                        if (Math.abs(dy_now - dy_before) > 2) {
+                        int dx_before = nowX2 - nowX1;
+                        final int dx_now = (int) event.getX(pointerIndex1) - (int) event.getX(pointerIndex0);
+                        ;
+                        final int dy_now = (int) event.getY(pointerIndex1) - (int) event.getY(pointerIndex0);
+                        if (Math.abs(dx_now - dx_before) > DensityUtil.dip2px(MainActivity.getmContext(), 2)
+                                && Math.abs(dx_now) > DensityUtil.dip2px(MainActivity.getmContext(), 10)
+                                && Math.abs(dx_before) > DensityUtil.dip2px(MainActivity.getmContext(), 10)
+                                && Math.abs(dx_now - dx_before) > Math.abs(dy_now - dy_before)
+                                ) {
+                            update_thread.setScalingX((float) dx_now / dx_before, (nowX1 + nowX2) / 2);
+                            nowX1 = (int) event.getX(pointerIndex0);
+                            nowY1 = (int) event.getY(pointerIndex0);
+                            nowX2 = (int) event.getX(pointerIndex1);
+                            nowY2 = (int) event.getY(pointerIndex1);
+                        } else if (Math.abs(dy_now - dy_before) > DensityUtil.dip2px(MainActivity.getmContext(), 2)
+                                && Math.abs(dy_now) > DensityUtil.dip2px(MainActivity.getmContext(), 10)
+                                && Math.abs(dy_before) > DensityUtil.dip2px(MainActivity.getmContext(), 10)
+                                ) {
                             update_thread.setScalingY((float) dy_now / dy_before, startCenterY);
+                            nowX1 = (int) event.getX(pointerIndex0);
+                            nowY1 = (int) event.getY(pointerIndex0);
+                            nowX2 = (int) event.getX(pointerIndex1);
+                            nowY2 = (int) event.getY(pointerIndex1);
                         }
+                        handled = true;
                     }
-                    nowX1 = (int) event.getX(pointerIndex0);
-                    nowY1 = (int) event.getY(pointerIndex0);
                     break;
             }
         }
@@ -160,5 +179,4 @@ public class SeriesView extends SurfaceView
     public SeriesViewUpdate getUpdate_thread() {
         return update_thread;
     }
-
 }

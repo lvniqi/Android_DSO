@@ -49,8 +49,8 @@ public class GridView extends View {
         for (SeriesViewUpdate x : seriesViewUpdates) {
             x.setWidth(mygrid.getWidth());
             x.setHeight(mygrid.getHeight());
-            x.setxAxis(mygrid.getxAxis());
-            x.setyAxis(mygrid.getyAxis());
+            x.setAxisX(mygrid.getxAxis());
+            x.setAxisY(mygrid.getyAxis());
         }
         mygrid.DrawRect(canvas);
         mygrid.DrawGrid(canvas);

@@ -6,7 +6,6 @@ package demos.surfaceview_demo0;
 
 import android.os.Bundle;
 import android.os.Message;
-import android.text.format.Time;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -41,17 +40,20 @@ public class UdpService implements Runnable {
                     message.length);
             byte[] a = new byte[4096];
             datagramSocket.setBroadcast(true);
-            Time t = new Time(); // or Time t=new Time("GMT+8"); 加上Time Zone资料。
-            t.setToNow(); // 取得系统时间。
             try {
                 while (!IsThreadDisable) {
                     // 准备接收数据
                     //Log.d("UDP Demo", "准备接受");
                     datagramSocket.receive(datagramPacket);
                     byte[] temp = new byte[datagramPacket.getLength()];
-                    System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset(), temp, 0, datagramPacket.getLength());
+                    byte channel_flag = datagramPacket.getData()[datagramPacket.getOffset()];
+                    System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset() + 1, temp, 0, datagramPacket.getLength());
                     Message m = new Message();
-                    m.what = DefinedMessages.ADD_NEW_DATA;
+                    if (((int) channel_flag & 0x80) != 0) {
+                        m.what = DefinedMessages.ADD_NEW_DATA_CH1;
+                    } else {
+                        m.what = DefinedMessages.ADD_NEW_DATA_CH2;
+                    }
                     Bundle bundle = new Bundle();
                     bundle.putByteArray("str", temp);
                     m.setData(bundle);

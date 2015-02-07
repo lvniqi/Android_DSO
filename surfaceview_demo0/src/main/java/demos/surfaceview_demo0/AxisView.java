@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * @see demos.surfaceview_demo0.AxisView
  */
 class AxisView extends View {
-    boolean isX;
+    private boolean isX;
     private ArrayList<Float> axis;
     private ArrayList<String> label;
     private Paint paint;

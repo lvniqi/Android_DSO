@@ -2,9 +2,9 @@ package demos.surfaceview_demo0;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,6 +27,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
+        //保持亮屏
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
         setContentView(R.layout.activity_main);
         //udp 接收
         udpservice = new UdpService(4507);
@@ -63,15 +65,17 @@ public class MainActivity extends Activity {
 
         mainMenu.addButton(actionInSource);
         //actionTriggerType.setColorNormal(R.color.white_pressed);
+        final int ResRed = this.getResources().getColor(R.color.holo_red_light);
+        final int ResBlue = this.getResources().getColor(R.color.holo_blue_dark);
         actionTriggerType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (actionTriggerType.getColorNormal() == Color.rgb(0x00, 0x99, 0xcc)) {
-                    actionTriggerType.setColorNormal(Color.rgb(0xff, 0x44, 0x44));
+                if (actionTriggerType.getColorNormal() == ResBlue) {
+                    actionTriggerType.setColorNormal(ResRed);
                     actionTriggerType.showSub(true);
                     mainMenu.hideLabels(actionTriggerType);
                 } else {
-                    actionTriggerType.setColorNormal(Color.rgb(0x00, 0x99, 0xcc));
+                    actionTriggerType.setColorNormal(ResBlue);
                     actionTriggerType.showSub(false);
                     mainMenu.showLabels(actionTriggerType);
                 }
@@ -80,12 +84,12 @@ public class MainActivity extends Activity {
         actionInSource.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (actionInSource.getColorNormal() == Color.rgb(0x00, 0x99, 0xcc)) {
-                    actionInSource.setColorNormal(Color.rgb(0xff, 0x44, 0x44));
+                if (actionInSource.getColorNormal() == ResBlue) {
+                    actionInSource.setColorNormal(ResRed);
                     actionInSource.showSub(true);
                     mainMenu.hideLabels(actionInSource);
                 } else {
-                    actionInSource.setColorNormal(Color.rgb(0x00, 0x99, 0xcc));
+                    actionInSource.setColorNormal(ResBlue);
                     actionInSource.showSub(false);
                     mainMenu.showLabels(actionInSource);
                 }
@@ -94,12 +98,24 @@ public class MainActivity extends Activity {
         actionInsource1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (actionInsource1.getColorNormal() == Color.rgb(0x00, 0x99, 0xcc)) {
-                    actionInsource1.setColorNormal(Color.rgb(0xff, 0x44, 0x44));
-                    graphView.getUpdate_thread().setCh1Flag(true);
+                if (actionInsource1.getColorNormal() == ResBlue) {
+                    actionInsource1.setColorNormal(ResRed);
+                    graphView.getUpdate_thread().getChannelList().get(0).setShow(true);
                 } else {
-                    actionInsource1.setColorNormal(Color.rgb(0x00, 0x99, 0xcc));
-                    graphView.getUpdate_thread().setCh1Flag(false);
+                    actionInsource1.setColorNormal(ResBlue);
+                    graphView.getUpdate_thread().getChannelList().get(0).setShow(false);
+                }
+            }
+        });
+        actionInsource2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (actionInsource2.getColorNormal() == ResBlue) {
+                    actionInsource2.setColorNormal(ResRed);
+                    graphView.getUpdate_thread().getChannelList().get(1).setShow(true);
+                } else {
+                    actionInsource2.setColorNormal(ResBlue);
+                    graphView.getUpdate_thread().getChannelList().get(1).setShow(false);
                 }
             }
         });
