@@ -112,6 +112,7 @@ public class SeriesViewUpdate implements Runnable {
     public void setContinue(boolean isContinue) {
         this.isContinue = isContinue;
     }
+
     public boolean isShow() {
         return isShow;
     }
@@ -177,6 +178,7 @@ public class SeriesViewUpdate implements Runnable {
             Log.i("setScalingX", e.toString());
         }
     }
+
     //设置x轴
     public void setAxisX(AxisView axisX) {
         this.axisX = axisX;
@@ -433,6 +435,7 @@ public class SeriesViewUpdate implements Runnable {
             }
         }
     }
+
     private void DrawText(Canvas canvas, int color, String string) {
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
@@ -566,6 +569,7 @@ class SeriesChannel {
             return afterFixData;
         }
     }
+
     /**
      * 快速绘线设置函数
      *
