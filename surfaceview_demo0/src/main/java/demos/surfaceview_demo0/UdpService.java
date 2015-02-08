@@ -45,9 +45,9 @@ public class UdpService implements Runnable {
                     // 准备接收数据
                     //Log.d("UDP Demo", "准备接受");
                     datagramSocket.receive(datagramPacket);
-                    byte[] temp = new byte[datagramPacket.getLength()];
+                    byte[] temp = new byte[datagramPacket.getLength() - 1];
                     byte channel_flag = datagramPacket.getData()[datagramPacket.getOffset()];
-                    System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset() + 1, temp, 0, datagramPacket.getLength());
+                    System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset() + 1, temp, 0, datagramPacket.getLength() - 1);
                     Message m = new Message();
                     if (((int) channel_flag & 0x80) != 0) {
                         m.what = DefinedMessages.ADD_NEW_DATA_CH1;

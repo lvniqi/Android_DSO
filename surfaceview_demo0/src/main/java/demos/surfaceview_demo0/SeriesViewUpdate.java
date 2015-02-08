@@ -13,9 +13,13 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -28,10 +32,13 @@ import java.util.ArrayList;
  */
 public class SeriesViewUpdate implements Runnable {
     ArrayList<SeriesChannel> channelList;
+    //surfaceView lockAxis
+    Lock lockAxis = new ReentrantLock();
+    Lock lockData = new ReentrantLock();
     //服务函数
     private Handler mHandler;
+    //位置锁
     private int HANDLE_COUNT = 0;
-    //surfaceView lock
     private SurfaceHolder surfaceHolder;
     //继续运行？
     private boolean isContinue = true;
@@ -65,8 +72,8 @@ public class SeriesViewUpdate implements Runnable {
         SeriesChannel Ch2;
         Ch1 = new SeriesChannel();
         Ch2 = new SeriesChannel(MainActivity.getmContext().getResources().getColor(R.color.holo_orange_light));
-        Ch2.setOffset(100);
-        Ch1.setLevel(0.1f);
+        Ch2.setOffset(20);
+        Ch1.setLevel(1);
         channelList = new ArrayList<SeriesChannel>();
         channelList.add(0, Ch1);
         channelList.add(1, Ch2);
@@ -80,6 +87,7 @@ public class SeriesViewUpdate implements Runnable {
                 Bundle bundle;
                 byte[] temp_byte;
                 int[] temp_int;
+                lockData.lock();
                 switch (msg.what) {
                     case DefinedMessages.ADD_NEW_DATA_CH1:
                         bundle = msg.getData();
@@ -96,6 +104,7 @@ public class SeriesViewUpdate implements Runnable {
                 }
                 HANDLE_COUNT++;
                 super.handleMessage(msg);
+                lockData.unlock();
             }
         };
     }
@@ -131,20 +140,37 @@ public class SeriesViewUpdate implements Runnable {
 
     //Y缩放
     public void setScalingY(float scalingY, float startpos) {
-        float realPos = startpos / height;
-        float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
-        manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
-        manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
-        isMove = true;
+        try {
+            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
+            float realPos = startpos / height;
+            float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
+            manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
+            manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
+            isMove = true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i("setScalingY", e.toString());
+        } finally {
+            lockAxis.unlock();
+        }
+        lockAxis.unlock();
     }
 
     //X缩放
     public void setScalingX(float scalingX, float startpos) {
-        float realPos = startpos / width;
-        float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
-        manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
-        manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
-        isMove = true;
+        try {
+            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
+            float realPos = startpos / width;
+            float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
+            manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
+            manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
+            isMove = true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i("setScalingX", e.toString());
+        } finally {
+            lockAxis.unlock();
+        }
     }
     //设置x轴
     public void setAxisX(AxisView axisX) {
@@ -162,10 +188,18 @@ public class SeriesViewUpdate implements Runnable {
      * @param moveX
      */
     public void setMoveX(int moveX) {
-        float size = manualMaxXValue - manualMinXValue;
-        manualMaxXValue -= moveX * size / width;
-        manualMinXValue -= moveX * size / width;
-        isMove = true;
+        try {
+            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
+            float size = manualMaxXValue - manualMinXValue;
+            manualMaxXValue -= moveX * size / width;
+            manualMinXValue -= moveX * size / width;
+            isMove = true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i("setMoveX", e.toString());
+        } finally {
+            lockAxis.unlock();
+        }
     }
 
     /**
@@ -174,12 +208,19 @@ public class SeriesViewUpdate implements Runnable {
      * @param moveY
      */
     public void setMoveY(int moveY) {
-
+        try {
+            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
         //this.moveY += moveY;
         float size = manualMaxYValue - manualMinYValue;
         this.manualMaxYValue += moveY * size / height;
         this.manualMinYValue += moveY * size / height;
         isMove = true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i("setMoveY", e.toString());
+        } finally {
+            lockAxis.unlock();
+        }
     }
 
     /**
@@ -193,29 +234,38 @@ public class SeriesViewUpdate implements Runnable {
             Canvas canvas = null;
             try {
                 canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
-                if (!(channelList.get(0).isShow() | channelList.get(1).isShow())) {
-                    clear(canvas);
-                    DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
-                } else if (isShow()) {
-                    clear(canvas);
-                    isTranslate = false;
-                    for (SeriesChannel channelX : channelList) {
-                        if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
-                            DrawLines(canvas, channelX);
+                if (canvas != null) {
+                    if (!(channelList.get(0).isShow() | channelList.get(1).isShow())) {
+                        clear(canvas);
+                        if (width != 0) {
+                            DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
                         }
-                        if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
-                            DrawLines(canvas, channelX);
+                    } else if (isShow()) {
+                        clear(canvas);
+                        isTranslate = false;
+                        if (lockAxis.tryLock()) {
+                            try {
+                                for (SeriesChannel channelX : channelList) {
+
+                                    if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
+                                        DrawLines(canvas, channelX);
+                                    }
+                                }
+                            } finally {
+                                lockAxis.unlock();
+                            }
                         }
+                    } else {
+                        clear(canvas);
+                        DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
                     }
-                } else {
-                    clear(canvas);
-                    DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
+                    surfaceHolder.unlockCanvasAndPost(canvas);
                 }
-                surfaceHolder.unlockCanvasAndPost(canvas);
             } catch (Exception e) {
                 if (canvas != null) {
                     surfaceHolder.unlockCanvasAndPost(canvas);
                 }
+                Log.i("Surface Exception", e.toString());
             }
         }
     }
@@ -239,38 +289,41 @@ public class SeriesViewUpdate implements Runnable {
      * @param canvas
      */
     private void DrawLines(Canvas canvas, SeriesChannel chx) {
-
         final float densityX = (manualMaxXValue - manualMinXValue) / width;
-        final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), 2) * 1.5f * densityX + 1);
+        final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), 3) * densityX + 1);
         final float FIX_LENGTH = (FIX_SIZE / densityX);
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(chx.getCurveColor());
         paint.setStrokeWidth(DensityUtil.dip2px(MainActivity.getmContext(), 2));
+        paint.setAlpha(220);
         paint.setAntiAlias(true);
+        lockData.lock();
         //快速修正后
         Integer[] afterFix = chx.getFastFix(FIX_SIZE);
+        lockData.unlock();
         //防止越界
         float x_lenth = FIX_LENGTH * (afterFix.length / 2);
         //偏移
-        if (!isTranslate && isMove) {
+        if (!isTranslate) {
             if (x_lenth < width) {
+                Log.i("x_lenth < width", x_lenth + "");
                 manualMaxXValue -= manualMinXValue;
-                manualMinXValue = 0;
+                manualMinXValue = 0f;
             } else if (manualMaxXValue * width / (manualMaxXValue - manualMinXValue) > x_lenth) {
+                Log.i("manualMaxXValue>x_lenth", manualMaxXValue * width / (manualMaxXValue - manualMinXValue) + "");
+                Log.i("x_lenth", x_lenth + "");
                 float temp = (manualMaxXValue - manualMinXValue);
                 manualMinXValue = manualMinXValue - manualMaxXValue + x_lenth * temp / width;
                 manualMaxXValue = x_lenth * temp / width;
             } else if (manualMinXValue < 0) {
+                Log.i("manualMinXValue < 0", manualMinXValue + "");
                 manualMaxXValue -= manualMinXValue;
-                manualMinXValue = 0;
+                manualMinXValue = 0f;
             }
         }
         final float sizeX = manualMaxXValue - manualMinXValue;
         final float sizeY = manualMaxYValue - manualMinYValue;
-        final float myManualMinXValue = manualMinXValue;
-        final float myManualMaxYValue = manualMaxYValue;
-        final float myManualMinYValue = manualMinYValue;
         if (!isTranslate && isMove) {
             //测试显示坐标
             if (axisX != null && axisX.getLabel() != null) {
@@ -278,7 +331,7 @@ public class SeriesViewUpdate implements Runnable {
                 float stepX = sizeX / (lenth - 1);
                 ArrayList<String> tempLabel = new ArrayList<String>();
                 for (int i = 0; i < lenth; i++) {
-                    tempLabel.add((int) (myManualMinXValue + i * stepX) + "");
+                    tempLabel.add((int) (manualMinXValue + i * stepX) + "");
                 }
                 axisX.setLabel(tempLabel);
                 axisX.postInvalidate();
@@ -289,7 +342,7 @@ public class SeriesViewUpdate implements Runnable {
                 float stepY = sizeY / (lenth - 1);
                 ArrayList<String> tempLabel = new ArrayList<String>();
                 for (int i = 0; i < lenth; i++) {
-                    tempLabel.add((int) (myManualMaxYValue - i * stepY) + "");
+                    tempLabel.add((int) (manualMaxYValue - i * stepY) + "");
                 }
                 axisY.setLabel(tempLabel);
                 axisY.postInvalidate();
@@ -298,8 +351,8 @@ public class SeriesViewUpdate implements Runnable {
         }
         //偏移
         if (!isTranslate) {
-            canvas.translate(-myManualMinXValue * width / sizeX, myManualMinYValue * height / sizeY);
-            canvas.clipRect(myManualMinXValue * width / sizeX, -myManualMinYValue * height / sizeY, width + myManualMinXValue * width / sizeX, height - myManualMinYValue * height / sizeY);
+            canvas.translate(-manualMinXValue * width / sizeX, manualMinYValue * height / sizeY);
+            canvas.clipRect(manualMinXValue * width / sizeX, -manualMinYValue * height / sizeY, width + manualMinXValue * width / sizeX, height - manualMinYValue * height / sizeY);
             isTranslate = true;
         }
         float startX = 0;
@@ -351,7 +404,6 @@ public class SeriesViewUpdate implements Runnable {
             }
         }
     }
-
     private void DrawText(Canvas canvas, int color, String string) {
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
