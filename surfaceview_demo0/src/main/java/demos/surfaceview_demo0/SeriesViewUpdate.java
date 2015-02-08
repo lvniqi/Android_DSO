@@ -7,6 +7,7 @@ package demos.surfaceview_demo0;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -73,7 +74,10 @@ public class SeriesViewUpdate implements Runnable {
         Ch1 = new SeriesChannel();
         Ch2 = new SeriesChannel(MainActivity.getmContext().getResources().getColor(R.color.holo_orange_light));
         Ch2.setOffset(20);
-        Ch1.setLevel(1);
+        Ch2.setShowMax(true);
+        Ch2.setShowMin(true);
+        Ch2.setSignPos(3);
+        Ch1.setLevel(0.2f);
         channelList = new ArrayList<SeriesChannel>();
         channelList.add(0, Ch1);
         channelList.add(1, Ch2);
@@ -144,11 +148,13 @@ public class SeriesViewUpdate implements Runnable {
         try {
             if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
-                    float realPos = startpos / height;
-                    float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
-                    manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
-                    manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
-                    isMove = true;
+                    if (scalingY > 0) {
+                        float realPos = startpos / height;
+                        float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
+                        manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
+                        manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
+                        isMove = true;
+                    }
                 } finally {
                     lockAxis.unlock();
                 }
@@ -164,11 +170,13 @@ public class SeriesViewUpdate implements Runnable {
         try {
             if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
-                    float realPos = startpos / width;
-                    float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
-                    manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
-                    manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
-                    isMove = true;
+                    if (scalingX > 0) {
+                        float realPos = startpos / width;
+                        float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
+                        manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
+                        manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
+                        isMove = true;
+                    }
                 } finally {
                     lockAxis.unlock();
                 }
@@ -244,7 +252,7 @@ public class SeriesViewUpdate implements Runnable {
     public void run() {
         while (isContinue) {
             //未启动时 睡眠
-            if (width == 0) {
+            if (width == 0 || height == 0) {
                 try {
                     Thread.sleep(20);
                 } catch (InterruptedException e) {
@@ -256,7 +264,7 @@ public class SeriesViewUpdate implements Runnable {
                 try {
                     canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                     if (canvas != null) {
-                        if (!(channelList.get(0).isShow() | channelList.get(1).isShow())) {
+                        if (!(channelList.get(0).isShow() || channelList.get(1).isShow())) {
                             clear(canvas);
                             if (width != 0) {
                                 DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
@@ -268,7 +276,7 @@ public class SeriesViewUpdate implements Runnable {
                                 try {
                                     for (SeriesChannel channelX : channelList) {
 
-                                        if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
+                                        if (channelX.isShow() && channelX.getData() != null) {
                                             DrawLines(canvas, channelX);
                                         }
                                     }
@@ -293,6 +301,7 @@ public class SeriesViewUpdate implements Runnable {
         }
         Log.i("SeriesViewSeries", "SeriesViewSeries Destroyed");
         this.width = 0;
+        this.height = 0;
     }
 
     /**
@@ -328,25 +337,25 @@ public class SeriesViewUpdate implements Runnable {
         Integer[] afterFix = chx.getFastFix(FIX_SIZE);
         lockData.unlock();
         //防止越界
-        float x_lenth = FIX_LENGTH * (afterFix.length / 2 - 1);
+        final float lenX = FIX_LENGTH * (afterFix.length / 2 - 1);
         //偏移
         if (!isTranslate) {
-            if (x_lenth < width) {
-                Log.i("x_lenth < width", x_lenth + "");
+            if (lenX < width) {
+                Log.i("lenX < width", lenX + "");
                 //非扫描模式
                 if (!chx.isScan()) {
-                    manualMaxXValue = x_lenth * densityX;
+                    manualMaxXValue = lenX * densityX;
                     manualMinXValue = 0f;
                 } else {
                     manualMaxXValue -= manualMinXValue;
                     manualMinXValue = 0f;
                 }
-            } else if (manualMaxXValue * width / (manualMaxXValue - manualMinXValue) > x_lenth) {
-                Log.i("manualMaxXValue>x_lenth", manualMaxXValue * width / (manualMaxXValue - manualMinXValue) + "");
-                Log.i("x_lenth", x_lenth + "");
+            } else if (manualMaxXValue * width / (manualMaxXValue - manualMinXValue) > lenX) {
+                Log.i("manualMaxXValue>lenX", manualMaxXValue * width / (manualMaxXValue - manualMinXValue) + "");
+                Log.i("lenX", lenX + "");
                 float temp = (manualMaxXValue - manualMinXValue);
-                manualMinXValue = manualMinXValue - manualMaxXValue + x_lenth * temp / width;
-                manualMaxXValue = x_lenth * temp / width;
+                manualMinXValue = manualMinXValue - manualMaxXValue + lenX * temp / width;
+                manualMaxXValue = lenX * temp / width;
             } else if (manualMinXValue < 0) {
                 Log.i("manualMinXValue < 0", manualMinXValue + "");
                 manualMaxXValue -= manualMinXValue;
@@ -386,11 +395,15 @@ public class SeriesViewUpdate implements Runnable {
             canvas.clipRect(manualMinXValue * width / sizeX, -manualMinYValue * height / sizeY, width + manualMinXValue * width / sizeX, height - manualMinYValue * height / sizeY);
             isTranslate = true;
         }
-        float startX = 0;
-        float startY = height - (afterFix[0]) * height / sizeY * chx.getLevel();
-        float endX = 1;
-        float endY = height - (afterFix[1]) * height / sizeY * chx.getLevel();
-        for (int i = 1; i < afterFix.length / 2; i++) {
+        int _x0 = (int) (manualMinXValue * width / sizeX / FIX_LENGTH - 1);
+        final int x0 = _x0 > 0 ? _x0 : 0;
+        int _x1 = (int) ((manualMinXValue * width / sizeX + width) / FIX_LENGTH + 2);
+        final int x1 = _x1 <= afterFix.length / 2 ? _x1 : afterFix.length / 2;
+        float startX = x0 * FIX_LENGTH;
+        float startY = height - (afterFix[x0]) * height / sizeY * chx.getLevel();
+        float endX = (x0 + 1) * FIX_LENGTH;
+        float endY = height - (afterFix[x0 + 1]) * height / sizeY * chx.getLevel();
+        for (int i = x0 + 1; i < x1; i++) {
             //如果有峰峰值大于阀值
             if (Math.abs(afterFix[i - 1] - afterFix[afterFix.length / 2 + i - 1]) > 100) {
                 float temp_start = height - afterFix[i] * height / sizeY * chx.getLevel();
@@ -402,9 +415,9 @@ public class SeriesViewUpdate implements Runnable {
                     } else if (startY > temp_end) {
                         temp_end = startY;
                     }
-                    canvas.drawRect(FIX_LENGTH * startX,
+                    canvas.drawRect(startX,
                             temp_start,
-                            FIX_LENGTH * endX,
+                            endX,
                             temp_end,
                             paint);
                 }
@@ -415,9 +428,9 @@ public class SeriesViewUpdate implements Runnable {
                     } else if (startY < temp_end) {
                         temp_end = startY;
                     }
-                    canvas.drawRect(FIX_LENGTH * startX,
+                    canvas.drawRect(startX,
                             temp_end,
-                            FIX_LENGTH * endX,
+                            endX,
                             temp_start,
                             paint);
                 }
@@ -425,13 +438,52 @@ public class SeriesViewUpdate implements Runnable {
             }
             //正常绘图
             else {
-                canvas.drawLine(FIX_LENGTH * startX, startY, FIX_LENGTH * endX, endY, paint);
+                canvas.drawLine(startX, startY, endX, endY, paint);
             }
-            startX = i;
+            startX = endX;
             startY = endY;
             if (i < afterFix.length / 2 - 1) {
-                endX = i + 1;
+                endX = FIX_LENGTH * (i + 1);
                 endY = height - (afterFix[i + 1]) * height / sizeY * chx.getLevel();
+            }
+        }
+        //如果显示最大值
+        if (chx.isShowMax()) {
+            float temp = height - chx.getValueMax() * height / sizeY * chx.getLevel();
+            float len = DensityUtil.dip2px(MainActivity.getmContext(), 15);
+            for (int j = (int) (manualMinXValue * width / sizeX - 1); j < manualMinXValue * width / sizeX + width + 1; j += len) {
+                canvas.drawLine(j, temp, (float) j + len / 5, temp, paint);
+            }
+        }
+        //如果显示最小值
+        if (chx.isShowMin()) {
+            float temp = height - chx.getValueMin() * height / sizeY * chx.getLevel();
+            float len = DensityUtil.dip2px(MainActivity.getmContext(), 15);
+            for (int j = (int) (manualMinXValue * width / sizeX - 1); j < manualMinXValue * width / sizeX + width + 1; j += len) {
+                canvas.drawLine(j, temp, (float) j + len / 5, temp, paint);
+            }
+        }
+        //如果显示标志
+        if (chx.isSign()) {
+            final float size = DensityUtil.dip2px(MainActivity.getmContext(), 10);
+            final float y_max = height - chx.getValueMin() * height / sizeY * chx.getLevel();
+            final float y_min = height - chx.getValueMax() * height / sizeY * chx.getLevel();
+            final float axismax = height - manualMinYValue * height / sizeY;
+            final float axismin = height - manualMaxYValue * height / sizeY;
+            if (y_min >= axismax - 1) {
+                Path path = new Path();
+                path.moveTo(manualMinXValue * width / sizeX + width / 2 - size * (chx.getSignPos() - 1), axismax - size);// 此点为多边形的起点
+                path.lineTo(manualMinXValue * width / sizeX + width / 2 - size * chx.getSignPos(), axismax);
+                path.lineTo(manualMinXValue * width / sizeX + width / 2 - size * (chx.getSignPos() + 1), axismax - size);
+                path.close(); // 使这些点构成封闭的多边形
+                canvas.drawPath(path, paint);
+            } else if (y_max <= axismin + 1) {
+                Path path = new Path();
+                path.moveTo(manualMinXValue * width / sizeX + width / 2 - size * (chx.getSignPos() - 1), axismin + size);// 此点为多边形的起点
+                path.lineTo(manualMinXValue * width / sizeX + width / 2 - size * chx.getSignPos(), axismin);
+                path.lineTo(manualMinXValue * width / sizeX + width / 2 - size * (chx.getSignPos() + 1), axismin + size);
+                path.close(); // 使这些点构成封闭的多边形
+                canvas.drawPath(path, paint);
             }
         }
     }
@@ -498,13 +550,31 @@ class SeriesChannel {
     private boolean isScan = false;
     //显示最大值
     private boolean isShowMax = false;
+    //显示最小值
+    private boolean isShowMin = false;
+    //标记位置
+    private boolean isSign = true;
+    //标记位置
+    private int signPos = 2;
+    //曲线颜色
     private int curveColor;
+    //偏移量
     private int offset;
+    //得到数据计数值
     private int dataCount = 0;
+    //快速绘线步进
     private int myStep = 0;
+    //衰减值
     private float level = 1;
+    //曲线最大值
+    private int valueMax = 0;
+    //曲线最小值
+    private int valueMin = 0;
+    //快速绘线后数据
     private Integer[] afterFixData = null;
+    //快速绘线后数据计数值
     private int afterFixDataCount = 0;
+    //原始数据
     private ArrayList<Integer> BaseData = null;
 
     SeriesChannel() {
@@ -537,6 +607,30 @@ class SeriesChannel {
 
     public void setShowMax(boolean isShowMax) {
         this.isShowMax = isShowMax;
+    }
+
+    public boolean isShowMin() {
+        return isShowMin;
+    }
+
+    public void setShowMin(boolean isShowMin) {
+        this.isShowMin = isShowMin;
+    }
+
+    public boolean isSign() {
+        return isSign;
+    }
+
+    public void setSign(boolean isSign) {
+        this.isSign = isSign;
+    }
+
+    public int getSignPos() {
+        return signPos;
+    }
+
+    public void setSignPos(int signPos) {
+        this.signPos = signPos;
     }
 
     public void addData(int[] data) {
@@ -583,9 +677,16 @@ class SeriesChannel {
         }
         int count = data.length / step;
         Integer[] data_out = new Integer[count * 2];
+        valueMax = data[0];
+        valueMin = data[0];
         if (step < 2) {
             for (int i = 0; i < count; i++) {
                 data_out[i] = data_out[count + i] = data[i] + getOffset();
+                if (data[i] > valueMax) {
+                    valueMax = data[i];
+                } else if (data[i] < valueMin) {
+                    valueMin = data[i];
+                }
             }
         } else {
             for (int i = 0; i < count; i++) {
@@ -596,6 +697,11 @@ class SeriesChannel {
                     } else if (data[j] < data[min]) {
                         min = j;
                     }
+                }
+                if (data[max] > valueMax) {
+                    valueMax = data[max];
+                } else if (data[min] < valueMin) {
+                    valueMin = data[min];
                 }
                 if (max > min) {
                     data_out[i] = data[min] + getOffset();
@@ -623,5 +729,13 @@ class SeriesChannel {
 
     public void setLevel(float level) {
         this.level = level;
+    }
+
+    public int getValueMax() {
+        return valueMax + getOffset();
+    }
+
+    public int getValueMin() {
+        return valueMin + getOffset();
     }
 }

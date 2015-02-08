@@ -35,7 +35,7 @@ public class GridView extends View {
         paint.setTextAlign(Paint.Align.CENTER);
         ArrayList<String> temp = new ArrayList<String>();
         for (int i = 0; i < 6; i++) {
-            temp.add(i + "ms");
+            temp.add("");
         }
         //初始化x轴字符
         if (mygrid.getxAxis().getLabel() == null) {
