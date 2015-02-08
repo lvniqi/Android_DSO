@@ -22,6 +22,10 @@ public class UdpService implements Runnable {
     public Boolean IsThreadDisable = false;//指示监听线程是否终止
     InetAddress mInetAddress;
     Integer port = null;
+    DatagramSocket datagramSocket;
+    DatagramPacket datagramPacket;
+    // 接收的字节大小，客户端发送的数据不能超过这个大小
+    byte[] message = new byte[5000];
 
     public UdpService(Integer port2) {
         port = port2;
@@ -29,17 +33,15 @@ public class UdpService implements Runnable {
 
     public void StartListen() {
         // UDP服务器监听的端口
-
-        // 接收的字节大小，客户端发送的数据不能超过这个大小
-        byte[] message = new byte[5000];
         try {
             // 建立Socket连接
-            DatagramSocket datagramSocket = new DatagramSocket(port);
-            //datagramSocket.setBroadcast(true);
-            DatagramPacket datagramPacket = new DatagramPacket(message,
-                    message.length);
-            byte[] a = new byte[4096];
-            datagramSocket.setBroadcast(true);
+            if (datagramSocket == null) {
+                datagramSocket = new DatagramSocket(port);
+                datagramPacket = new DatagramPacket(message,
+                        message.length);
+                //datagramSocket.setBroadcast(true);
+                datagramSocket.setBroadcast(true);
+            }
             try {
                 while (!IsThreadDisable) {
                     // 准备接收数据

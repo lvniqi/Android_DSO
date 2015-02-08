@@ -3,6 +3,7 @@ package demos.surfaceview_demo0;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
@@ -29,6 +30,7 @@ public class MainActivity extends Activity {
         mContext = getApplicationContext();
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
+        //隐藏虚拟按键
         setContentView(R.layout.activity_main);
         //udp 接收
         udpservice = new UdpService(4507);
@@ -136,4 +138,20 @@ public class MainActivity extends Activity {
         //Log.i("view", "width:" + display.getWidth());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        Log.i("currentapiVersion", currentapiVersion + "");
+        if (19 <= currentapiVersion) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+        Log.i("onResume", "onResume" + "");
+    }
 }

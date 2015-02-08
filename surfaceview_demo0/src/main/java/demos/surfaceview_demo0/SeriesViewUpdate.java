@@ -141,35 +141,40 @@ public class SeriesViewUpdate implements Runnable {
     //Y缩放
     public void setScalingY(float scalingY, float startpos) {
         try {
-            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
-            float realPos = startpos / height;
-            float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
-            manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
-            manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
-            isMove = true;
+            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+                try {
+                    float realPos = startpos / height;
+                    float PosValue = this.manualMaxYValue * (1 - realPos) + this.manualMinYValue * realPos;
+                    manualMaxYValue = (manualMaxYValue - PosValue) / scalingY + PosValue;
+                    manualMinYValue = (manualMinYValue - PosValue) / scalingY + PosValue;
+                    isMove = true;
+                } finally {
+                    lockAxis.unlock();
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             Log.i("setScalingY", e.toString());
-        } finally {
-            lockAxis.unlock();
         }
-        lockAxis.unlock();
     }
 
     //X缩放
     public void setScalingX(float scalingX, float startpos) {
         try {
-            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
-            float realPos = startpos / width;
-            float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
-            manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
-            manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
-            isMove = true;
+            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+                try {
+                    float realPos = startpos / width;
+                    float PosValue = this.manualMaxXValue * (1 - realPos) + this.manualMinXValue * realPos;
+                    manualMaxXValue = (manualMaxXValue - PosValue) / scalingX + PosValue;
+                    manualMinXValue = (manualMinXValue - PosValue) / scalingX + PosValue;
+                    isMove = true;
+                } finally {
+                    lockAxis.unlock();
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             Log.i("setScalingX", e.toString());
-        } finally {
-            lockAxis.unlock();
         }
     }
     //设置x轴
@@ -189,16 +194,19 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMoveX(int moveX) {
         try {
-            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
-            float size = manualMaxXValue - manualMinXValue;
-            manualMaxXValue -= moveX * size / width;
-            manualMinXValue -= moveX * size / width;
-            isMove = true;
+            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+                try {
+                    float size = manualMaxXValue - manualMinXValue;
+                    manualMaxXValue -= moveX * size / width;
+                    manualMinXValue -= moveX * size / width;
+                    isMove = true;
+                } finally {
+                    lockAxis.unlock();
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             Log.i("setMoveX", e.toString());
-        } finally {
-            lockAxis.unlock();
         }
     }
 
@@ -209,17 +217,19 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMoveY(int moveY) {
         try {
-            lockAxis.tryLock(500, TimeUnit.MILLISECONDS);
-        //this.moveY += moveY;
-        float size = manualMaxYValue - manualMinYValue;
-        this.manualMaxYValue += moveY * size / height;
-        this.manualMinYValue += moveY * size / height;
-        isMove = true;
+            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+                try {
+                    float size = manualMaxYValue - manualMinYValue;
+                    this.manualMaxYValue += moveY * size / height;
+                    this.manualMinYValue += moveY * size / height;
+                    isMove = true;
+                } finally {
+                    lockAxis.unlock();
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             Log.i("setMoveY", e.toString());
-        } finally {
-            lockAxis.unlock();
         }
     }
 
@@ -231,43 +241,56 @@ public class SeriesViewUpdate implements Runnable {
     @Override
     public void run() {
         while (isContinue) {
-            Canvas canvas = null;
-            try {
-                canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
-                if (canvas != null) {
-                    if (!(channelList.get(0).isShow() | channelList.get(1).isShow())) {
-                        clear(canvas);
-                        if (width != 0) {
-                            DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
-                        }
-                    } else if (isShow()) {
-                        clear(canvas);
-                        isTranslate = false;
-                        if (lockAxis.tryLock()) {
-                            try {
-                                for (SeriesChannel channelX : channelList) {
-
-                                    if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
-                                        DrawLines(canvas, channelX);
-                                    }
-                                }
-                            } finally {
-                                lockAxis.unlock();
+            //未启动时 睡眠
+            if (width == 0) {
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Log.i("Surface sleep", e.toString());
+                }
+            } else {
+                Canvas canvas = null;
+                try {
+                    canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
+                    if (canvas != null) {
+                        if (!(channelList.get(0).isShow() | channelList.get(1).isShow())) {
+                            clear(canvas);
+                            if (width != 0) {
+                                DrawText(canvas, Color.rgb(0xff, 0x44, 0x44), MainActivity.getmContext().getString(R.string.no_source_in));
                             }
+                        } else if (isShow()) {
+                            clear(canvas);
+                            isTranslate = false;
+                            if (lockAxis.tryLock()) {
+                                try {
+                                    for (SeriesChannel channelX : channelList) {
+
+                                        if (channelX.isShow() && channelX.getData() != null && (channelX.getData().size() > 0)) {
+                                            DrawLines(canvas, channelX);
+                                        }
+                                    }
+                                } finally {
+                                    lockAxis.unlock();
+                                }
+                            }
+                        } else {
+                            clear(canvas);
+                            DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
                         }
-                    } else {
-                        clear(canvas);
-                        DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
+                        surfaceHolder.unlockCanvasAndPost(canvas);
                     }
-                    surfaceHolder.unlockCanvasAndPost(canvas);
+                } catch (Exception e) {
+                    if (canvas != null) {
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    }
+                    Log.i("Surface Exception", e.toString());
                 }
-            } catch (Exception e) {
-                if (canvas != null) {
-                    surfaceHolder.unlockCanvasAndPost(canvas);
-                }
-                Log.i("Surface Exception", e.toString());
+
             }
         }
+        Log.i("SeriesViewSeries", "SeriesViewSeries Destroyed");
+        this.width = 0;
     }
 
     /**
@@ -303,13 +326,19 @@ public class SeriesViewUpdate implements Runnable {
         Integer[] afterFix = chx.getFastFix(FIX_SIZE);
         lockData.unlock();
         //防止越界
-        float x_lenth = FIX_LENGTH * (afterFix.length / 2);
+        float x_lenth = FIX_LENGTH * (afterFix.length / 2 - 1);
         //偏移
         if (!isTranslate) {
             if (x_lenth < width) {
                 Log.i("x_lenth < width", x_lenth + "");
-                manualMaxXValue -= manualMinXValue;
-                manualMinXValue = 0f;
+                //非扫描模式
+                if (!chx.isScan()) {
+                    manualMaxXValue = x_lenth * densityX;
+                    manualMinXValue = 0f;
+                } else {
+                    manualMaxXValue -= manualMinXValue;
+                    manualMinXValue = 0f;
+                }
             } else if (manualMaxXValue * width / (manualMaxXValue - manualMinXValue) > x_lenth) {
                 Log.i("manualMaxXValue>x_lenth", manualMaxXValue * width / (manualMaxXValue - manualMinXValue) + "");
                 Log.i("x_lenth", x_lenth + "");
