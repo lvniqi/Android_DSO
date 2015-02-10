@@ -12,7 +12,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:padding="12dip"
-        android:text="by xxxxx 出品"
+        android:text="@string/studio_name"
         android:textSize="14sp" />
 
     <RelativeLayout

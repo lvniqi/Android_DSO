@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
         mContext = getApplicationContext();
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
-        //隐藏虚拟按键
         setContentView(R.layout.activity_main);
         //udp 接收
         udpservice = new UdpService(4507);
@@ -141,6 +140,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        //开启udp接收
+        udpservice.isRun = true;
+        //隐藏虚拟按键
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         Log.i("currentapiVersion", currentapiVersion + "");
         if (19 <= currentapiVersion) {
@@ -153,5 +155,11 @@ public class MainActivity extends Activity {
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
         Log.i("onResume", "onResume" + "");
+    }
+
+    @Override
+    protected void onDestroy() {
+        udpservice.isRun = false;
+        super.onDestroy();
     }
 }

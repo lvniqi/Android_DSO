@@ -263,6 +263,7 @@ public class SeriesViewUpdate implements Runnable {
                 }
             } else {
                 Canvas canvas = null;
+                isMove = true;
                 try {
                     canvas = surfaceHolder.lockCanvas(new Rect(0, 0, width, height));
                     if (canvas != null) {

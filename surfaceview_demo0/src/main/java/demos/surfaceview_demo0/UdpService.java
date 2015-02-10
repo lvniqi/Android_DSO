@@ -19,31 +19,35 @@ import java.net.SocketException;
  */
 public class UdpService implements Runnable {
     private static final int MSG_SUCCESS = 0;//获取图片成功的标识
-    public Boolean IsThreadDisable = false;//指示监听线程是否终止
-    InetAddress mInetAddress;
-    Integer port = null;
-    DatagramSocket datagramSocket;
-    DatagramPacket datagramPacket;
+    public Boolean isRun = false;//指示监听线程是否终止
     // 接收的字节大小，客户端发送的数据不能超过这个大小
     byte[] message = new byte[5000];
+    private InetAddress mInetAddress;
+    private Integer port = null;
+    private DatagramSocket datagramSocket;
+    private DatagramPacket datagramPacket;
 
-    public UdpService(Integer port2) {
-        port = port2;
+    public UdpService(Integer port) {
+        this.port = port;
     }
-
     public void StartListen() {
         // UDP服务器监听的端口
         try {
             // 建立Socket连接
             if (datagramSocket == null) {
                 datagramSocket = new DatagramSocket(port);
-                datagramPacket = new DatagramPacket(message,
-                        message.length);
+                //datagramSocket.setReuseAddress(true);
+                //datagramSocket.bind(new InetSocketAddress(port));
                 //datagramSocket.setBroadcast(true);
-                datagramSocket.setBroadcast(true);
+                //datagramSocket.setBroadcast(true);
+            }
+            datagramPacket = new DatagramPacket(message,
+                    message.length);
+            while (isRun == false) {
+                Thread.sleep(15);
             }
             try {
-                while (!IsThreadDisable) {
+                while (isRun) {
                     // 准备接收数据
                     //Log.d("UDP Demo", "准备接受");
                     datagramSocket.receive(datagramPacket);
@@ -66,6 +70,8 @@ public class UdpService implements Runnable {
                 e.printStackTrace();
             }
         } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

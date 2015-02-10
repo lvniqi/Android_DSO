@@ -1,17 +1,23 @@
 package demos.surfaceview_demo0;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
-public class SplashActivity extends MainActivity {
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+
+public class SplashActivity extends Activity {
 
     private static final int FAILURE = 0; // 失败
     private static final int SUCCESS = 1; // 成功
-    private static final int OFFLINE = 2; // 如果支持离线阅读，进入离线模式
 
     private TextView mVersionNameText;
 
@@ -64,10 +70,32 @@ public class SplashActivity extends MainActivity {
     }
 
     private int loadingCache() {
+        //wifi扫描
+        WifiOpenHelper wifimanager = new WifiOpenHelper(getApplicationContext());
+        wifimanager.startScan();
+        Log.i("WifiList", wifimanager.getWifiList().toString());
+        SendIp(wifimanager.getIPAddress());
         /*if (BaseApplication.mNetWorkState == NetworkUtils.NETWORN_NONE) {
             return OFFLINE;
         }
         */
         return SUCCESS;
+    }
+
+    public void SendIp(String ip_address) {
+        byte[] data = ip_address.getBytes();
+        MulticastSocket socket;
+        try {
+            socket = new MulticastSocket();
+            socket.setReuseAddress(true);
+            socket.setTimeToLive(1);
+            InetAddress address = InetAddress.getByName(ip_address.substring(0, ip_address.lastIndexOf(".") + 1) + "255");
+            DatagramPacket dataPacket = new DatagramPacket(data, data.length, address,
+                    4507);
+            socket.send(dataPacket);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
