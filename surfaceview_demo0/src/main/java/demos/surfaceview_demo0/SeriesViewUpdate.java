@@ -73,11 +73,13 @@ public class SeriesViewUpdate implements Runnable {
         SeriesChannel Ch2;
         Ch1 = new SeriesChannel();
         Ch2 = new SeriesChannel(MainActivity.getmContext().getResources().getColor(R.color.holo_orange_light));
-        Ch2.setOffset(20);
         Ch2.setShowMax(true);
         Ch2.setShowMin(true);
-        Ch2.setSignPos(3);
-        Ch1.setLevel(0.2f);
+        Ch2.setSignPos(4);
+        //放大10倍
+        Ch1.setLevel(10f);
+        //下移20个单位20/256*10 = =0.78V
+        Ch1.setOffset(-20);
         channelList = new ArrayList<SeriesChannel>();
         channelList.add(0, Ch1);
         channelList.add(1, Ch2);
@@ -555,7 +557,7 @@ class SeriesChannel {
     //标记位置
     private boolean isSign = true;
     //标记位置
-    private int signPos = 2;
+    private int signPos = 1;
     //曲线颜色
     private int curveColor;
     //偏移量

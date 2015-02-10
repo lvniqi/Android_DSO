@@ -12,5 +12,7 @@
     <string name="trigger2">DOWN</string>
     <string name="no_source_in">No source input!</string>
     <string name="menu_open">Close Menu to Show</string>
+    <string name="splash">Can You believe?</string>
+    <string name="studio_name">by PIW studio.</string>
 
 </resources>

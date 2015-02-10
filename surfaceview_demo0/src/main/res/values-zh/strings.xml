@@ -8,5 +8,7 @@
     <string name="trigger1">上升沿</string>
     <string name="trigger2">下降沿</string>
     <string name="no_source_in">无信号输入！</string>
-    <string name="menu_open" translatable="false">关闭菜单以显示</string>
+    <string name="menu_open">关闭菜单以显示</string>
+    <string name="splash">这是启动画面你信吗？</string>
+    <string name="studio_name">by PIW工作室</string>
 </resources>
