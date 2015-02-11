@@ -6,12 +6,14 @@ package demos.surfaceview_demo0;
 
 import android.os.Bundle;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 
 /**
@@ -19,6 +21,7 @@ import java.net.SocketException;
  */
 public class UdpService implements Runnable {
     private static final int MSG_SUCCESS = 0;//获取图片成功的标识
+    private final String TAG = "UdpService";
     public Boolean isRun = false;//指示监听线程是否终止
     // 接收的字节大小，客户端发送的数据不能超过这个大小
     byte[] message = new byte[5000];
@@ -26,7 +29,7 @@ public class UdpService implements Runnable {
     private Integer port = null;
     private DatagramSocket datagramSocket;
     private DatagramPacket datagramPacket;
-
+    private ArrayList<SeriesChannel> channelList;
     public UdpService(Integer port) {
         this.port = port;
     }
@@ -34,18 +37,14 @@ public class UdpService implements Runnable {
         // UDP服务器监听的端口
         try {
             // 建立Socket连接
-            if (datagramSocket == null) {
-                datagramSocket = new DatagramSocket(port);
+            datagramSocket = new DatagramSocket(port);
                 //datagramSocket.setReuseAddress(true);
                 //datagramSocket.bind(new InetSocketAddress(port));
                 //datagramSocket.setBroadcast(true);
                 //datagramSocket.setBroadcast(true);
-            }
             datagramPacket = new DatagramPacket(message,
                     message.length);
-            while (isRun == false) {
-                Thread.sleep(15);
-            }
+            //Message m = MainActivity.graphView.getUpdate_thread().getmHandler().obtainMessage();
             try {
                 while (isRun) {
                     // 准备接收数据
@@ -54,6 +53,19 @@ public class UdpService implements Runnable {
                     byte[] temp = new byte[datagramPacket.getLength() - 1];
                     byte channel_flag = datagramPacket.getData()[datagramPacket.getOffset()];
                     System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset() + 1, temp, 0, datagramPacket.getLength() - 1);
+                    /*channelList = MainActivity.graphView.getUpdate_thread().getChannelList();
+                    if(channelList != null && channelList.size() >0) {
+                        MainActivity.graphView.getUpdate_thread().getLockData().lock();
+                        if (((int) channel_flag & 0x80) != 0) {
+                            //通道0
+                            channelList.get(0).setData(ByteArrayFunction.BytesToArrayInt(temp, 5000));
+                        }
+                        else{
+                            //通道1
+                            channelList.get(1).setData(ByteArrayFunction.BytesToArrayInt(temp, 5000));
+                        }
+                        MainActivity.graphView.getUpdate_thread().getLockData().unlock();
+                    }*/
                     Message m = new Message();
                     if (((int) channel_flag & 0x80) != 0) {
                         m.what = DefinedMessages.ADD_NEW_DATA_CH1;
@@ -63,23 +75,29 @@ public class UdpService implements Runnable {
                     Bundle bundle = new Bundle();
                     bundle.putByteArray("str", temp);
                     m.setData(bundle);
+                    //m.sendToTarget();
+                    MainActivity.graphView.getUpdate_thread().getmHandler().removeMessages(m.what);
                     MainActivity.graphView.getUpdate_thread().getmHandler().sendMessage(m);
                     //MainActivity.mlock.release();
                 }
-            } catch (IOException e) {//IOException
+            } catch (IOException e) {
+                Log.i(TAG, "IOException");
                 e.printStackTrace();
             }
         } catch (SocketException e) {
+            Log.i(TAG, "SocketException");
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } finally {
+            if (datagramSocket != null && (!datagramSocket.isClosed())) {
+                datagramSocket.close();
+            }
         }
 
     }
-
     @Override
     public void run() {
         StartListen();
+        Log.i(TAG, "closed");
     }
 }
 

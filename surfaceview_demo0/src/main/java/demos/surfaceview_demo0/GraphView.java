@@ -22,6 +22,7 @@ public class GraphView extends RelativeLayout {
     GraphView(Context context) {
         super(context);
         //Y轴
+
         RelativeLayout.LayoutParams yAxis_layoutParams = new RelativeLayout.LayoutParams(
                 DensityUtil.dip2px(context, 30), ViewGroup.LayoutParams.WRAP_CONTENT);
         yAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);

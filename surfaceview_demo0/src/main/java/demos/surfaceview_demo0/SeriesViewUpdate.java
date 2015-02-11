@@ -18,9 +18,12 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static demos.surfaceview_demo0.ByteArrayFunction.byte2int;
 
 
 /**
@@ -35,7 +38,6 @@ public class SeriesViewUpdate implements Runnable {
     ArrayList<SeriesChannel> channelList;
     //surfaceView lockAxis
     Lock lockAxis = new ReentrantLock();
-    Lock lockData = new ReentrantLock();
     //服务函数
     private Handler mHandler;
     //位置锁
@@ -80,7 +82,7 @@ public class SeriesViewUpdate implements Runnable {
         Ch1.setLevel(10f);
         //下移20个单位20/256*10 = =0.78V
         Ch1.setOffset(-20);
-        channelList = new ArrayList<SeriesChannel>();
+        channelList = new ArrayList<SeriesChannel>(2);
         channelList.add(0, Ch1);
         channelList.add(1, Ch2);
         mHandler = new Handler() {
@@ -90,27 +92,25 @@ public class SeriesViewUpdate implements Runnable {
              * @param msg 接收其他线程的更新或者控制数据
              */
             public void handleMessage(Message msg) {
-                Bundle bundle;
+                Bundle bundle = msg.getData();
                 byte[] temp_byte;
-                int[] temp_int;
-                lockData.lock();
+                temp_byte = bundle.getByteArray("str");
+                int[] temp = byte2int(temp_byte);
+                Integer[] temp3 = new Integer[temp.length];
+                for (int i = 0; i < temp.length; i++) {
+                    temp3[i] = temp[i];
+                }
+                ArrayList<Integer> temp2 = new ArrayList(Arrays.asList(temp3));
                 switch (msg.what) {
                     case DefinedMessages.ADD_NEW_DATA_CH1:
-                        bundle = msg.getData();
-                        temp_byte = bundle.getByteArray("str");
-                        temp_int = ByteArrayFunction.BytesToInt(temp_byte);
-                        channelList.get(0).addData(temp_int);
+                        channelList.get(0).setData(temp2);
                         break;
                     case DefinedMessages.ADD_NEW_DATA_CH2:
-                        bundle = msg.getData();
-                        temp_byte = bundle.getByteArray("str");
-                        temp_int = ByteArrayFunction.BytesToInt(temp_byte);
-                        channelList.get(1).addData(temp_int);
+                        channelList.get(1).setData(temp2);
                         break;
                 }
                 HANDLE_COUNT++;
                 super.handleMessage(msg);
-                lockData.unlock();
             }
         };
     }
@@ -335,10 +335,8 @@ public class SeriesViewUpdate implements Runnable {
         paint.setStrokeWidth(DensityUtil.dip2px(MainActivity.getmContext(), 2));
         paint.setAlpha(220);
         paint.setAntiAlias(true);
-        lockData.lock();
         //快速修正后
         Integer[] afterFix = chx.getFastFix(FIX_SIZE);
-        lockData.unlock();
         //防止越界
         final float lenX = FIX_LENGTH * (afterFix.length / 2 - 1);
         //偏移
@@ -579,7 +577,8 @@ class SeriesChannel {
     private int afterFixDataCount = 0;
     //原始数据
     private ArrayList<Integer> BaseData = null;
-
+    //数据锁
+    private Lock lockData = new ReentrantLock();
     SeriesChannel() {
         this(MainActivity.getmContext().getResources().getColor(R.color.holo_blue_light));
     }
@@ -636,16 +635,15 @@ class SeriesChannel {
         this.signPos = signPos;
     }
 
-    public void addData(int[] data) {
-        BaseData = new ArrayList<Integer>();
-        for (int x : data) {
-            BaseData.add(x);
-        }
-        dataCount++;
-    }
-
     public ArrayList<Integer> getData() {
         return BaseData;
+    }
+
+    public void setData(ArrayList<Integer> data) {
+        lockData.lock();
+        BaseData = data;
+        dataCount++;
+        lockData.unlock();
     }
 
     public int getCurveColor() {
@@ -657,14 +655,18 @@ class SeriesChannel {
     }
 
     public Integer[] getFastFix(int step) {
+        lockData.lock();
         if (myStep != step || afterFixDataCount != dataCount) {
             afterFixDataCount = dataCount;
             myStep = step;
             afterFixData = FastFix(BaseData.toArray(new Integer[0]), step);
+            lockData.unlock();
             return afterFixData;
         } else {
+            lockData.unlock();
             return afterFixData;
         }
+
     }
 
     /**

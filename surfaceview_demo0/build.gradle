@@ -1,15 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "21.0.1"
-
+    compileSdkVersion 21
+    buildToolsVersion '21.1.1'
     defaultConfig {
         applicationId "demos.surfaceview_demo0"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 19
         versionCode 2
         versionName "0.2.beta2"
+        ndk {
+            moduleName "byte2int"
+        }
     }
     buildTypes {
         release {
@@ -17,9 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
     compile project(':float-button')
 }

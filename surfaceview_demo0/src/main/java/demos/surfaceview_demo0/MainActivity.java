@@ -19,11 +19,11 @@ public class MainActivity extends Activity {
     private static Context mContext;
     //测试用
     UdpService udpservice;
+    private Thread tReceived;
 
     public static Context getmContext() {
         return mContext;
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,8 +130,7 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        Thread tReceived = new Thread(udpservice);
-        tReceived.start();
+        tReceived = new Thread(udpservice);
         //Display display = getWindowManager().getDefaultDisplay();
         //Log.i("view", "height:" + display.getHeight());
         //Log.i("view", "width:" + display.getWidth());
@@ -142,6 +141,9 @@ public class MainActivity extends Activity {
         super.onResume();
         //开启udp接收
         udpservice.isRun = true;
+        if (!tReceived.isAlive()) {
+            tReceived.start();
+        }
         //隐藏虚拟按键
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         Log.i("currentapiVersion", currentapiVersion + "");
@@ -154,12 +156,13 @@ public class MainActivity extends Activity {
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
-        Log.i("onResume", "onResume" + "");
+
     }
 
     @Override
     protected void onDestroy() {
-        udpservice.isRun = false;
+        //udpservice.isRun = false;
         super.onDestroy();
+        Log.i("Main", "Destroy");
     }
 }
