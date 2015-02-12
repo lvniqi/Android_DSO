@@ -2,8 +2,6 @@
 <resources>
 
     <string name="app_name">SurfaceView_demo1</string>
-    <string name="hello_world" translatable="false">Hello world!</string>
-    <string name="action_settings" translatable="false">Settings</string>
     <string name="trigger_type">Trigger Type</string>
     <string name="in_source">Input Source</string>
     <string name="in_source1">CH1</string>
@@ -14,5 +12,8 @@
     <string name="menu_open">Close Menu to Show</string>
     <string name="splash">Can You believe?</string>
     <string name="studio_name">by PIW studio.</string>
+    <string name="exit">exit</string>
+    <string name="exit_chick">really?</string>
+    <string name="message">Message</string>
 
 </resources>

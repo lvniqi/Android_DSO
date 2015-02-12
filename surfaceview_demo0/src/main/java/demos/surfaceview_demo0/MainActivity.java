@@ -36,6 +36,9 @@ public class MainActivity extends Activity {
         graphView = new GraphView(this);
         ((RelativeLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
         //((FloatingActionButton)findViewById(R.id.action_trigger1)).setVisibility(View.INVISIBLE);
+        //信息
+        final FloatingActionButton actionMessage = new FloatingActionButton(getBaseContext());
+        actionMessage.setTitle(this.getString(R.string.message));
         //触发方式
         final FloatingActionButton actionTriggerType = new FloatingActionButton(getBaseContext());
         final FloatingActionButton actionTrigger1 = (FloatingActionButton) findViewById(R.id.action_trigger1);
@@ -48,6 +51,7 @@ public class MainActivity extends Activity {
         actionTriggerType.addSubLabel(textTrigger2);
         actionTriggerType.setTitle(this.getString(R.string.trigger_type));
         actionTriggerType.showSub(false);
+
         //信号来源
         final FloatingActionButton actionInSource = new FloatingActionButton(getBaseContext());
         final FloatingActionButton actionInsource1 = (FloatingActionButton) findViewById(R.id.action_insource1);
@@ -60,14 +64,21 @@ public class MainActivity extends Activity {
         actionInSource.addSubLabel(textInsource2);
         actionInSource.setTitle(this.getString(R.string.in_source));
         actionInSource.showSub(false);
+
+        //退出
+        final FloatingActionButton actionExit = (FloatingActionButton) findViewById(R.id.action_exit);
+        final TextView textExit = (TextView) findViewById(R.id.textView_exit);
+        actionExit.setVisibility(View.INVISIBLE);
+        textExit.setVisibility(View.INVISIBLE);
         //主菜单
         mainMenu = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
+        mainMenu.addButton(actionMessage);
         mainMenu.addButton(actionTriggerType);
-
         mainMenu.addButton(actionInSource);
         //actionTriggerType.setColorNormal(R.color.white_pressed);
         final int ResRed = this.getResources().getColor(R.color.holo_red_light);
         final int ResBlue = this.getResources().getColor(R.color.holo_blue_dark);
+        final int ResOrange = this.getResources().getColor(R.color.holo_orange_dark);
         actionTriggerType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,17 +131,39 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        actionExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (actionExit.getColorNormal() == ResOrange) {
+                    actionExit.setColorNormal(ResRed);
+                    textExit.setText(getmContext().getString(R.string.exit_chick));
+
+                } else if (actionExit.getColorNormal() == ResRed) {
+                    System.exit(0);
+                }
+            }
+        });
         mainMenu.setOnClickListenerFunc(new FloatingActionsMenu.setOnClickListenerFunc() {
             @Override
             public void fuc() {
                 if (mainMenu.isExpanded()) {
                     graphView.getUpdate_thread().setShow(false);
+                    actionExit.setVisibility(View.VISIBLE);
+                    textExit.setVisibility(View.VISIBLE);
                 } else {
+                    actionExit.setVisibility(View.INVISIBLE);
+                    textExit.setVisibility(View.INVISIBLE);
+                    if (actionExit.getColorNormal() == ResRed) {
+                        actionExit.setColorNormal(ResOrange);
+                        textExit.setText(getmContext().getString(R.string.exit));
+                    }
                     graphView.getUpdate_thread().setShow(true);
                 }
             }
         });
-        tReceived = new Thread(udpservice);
+        if (tReceived == null || !tReceived.isAlive()) {
+            tReceived = new Thread(udpservice);
+        }
         //Display display = getWindowManager().getDefaultDisplay();
         //Log.i("view", "height:" + display.getHeight());
         //Log.i("view", "width:" + display.getWidth());

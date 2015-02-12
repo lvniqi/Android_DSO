@@ -149,6 +149,30 @@
             android:layout_toStartOf="@+id/action_trigger1" />
 
 
+        <TextView
+            android:id="@+id/textView_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/action_exit"
+            android:layout_marginBottom="-45dp"
+            android:layout_toLeftOf="@+id/action_exit"
+            android:text="@string/exit"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="14dp" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/action_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/float_button_start"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="@dimen/float_button_class1"
+            fab:fab_colorNormal="@color/holo_orange_dark" />
+
+
         <com.getbase.floatingactionbutton.FloatingActionsMenu
             android:id="@+id/multiple_actions"
             android:layout_width="wrap_content"

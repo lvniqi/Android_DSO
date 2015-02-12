@@ -11,4 +11,7 @@
     <string name="menu_open">关闭菜单以显示</string>
     <string name="splash">这是启动画面你信吗？</string>
     <string name="studio_name">by PIW工作室</string>
+    <string name="exit">退出</string>
+    <string name="exit_chick">确认退出</string>
+    <string name="message">信息</string>
 </resources>
