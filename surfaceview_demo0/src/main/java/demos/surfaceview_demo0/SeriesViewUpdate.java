@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static demos.surfaceview_demo0.ByteArrayFunction.BytesToArrayInt;
 import static demos.surfaceview_demo0.ByteArrayFunction.byte2int;
 
 
@@ -96,11 +97,15 @@ public class SeriesViewUpdate implements Runnable {
                 byte[] temp_byte;
                 temp_byte = bundle.getByteArray("str");
                 int[] temp = byte2int(temp_byte);
+                ArrayList<Integer> temp2;
+                //long startTime=System.nanoTime(); //获取开始时间
                 Integer[] temp3 = new Integer[temp.length];
                 for (int i = 0; i < temp.length; i++) {
                     temp3[i] = temp[i];
                 }
-                ArrayList<Integer> temp2 = new ArrayList(Arrays.asList(temp3));
+                temp2 = new ArrayList(Arrays.asList(temp3));
+                //long endTime=System.nanoTime(); //获取结束时间
+                //Log.i("程序运行时间： ",(endTime-startTime)+"ns");
                 switch (msg.what) {
                     case DefinedMessages.ADD_NEW_DATA_CH1:
                         channelList.get(0).setData(temp2);
@@ -256,7 +261,7 @@ public class SeriesViewUpdate implements Runnable {
             //未启动时 睡眠
             if (width == 0 || height == 0) {
                 try {
-                    Thread.sleep(20);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Log.i("Surface sleep", e.toString());
@@ -292,6 +297,7 @@ public class SeriesViewUpdate implements Runnable {
                             DrawText(canvas, Color.rgb(0x00, 0x99, 0xcc), MainActivity.getmContext().getString(R.string.menu_open));
                         }
                         surfaceHolder.unlockCanvasAndPost(canvas);
+                        Thread.sleep(5);
                     }
                 } catch (Exception e) {
                     if (canvas != null) {
@@ -579,6 +585,7 @@ class SeriesChannel {
     private ArrayList<Integer> BaseData = null;
     //数据锁
     private Lock lockData = new ReentrantLock();
+
     SeriesChannel() {
         this(MainActivity.getmContext().getResources().getColor(R.color.holo_blue_light));
     }
@@ -639,11 +646,28 @@ class SeriesChannel {
         return BaseData;
     }
 
+    public void setData(byte[] data) {
+        if (lockData.tryLock()) {
+            /*int[] dataInt = byte2int(data);
+            ArrayList<Integer> temp2;
+            Integer[] dataInteger = new Integer[dataInt.length];
+            for (int i = 0; i < dataInt.length; i++) {
+                dataInteger[i] = dataInt[i];
+            }
+            BaseData = new ArrayList(Arrays.asList(dataInteger));
+            dataCount++;*/
+            BaseData = BytesToArrayInt(data, 5000);
+            dataCount++;
+            lockData.unlock();
+        }
+    }
+
     public void setData(ArrayList<Integer> data) {
-        lockData.lock();
-        BaseData = data;
-        dataCount++;
-        lockData.unlock();
+        if (lockData.tryLock()) {
+            BaseData = data;
+            dataCount++;
+            lockData.unlock();
+        }
     }
 
     public int getCurveColor() {
@@ -655,15 +679,12 @@ class SeriesChannel {
     }
 
     public Integer[] getFastFix(int step) {
-        lockData.lock();
         if (myStep != step || afterFixDataCount != dataCount) {
             afterFixDataCount = dataCount;
             myStep = step;
             afterFixData = FastFix(BaseData.toArray(new Integer[0]), step);
-            lockData.unlock();
             return afterFixData;
         } else {
-            lockData.unlock();
             return afterFixData;
         }
 
@@ -677,6 +698,7 @@ class SeriesChannel {
      * @return data_out
      */
     private Integer[] FastFix(Integer[] data, int step) {
+        lockData.lock();
         if (step < 1) {
             step = 1;
         }
@@ -717,6 +739,7 @@ class SeriesChannel {
                 }
             }
         }
+        lockData.unlock();
         return data_out;
     }
 

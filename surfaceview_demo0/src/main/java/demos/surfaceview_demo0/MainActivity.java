@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
     public static GraphView graphView;
     static FloatingActionsMenu mainMenu;
     private static Context mContext;
+    private static int currentApiVersion;
     //测试用
     UdpService udpservice;
     private Thread tReceived;
@@ -24,10 +25,17 @@ public class MainActivity extends Activity {
     public static Context getmContext() {
         return mContext;
     }
+
+    public static int getCurrentApiVersion() {
+        return currentApiVersion;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
+        currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        Log.i("currentApiVersion", currentApiVersion + "");
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
         setContentView(R.layout.activity_main);
@@ -178,9 +186,7 @@ public class MainActivity extends Activity {
             tReceived.start();
         }
         //隐藏虚拟按键
-        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        Log.i("currentapiVersion", currentapiVersion + "");
-        if (19 <= currentapiVersion) {
+        if (19 <= currentApiVersion) {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

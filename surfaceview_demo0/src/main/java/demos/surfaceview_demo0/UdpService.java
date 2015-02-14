@@ -4,8 +4,6 @@ package demos.surfaceview_demo0;
  * Created by lvniqi on 2014/11/10.
  */
 
-import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
@@ -30,18 +28,20 @@ public class UdpService implements Runnable {
     private DatagramSocket datagramSocket;
     private DatagramPacket datagramPacket;
     private ArrayList<SeriesChannel> channelList;
+
     public UdpService(Integer port) {
         this.port = port;
     }
+
     public void StartListen() {
         // UDP服务器监听的端口
         try {
             // 建立Socket连接
             datagramSocket = new DatagramSocket(port);
-                //datagramSocket.setReuseAddress(true);
-                //datagramSocket.bind(new InetSocketAddress(port));
-                //datagramSocket.setBroadcast(true);
-                //datagramSocket.setBroadcast(true);
+            //datagramSocket.setReuseAddress(true);
+            //datagramSocket.bind(new InetSocketAddress(port));
+            //datagramSocket.setBroadcast(true);
+            //datagramSocket.setBroadcast(true);
             datagramPacket = new DatagramPacket(message,
                     message.length);
             //Message m = MainActivity.graphView.getUpdate_thread().getmHandler().obtainMessage();
@@ -66,22 +66,31 @@ public class UdpService implements Runnable {
                         }
                         MainActivity.graphView.getUpdate_thread().getLockData().unlock();
                     }*/
-                    Message m = new Message();
+                    //Message m = new Message();
+                    //long startTime=System.nanoTime(); //获取开始时间\
+                    //long endTime=System.nanoTime(); //获取结束时间
+                    //Log.i("程序运行时间： ",(endTime-startTime)+"ns");
                     if (((int) channel_flag & 0x80) != 0) {
-                        m.what = DefinedMessages.ADD_NEW_DATA_CH1;
+                        //m.what = DefinedMessages.ADD_NEW_DATA_CH1;
+                        MainActivity.graphView.getUpdate_thread().getChannelList().get(0).setData(temp);
                     } else {
-                        m.what = DefinedMessages.ADD_NEW_DATA_CH2;
+                        //m.what = DefinedMessages.ADD_NEW_DATA_CH2;
+                        MainActivity.graphView.getUpdate_thread().getChannelList().get(1).setData(temp);
                     }
-                    Bundle bundle = new Bundle();
-                    bundle.putByteArray("str", temp);
-                    m.setData(bundle);
+                    Thread.sleep(5);
+                    //Bundle bundle = new Bundle();
+                    //bundle.putByteArray("str", temp);
+                    //m.setData(bundle);
                     //m.sendToTarget();
-                    MainActivity.graphView.getUpdate_thread().getmHandler().removeMessages(m.what);
-                    MainActivity.graphView.getUpdate_thread().getmHandler().sendMessage(m);
+                    //MainActivity.graphView.getUpdate_thread().getmHandler().removeMessages(m.what);
+                    //MainActivity.graphView.getUpdate_thread().getmHandler().sendMessage(m);
                     //MainActivity.mlock.release();
                 }
             } catch (IOException e) {
                 Log.i(TAG, "IOException");
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Log.i(TAG, "InterruptedException");
                 e.printStackTrace();
             }
         } catch (SocketException e) {
@@ -94,6 +103,7 @@ public class UdpService implements Runnable {
         }
 
     }
+
     @Override
     public void run() {
         StartListen();

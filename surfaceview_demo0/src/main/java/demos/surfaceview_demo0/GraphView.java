@@ -28,7 +28,11 @@ public class GraphView extends RelativeLayout {
         yAxis_layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         yAxis = new AxisView(context);//y轴帧
         this.addView(yAxis, yAxis_layoutParams);
-        yAxis.setId(generateViewId());
+        if (MainActivity.getCurrentApiVersion() < 17) {
+            yAxis.setId(SupportApi15.generateViewId());
+        } else {
+            yAxis.setId(generateViewId());
+        }
         //x轴
         RelativeLayout.LayoutParams xAxis_layoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, DensityUtil.dip2px(context, 30));
@@ -36,7 +40,11 @@ public class GraphView extends RelativeLayout {
         xAxis_layoutParams.addRule(RelativeLayout.RIGHT_OF, yAxis.getId());
         xAxis = new AxisView(context);//x轴帧
         this.addView(xAxis, xAxis_layoutParams);
-        xAxis.setId(generateViewId());
+        if (MainActivity.getCurrentApiVersion() < 17) {
+            xAxis.setId(SupportApi15.generateViewId());
+        } else {
+            xAxis.setId(generateViewId());
+        }
         //网格帧
         RelativeLayout.LayoutParams grid_view_layoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

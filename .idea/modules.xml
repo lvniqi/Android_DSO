@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/float-button/float-button.iml" filepath="$PROJECT_DIR$/float-button/float-button.iml" />
       <module fileurl="file://$PROJECT_DIR$/scope/scope.iml" filepath="$PROJECT_DIR$/scope/scope.iml" />
       <module fileurl="file://$PROJECT_DIR$/surfaceview_demo0/surfaceview_demo0.iml" filepath="$PROJECT_DIR$/surfaceview_demo0/surfaceview_demo0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tcp_test0/tcp_test0.iml" filepath="$PROJECT_DIR$/tcp_test0/tcp_test0.iml" />
     </modules>
   </component>
 </project>
