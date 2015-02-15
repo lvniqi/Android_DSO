@@ -20,7 +20,6 @@ import java.util.ArrayList;
 public class UdpService implements Runnable {
     private static final int MSG_SUCCESS = 0;//获取图片成功的标识
     private final String TAG = "UdpService";
-    public Boolean isRun = false;//指示监听线程是否终止
     // 接收的字节大小，客户端发送的数据不能超过这个大小
     byte[] message = new byte[5000];
     private InetAddress mInetAddress;
@@ -46,7 +45,7 @@ public class UdpService implements Runnable {
                     message.length);
             //Message m = MainActivity.graphView.getUpdate_thread().getmHandler().obtainMessage();
             try {
-                while (isRun) {
+                while (!Thread.currentThread().isInterrupted()) {
                     // 准备接收数据
                     //Log.d("UDP Demo", "准备接受");
                     datagramSocket.receive(datagramPacket);
@@ -107,7 +106,12 @@ public class UdpService implements Runnable {
     @Override
     public void run() {
         StartListen();
-        Log.i(TAG, "closed");
+    }
+
+    public void close() {
+        if (!datagramSocket.isClosed()) {
+            datagramSocket.close();
+        }
     }
 }
 

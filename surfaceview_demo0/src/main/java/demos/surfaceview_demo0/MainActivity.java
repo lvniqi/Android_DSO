@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,7 +21,8 @@ public class MainActivity extends Activity {
     private static int currentApiVersion;
     //测试用
     UdpService udpservice;
-    private Thread tReceived;
+    TcpService tcpService;
+    private Thread udpReceived;
 
     public static Context getmContext() {
         return mContext;
@@ -40,7 +42,8 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
         setContentView(R.layout.activity_main);
         //udp 接收
-        udpservice = new UdpService(4507);
+        udpservice = new UdpService(55555);
+        tcpService = new TcpService(55556);
         graphView = new GraphView(this);
         ((RelativeLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
         //((FloatingActionButton)findViewById(R.id.action_trigger1)).setVisibility(View.INVISIBLE);
@@ -72,7 +75,10 @@ public class MainActivity extends Activity {
         actionInSource.addSubLabel(textInsource2);
         actionInSource.setTitle(this.getString(R.string.in_source));
         actionInSource.showSub(false);
-
+        //检测是否有虚拟按键
+        if (ViewConfiguration.get(mContext).hasPermanentMenuKey()) {
+            ;
+        }
         //退出
         final FloatingActionButton actionExit = (FloatingActionButton) findViewById(R.id.action_exit);
         final TextView textExit = (TextView) findViewById(R.id.textView_exit);
@@ -169,9 +175,10 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        if (tReceived == null || !tReceived.isAlive()) {
-            tReceived = new Thread(udpservice);
-        }
+        //开启udp接收
+        udpReceived = new Thread(udpservice);
+        udpReceived.start();
+        new Thread(tcpService).start();
         //Display display = getWindowManager().getDefaultDisplay();
         //Log.i("view", "height:" + display.getHeight());
         //Log.i("view", "width:" + display.getWidth());
@@ -180,11 +187,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        //开启udp接收
-        udpservice.isRun = true;
-        if (!tReceived.isAlive()) {
-            tReceived.start();
-        }
         //隐藏虚拟按键
         if (19 <= currentApiVersion) {
             View decorView = getWindow().getDecorView();
@@ -200,7 +202,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        //udpservice.isRun = false;
+        udpReceived.interrupt();
+        udpservice.close();
         super.onDestroy();
         Log.i("Main", "Destroy");
     }
