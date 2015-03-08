@@ -32,6 +32,7 @@ public class TcpService extends Thread implements Serializable {
 
     public void close() {
         try {
+            socket.close();
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

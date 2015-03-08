@@ -196,7 +196,6 @@ public class MainActivity extends Activity {
         //Intent intent=getIntent();
         //Bundle bundle=intent.getBundleExtra("tcpChannel");
         tcpReceived = SplashActivity.tcpService;
-        tcpReceived.close();
         //Display display = getWindowManager().getDefaultDisplay();
         //Log.i("view", "height:" + display.getHeight());
         //Log.i("view", "width:" + display.getWidth());
@@ -227,5 +226,6 @@ public class MainActivity extends Activity {
         //tcpService.close();
         super.onDestroy();
         Log.i("Main", "Destroy");
+        tcpReceived.close();
     }
 }
