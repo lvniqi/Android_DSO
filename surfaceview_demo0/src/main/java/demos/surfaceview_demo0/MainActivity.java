@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     private static int currentApiVersion;
     private static TcpService tcpReceived;
     //测试用
-    UdpService udpservice;
+    private UdpService udpservice;
     private Thread udpReceived;
 
     public static Context getmContext() {
