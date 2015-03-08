@@ -11,20 +11,15 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static demos.surfaceview_demo0.ByteArrayFunction.BytesToArrayInt;
-import static demos.surfaceview_demo0.ByteArrayFunction.byte2int;
 
 
 /**
@@ -38,9 +33,7 @@ import static demos.surfaceview_demo0.ByteArrayFunction.byte2int;
 public class SeriesViewUpdate implements Runnable {
     ArrayList<SeriesChannel> channelList;
     //surfaceView lockAxis
-    Lock lockAxis = new ReentrantLock();
-    //服务函数
-    private Handler mHandler;
+    ReentrantReadWriteLock lockAxis = new ReentrantReadWriteLock();
     //位置锁
     private int HANDLE_COUNT = 0;
     private SurfaceHolder surfaceHolder;
@@ -86,38 +79,6 @@ public class SeriesViewUpdate implements Runnable {
         channelList = new ArrayList<SeriesChannel>(2);
         channelList.add(0, Ch1);
         channelList.add(1, Ch2);
-        mHandler = new Handler() {
-            /**
-             * 消息接收函数
-             *
-             * @param msg 接收其他线程的更新或者控制数据
-             */
-            public void handleMessage(Message msg) {
-                Bundle bundle = msg.getData();
-                byte[] temp_byte;
-                temp_byte = bundle.getByteArray("str");
-                int[] temp = byte2int(temp_byte);
-                ArrayList<Integer> temp2;
-                //long startTime=System.nanoTime(); //获取开始时间
-                Integer[] temp3 = new Integer[temp.length];
-                for (int i = 0; i < temp.length; i++) {
-                    temp3[i] = temp[i];
-                }
-                temp2 = new ArrayList(Arrays.asList(temp3));
-                //long endTime=System.nanoTime(); //获取结束时间
-                //Log.i("程序运行时间： ",(endTime-startTime)+"ns");
-                switch (msg.what) {
-                    case DefinedMessages.ADD_NEW_DATA_CH1:
-                        channelList.get(0).setData(temp2);
-                        break;
-                    case DefinedMessages.ADD_NEW_DATA_CH2:
-                        channelList.get(1).setData(temp2);
-                        break;
-                }
-                HANDLE_COUNT++;
-                super.handleMessage(msg);
-            }
-        };
     }
 
     public void setContinue(boolean isContinue) {
@@ -130,10 +91,6 @@ public class SeriesViewUpdate implements Runnable {
 
     public void setShow(boolean showFlag) {
         this.isShow = showFlag;
-    }
-
-    public Handler getmHandler() {
-        return mHandler;
     }
 
     public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
@@ -153,7 +110,7 @@ public class SeriesViewUpdate implements Runnable {
     //Y缩放
     public void setScalingY(float scalingY, float startpos) {
         try {
-            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+            if (lockAxis.writeLock().tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
                     if (scalingY > 0) {
                         float realPos = startpos / height;
@@ -163,7 +120,7 @@ public class SeriesViewUpdate implements Runnable {
                         isMove = true;
                     }
                 } finally {
-                    lockAxis.unlock();
+                    lockAxis.writeLock().unlock();
                 }
             }
         } catch (InterruptedException e) {
@@ -175,7 +132,7 @@ public class SeriesViewUpdate implements Runnable {
     //X缩放
     public void setScalingX(float scalingX, float startpos) {
         try {
-            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+            if (lockAxis.writeLock().tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
                     if (scalingX > 0) {
                         float realPos = startpos / width;
@@ -185,7 +142,7 @@ public class SeriesViewUpdate implements Runnable {
                         isMove = true;
                     }
                 } finally {
-                    lockAxis.unlock();
+                    lockAxis.writeLock().unlock();
                 }
             }
         } catch (InterruptedException e) {
@@ -211,14 +168,14 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMoveX(int moveX) {
         try {
-            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+            if (lockAxis.writeLock().tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
                     float size = manualMaxXValue - manualMinXValue;
                     manualMaxXValue -= moveX * size / width;
                     manualMinXValue -= moveX * size / width;
                     isMove = true;
                 } finally {
-                    lockAxis.unlock();
+                    lockAxis.writeLock().unlock();
                 }
             }
         } catch (InterruptedException e) {
@@ -234,14 +191,14 @@ public class SeriesViewUpdate implements Runnable {
      */
     public void setMoveY(int moveY) {
         try {
-            if (lockAxis.tryLock(500, TimeUnit.MILLISECONDS)) {
+            if (lockAxis.writeLock().tryLock(500, TimeUnit.MILLISECONDS)) {
                 try {
                     float size = manualMaxYValue - manualMinYValue;
                     this.manualMaxYValue += moveY * size / height;
                     this.manualMinYValue += moveY * size / height;
                     isMove = true;
                 } finally {
-                    lockAxis.unlock();
+                    lockAxis.writeLock().unlock();
                 }
             }
         } catch (InterruptedException e) {
@@ -280,7 +237,7 @@ public class SeriesViewUpdate implements Runnable {
                         } else if (isShow()) {
                             clear(canvas);
                             isTranslate = false;
-                            if (lockAxis.tryLock()) {
+                            if (lockAxis.readLock().tryLock()) {
                                 try {
                                     for (SeriesChannel channelX : channelList) {
 
@@ -289,7 +246,7 @@ public class SeriesViewUpdate implements Runnable {
                                         }
                                     }
                                 } finally {
-                                    lockAxis.unlock();
+                                    lockAxis.readLock().unlock();
                                 }
                             }
                         } else {
@@ -333,7 +290,7 @@ public class SeriesViewUpdate implements Runnable {
      */
     private void DrawLines(Canvas canvas, SeriesChannel chx) {
         final float densityX = (manualMaxXValue - manualMinXValue) / width;
-        final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), 3) * densityX + 1);
+        final int FIX_SIZE = (int) (DensityUtil.dip2px(MainActivity.getmContext(), 2) * densityX + 1);
         final float FIX_LENGTH = (FIX_SIZE / densityX);
         Paint paint = new Paint();
         paint.setStrokeCap(Paint.Cap.ROUND);
@@ -584,7 +541,7 @@ class SeriesChannel {
     //原始数据
     private ArrayList<Integer> BaseData = null;
     //数据锁
-    private Lock lockData = new ReentrantLock();
+    private ReadWriteLock lockData = new ReentrantReadWriteLock();
 
     SeriesChannel() {
         this(MainActivity.getmContext().getResources().getColor(R.color.holo_blue_light));
@@ -646,8 +603,16 @@ class SeriesChannel {
         return BaseData;
     }
 
+    public void setData(ArrayList<Integer> data) {
+        if (lockData.writeLock().tryLock()) {
+            BaseData = data;
+            dataCount++;
+            lockData.writeLock().unlock();
+        }
+    }
+
     public void setData(byte[] data) {
-        if (lockData.tryLock()) {
+        if (lockData.writeLock().tryLock()) {
             /*int[] dataInt = byte2int(data);
             ArrayList<Integer> temp2;
             Integer[] dataInteger = new Integer[dataInt.length];
@@ -658,15 +623,7 @@ class SeriesChannel {
             dataCount++;*/
             BaseData = BytesToArrayInt(data, 5000);
             dataCount++;
-            lockData.unlock();
-        }
-    }
-
-    public void setData(ArrayList<Integer> data) {
-        if (lockData.tryLock()) {
-            BaseData = data;
-            dataCount++;
-            lockData.unlock();
+            lockData.writeLock().unlock();
         }
     }
 
@@ -698,7 +655,7 @@ class SeriesChannel {
      * @return data_out
      */
     private Integer[] FastFix(Integer[] data, int step) {
-        lockData.lock();
+        lockData.readLock().lock();
         if (step < 1) {
             step = 1;
         }
@@ -739,7 +696,7 @@ class SeriesChannel {
                 }
             }
         }
-        lockData.unlock();
+        lockData.readLock().unlock();
         return data_out;
     }
 

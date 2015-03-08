@@ -15,5 +15,10 @@
     <string name="exit">exit</string>
     <string name="exit_chick">really?</string>
     <string name="message">Message</string>
+    <string name="warning">warning!</string>
+    <string name="error">error!</string>
+    <string name="connect_timeout">connection time out!</string>
+    <string name="yes">yes</string>
+    <string name="connected">successfully connected !</string>
 
 </resources>

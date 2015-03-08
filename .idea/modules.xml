@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Demos.iml" filepath="$PROJECT_DIR$/Demos.iml" />
       <module fileurl="file://$PROJECT_DIR$/GraphView-debug/GraphView-debug.iml" filepath="$PROJECT_DIR$/GraphView-debug/GraphView-debug.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MaterialDesign/MaterialDesign.iml" filepath="$PROJECT_DIR$/MaterialDesign/MaterialDesign.iml" />
       <module fileurl="file://$PROJECT_DIR$/dso_demo_graphview/dso_demo_graphview.iml" filepath="$PROJECT_DIR$/dso_demo_graphview/dso_demo_graphview.iml" />
       <module fileurl="file://$PROJECT_DIR$/fftw_android/fftw_android.iml" filepath="$PROJECT_DIR$/fftw_android/fftw_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/float-button/float-button.iml" filepath="$PROJECT_DIR$/float-button/float-button.iml" />

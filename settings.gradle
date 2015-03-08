@@ -1,2 +1,2 @@
-include ':dso_demo_graphview', ':scope', ':GraphView-debug', ':surfaceview_demo0', ':float-button', ':tcp_test0'
+include ':dso_demo_graphview', ':scope', ':GraphView-debug', ':surfaceview_demo0', ':float-button', ':tcp_test0', ':MaterialDesign'
 include ':fftw_android'

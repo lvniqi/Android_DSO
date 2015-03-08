@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/GraphView-debug" />
+            <option value="$PROJECT_DIR$/MaterialDesign" />
             <option value="$PROJECT_DIR$/dso_demo_graphview" />
             <option value="$PROJECT_DIR$/fftw_android" />
             <option value="$PROJECT_DIR$/float-button" />

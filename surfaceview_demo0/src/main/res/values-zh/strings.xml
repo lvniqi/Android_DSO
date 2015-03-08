@@ -14,4 +14,9 @@
     <string name="exit">退出</string>
     <string name="exit_chick">确认退出</string>
     <string name="message">信息</string>
+    <string name="warning">警告</string>
+    <string name="error">错误</string>
+    <string name="connect_timeout">连接超时</string>
+    <string name="yes">确定</string>
+    <string name="connected">成功连接</string>
 </resources>

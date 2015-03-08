@@ -2,6 +2,7 @@ package demos.surfaceview_demo0;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,8 +11,11 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gc.materialdesign.widgets.SnackBar;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import static demos.surfaceview_demo0.DefinedMessages.UDP_PORT;
 
 
 public class MainActivity extends Activity {
@@ -19,9 +23,9 @@ public class MainActivity extends Activity {
     static FloatingActionsMenu mainMenu;
     private static Context mContext;
     private static int currentApiVersion;
+    private static TcpService tcpReceived;
     //测试用
     UdpService udpservice;
-    TcpService tcpService;
     private Thread udpReceived;
 
     public static Context getmContext() {
@@ -42,8 +46,7 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
         setContentView(R.layout.activity_main);
         //udp 接收
-        udpservice = new UdpService(55555);
-        tcpService = new TcpService(55556);
+        udpservice = new UdpService(UDP_PORT);
         graphView = new GraphView(this);
         ((RelativeLayout) findViewById(R.id.SurfaceView_01)).addView(graphView);
         //((FloatingActionButton)findViewById(R.id.action_trigger1)).setVisibility(View.INVISIBLE);
@@ -178,7 +181,22 @@ public class MainActivity extends Activity {
         //开启udp接收
         udpReceived = new Thread(udpservice);
         udpReceived.start();
-        new Thread(tcpService).start();
+        SnackBar snackbar = new SnackBar(MainActivity.this,
+                mContext.getString(R.string.connected),
+                mContext.getString(R.string.yes),
+                null);
+        if (19 <= currentApiVersion) {
+            snackbar.setFullScreen(true);
+        }
+        snackbar.setBackgroundSnackBar(Color.parseColor("#e0fafafa"));
+        snackbar.setDismissTimer(3000);
+        snackbar.setMessageTextSize(17);
+        snackbar.show();
+        //接收tcp线程
+        //Intent intent=getIntent();
+        //Bundle bundle=intent.getBundleExtra("tcpChannel");
+        tcpReceived = SplashActivity.tcpService;
+        tcpReceived.close();
         //Display display = getWindowManager().getDefaultDisplay();
         //Log.i("view", "height:" + display.getHeight());
         //Log.i("view", "width:" + display.getWidth());
@@ -188,6 +206,10 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         //隐藏虚拟按键
+        hideKey();
+    }
+
+    public void hideKey() {
         if (19 <= currentApiVersion) {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -197,13 +219,12 @@ public class MainActivity extends Activity {
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
-
     }
-
     @Override
     protected void onDestroy() {
         udpReceived.interrupt();
         udpservice.close();
+        //tcpService.close();
         super.onDestroy();
         Log.i("Main", "Destroy");
     }
