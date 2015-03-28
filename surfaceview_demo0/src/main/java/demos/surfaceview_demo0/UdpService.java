@@ -76,6 +76,8 @@ public class UdpService implements Runnable {
                         //m.what = DefinedMessages.ADD_NEW_DATA_CH2;
                         MainActivity.graphView.getUpdate_thread().getChannelList().get(1).setData(temp);
                     }
+                    new MainActivity.textMessageTask().execute(temp.toString());
+                    //MainActivity.status.setVisibility(View.VISIBLE);
                     Thread.sleep(5);
                     //Bundle bundle = new Bundle();
                     //bundle.putByteArray("str", temp);

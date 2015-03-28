@@ -3,6 +3,7 @@ package demos.surfaceview_demo0;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,10 +21,13 @@ import static demos.surfaceview_demo0.DefinedMessages.UDP_PORT;
 
 public class MainActivity extends Activity {
     public static GraphView graphView;
+    public static RelativeLayout status;
     static FloatingActionsMenu mainMenu;
     private static Context mContext;
     private static int currentApiVersion;
     private static TcpService tcpReceived;
+    //信息字符
+    private static TextView messageCH1;
     //测试用
     private UdpService udpservice;
     private Thread udpReceived;
@@ -53,6 +57,11 @@ public class MainActivity extends Activity {
         //信息
         final FloatingActionButton actionMessage = new FloatingActionButton(getBaseContext());
         actionMessage.setTitle(this.getString(R.string.message));
+
+        //消息text
+        messageCH1 = (TextView) findViewById(R.id.textView1);
+        status = (RelativeLayout) findViewById(R.id.Status);
+        status.setVisibility(View.INVISIBLE);
         //触发方式
         final FloatingActionButton actionTriggerType = new FloatingActionButton(getBaseContext());
         final FloatingActionButton actionTrigger1 = (FloatingActionButton) findViewById(R.id.action_trigger1);
@@ -227,5 +236,24 @@ public class MainActivity extends Activity {
         super.onDestroy();
         Log.i("Main", "Destroy");
         tcpReceived.close();
+    }
+
+    public static class textMessageTask extends AsyncTask<String, String, String> {
+        String message;
+
+        @Override
+        protected String doInBackground(String... params) {
+            message = params[0];
+            return message;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(String result) {
+            messageCH1.setText(result);
+        }
     }
 }
