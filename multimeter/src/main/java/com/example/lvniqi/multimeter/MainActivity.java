@@ -39,6 +39,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     public List<String> mListNameItem;
     int position_last;
+    audioEncode audio;
     @Override
     public void onUserInformation() {
         //User information here
@@ -86,7 +87,6 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         this.setFooterInformationDrawer(R.string.settings, R.drawable.ic_settings_black_24dp);
         this.setNavigationAdapter(mListNameItem, mListIconItem, mListHeaderItem, mSparseCounterItem);
     }
-
     @Override
     public void onItemClickNavigation(int position, int layoutContainerId) {
 
@@ -107,6 +107,15 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                 case 0:
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
+                    //测试用 音频播放
+                    if(audio == null) {
+                        audio = new audioEncode();
+                        audio.start();
+                    }
+                    else{
+                        audio.setFrequency(audio.getFrequency()*1.5);
+                        Log.i("frequency",""+audio.getFrequency());
+                    }
                     break;
 
                 case 1:
@@ -132,5 +141,12 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     public void onClickFooterItemNavigation(View v) {
         //footer onClick
         startActivity(new Intent(this, SettingsActivity.class));
+    }
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        if (audio != null)
+            audio.stop();
     }
 }
