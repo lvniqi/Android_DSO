@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">智能电压表 原始版</string>
+    <string name="voltage">电压</string>
+    <string name="update_fireware">固件升级</string>
+    <string name="studio_name">by PIW工作室</string>
+    <string name="splash">这是启动画面你信吗？</string>
+    <string name="sign_in">登录</string>
+    <string name="settings">设置</string>
+    <string name="search">搜索</string>
+    <string name="others_show">其他信息</string>
+    <string name="open_user_profile">打开记录</string>
+    <string name="open_settings">打开设置</string>
+    <string name="connect_set">连接设置</string>
+    <string name="add">添加</string>
+</resources>
