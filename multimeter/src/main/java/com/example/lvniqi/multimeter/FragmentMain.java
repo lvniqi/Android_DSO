@@ -3,6 +3,7 @@ package com.example.lvniqi.multimeter;
 /**
  * Created by lvniqi on 2015-05-16.
  */
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +32,6 @@ public class FragmentMain extends Fragment {
         mFragment.setArguments(mBundle);
         return mFragment;
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -38,6 +39,9 @@ public class FragmentMain extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         TextView mTxtTitle = (TextView) rootView.findViewById(R.id.txtTitle);
+        //测试使用数字字体
+        final Typeface font = LEDView.createFont(inflater.getContext(),"digital-7.ttf", Typeface.NORMAL);
+        mTxtTitle.setTypeface(font);
         mTxtTitle.setText(getArguments().getString(TEXT_FRAGMENT));
 
         rootView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT ));

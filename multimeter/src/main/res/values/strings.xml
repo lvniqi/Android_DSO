@@ -34,5 +34,6 @@
     <string name="open_user_profile">Open user profile</string>
     <string name="open_settings">Open settings</string>
     <string name="others_show">others</string>
+    <string name="Value">0V</string>
 
 </resources>

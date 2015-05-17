@@ -37,4 +37,13 @@
         android:layout_marginTop="16dp"
         android:text="@string/clear"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    <!--
+    <com.example.lvniqi.multimeter.LEDView
+        android:id="@+id/ledview"
+        android:layout_below="@+id/imgLiveo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"  />
+        -->
 </RelativeLayout>

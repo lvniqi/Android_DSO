@@ -1,6 +1,8 @@
 package com.example.lvniqi.multimeter;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -40,6 +42,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     public List<String> mListNameItem;
     int position_last;
     audioEncode audio;
+    private LEDView ledView;
     @Override
     public void onUserInformation() {
         //User information here
@@ -149,4 +152,25 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         if (audio != null)
             audio.stop();
     }
+    /*
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_led);
+        ledView = (LEDView) findViewById(R.id.ledview);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ledView.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ledView.stop();
+    }*/
 }
