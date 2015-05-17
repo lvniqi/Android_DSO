@@ -16,9 +16,9 @@
         android:textSize="14sp" />
 
     <RelativeLayout
-        android:background="@color/blue_semi_transparent"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:background="@color/blue_semi_transparent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -66,6 +66,7 @@
                 android:padding="6dip"
                 android:text="@string/splash"
                 android:textSize="13sp" />
+
             <com.gc.materialdesign.views.ProgressBarCircularIndeterminate
                 android:id="@+id/progressBarCircularIndeterminate"
                 android:layout_width="32dp"

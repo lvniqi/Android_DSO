@@ -13,12 +13,12 @@ public class audioEncode implements Runnable {
     private double frequency = 480;
     private Thread thread;
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
     public double getFrequency() {
         return frequency;
+    }
+
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
     }
 
     // Start
@@ -26,7 +26,8 @@ public class audioEncode implements Runnable {
         thread = new Thread(this, "Audio");
         thread.start();
     }
-    protected void stop(){
+
+    protected void stop() {
         Thread t = thread;
         thread = null;
 
@@ -35,6 +36,7 @@ public class audioEncode implements Runnable {
         while (t != null && t.isAlive())
             Thread.yield();
     }
+
     public void run() {
         processAudio();
     }
@@ -42,8 +44,8 @@ public class audioEncode implements Runnable {
     protected void processAudio() {
         //构造正弦函数
         byte[] sinData = new byte[4096];
-        for(int i=0;i<4096;i++){
-            sinData[i] = (byte)Math.round(Math.sin(2.0 * Math.PI/4096.0*i) * 127+128);
+        for (int i = 0; i < 4096; i++) {
+            sinData[i] = (byte) Math.round(Math.sin(2.0 * Math.PI / 4096.0 * i) * 127 + 128);
         }
         byte buffer[];
         int rate =
@@ -54,12 +56,12 @@ public class audioEncode implements Runnable {
 
         // Find a suitable buffer size
         int size = 0;
-        final int n = (int)(rate/frequency);
-        size = (minSize/n+1)*n;
-        Log.i("minSize",""+minSize);
-        Log.i("size",""+size);
-        Log.i("rate",""+rate);
-        Log.i("frequency",""+frequency);
+        final int n = (int) (rate / frequency);
+        size = (minSize / n + 1) * n;
+        Log.i("minSize", "" + minSize);
+        Log.i("size", "" + size);
+        Log.i("rate", "" + rate);
+        Log.i("frequency", "" + frequency);
         // Create the audio track
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, rate,
                 AudioFormat.CHANNEL_OUT_MONO,
@@ -86,12 +88,12 @@ public class audioEncode implements Runnable {
         //现在数据在正弦函数中的位置
         int pos = 0;
         while (thread != null) {
-            int t_n = (int)(rate/frequency);
+            int t_n = (int) (rate / frequency);
             //步进
-            int x = 4096/t_n;
+            int x = 4096 / t_n;
             for (int i = 0; i < buffer.length; i++) {
                 buffer[i] = sinData[pos];
-                pos = (pos+x)%4096;
+                pos = (pos + x) % 4096;
             }
             audioTrack.write(buffer, 0, buffer.length);
         }

@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static java.lang.System.exit;
-
 public class SplashActivity extends Activity {
 
     private static final int FAILURE = 0; // 失败
@@ -22,6 +20,7 @@ public class SplashActivity extends Activity {
     public static Context getmContext() {
         return mContext;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,9 +1,7 @@
 package com.example.lvniqi.multimeter;
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -17,6 +15,7 @@ import java.util.List;
 
 import br.liveo.interfaces.NavigationLiveoListener;
 import br.liveo.navigationliveo.NavigationLiveo;
+
 /**
  * Created by lvniqi on 2015-05-16.
  */
@@ -43,6 +42,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     public List<String> mListNameItem;
     int position_last;
     audioEncode audio;
+
     @Override
     public void onUserInformation() {
         //User information here
@@ -90,6 +90,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         this.setFooterInformationDrawer(R.string.settings, R.drawable.ic_settings_black_24dp);
         this.setNavigationAdapter(mListNameItem, mListIconItem, mListHeaderItem, mSparseCounterItem);
     }
+
     @Override
     public void onItemClickNavigation(int position, int layoutContainerId) {
 
@@ -97,7 +98,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
         Fragment mFragment = new FragmentMain().newInstance(mListNameItem.get(position));
 
-        if (mFragment != null){
+        if (mFragment != null) {
             mFragmentManager.beginTransaction().replace(layoutContainerId, mFragment).commit();
         }
     }
@@ -105,19 +106,18 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     @Override
     public void onPrepareOptionsMenuNavigation(Menu menu, int position, boolean visible) {
         //hide the menu when the navigation is opens
-        if(position_last != position) {
+        if (position_last != position) {
             switch (position) {
                 case 0:
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
                     //测试用 音频播放
-                    if(audio == null) {
+                    if (audio == null) {
                         audio = new audioEncode();
                         audio.start();
-                    }
-                    else{
-                        audio.setFrequency(audio.getFrequency()*1.5);
-                        Log.i("frequency",""+audio.getFrequency());
+                    } else {
+                        audio.setFrequency(audio.getFrequency() * 1.5);
+                        Log.i("frequency", "" + audio.getFrequency());
                     }
                     break;
 
@@ -131,7 +131,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
             }
             position_last = position;
         }
-        Log.i("position",""+position);
+        Log.i("position", "" + position);
     }
 
     @Override
@@ -145,14 +145,13 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         //footer onClick
         startActivity(new Intent(this, SettingsActivity.class));
     }
+
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         if (audio != null)
             audio.stop();
     }
-
 
 
 }

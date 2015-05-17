@@ -3,11 +3,11 @@ package com.example.lvniqi.multimeter;
 /**
  * Created by lvniqi on 2015-05-16.
  */
+
 import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,23 +17,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dexafree.materialList.cards.SmallImageCard;
+import com.dexafree.materialList.view.MaterialListView;
+
 public class FragmentMain extends Fragment {
 
-    private boolean mSearchCheck;
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
+    private boolean mSearchCheck;
+    private SearchView.OnQueryTextListener onQuerySearchView = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String s) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String s) {
+            if (mSearchCheck) {
+                // implement your search here
+            }
+            return false;
+        }
+    };
     //测试 LDE显示
     private LEDView ledView;
-    public FragmentMain newInstance(String text){
+
+    public FragmentMain newInstance(String text) {
         FragmentMain mFragment = new FragmentMain();
         Bundle mBundle = new Bundle();
         mBundle.putString(TEXT_FRAGMENT, text);
         mFragment.setArguments(mBundle);
         return mFragment;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,13 +59,19 @@ public class FragmentMain extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         TextView mTxtTitle = (TextView) rootView.findViewById(R.id.txtTitle);
-        ledView = (LEDView)rootView.findViewById(R.id.ledview);
+        ledView = (LEDView) rootView.findViewById(R.id.ledview);
         //测试使用数字字体
-        final Typeface font = LEDView.createFont(inflater.getContext(),"digital-7.ttf", Typeface.NORMAL);
+        final Typeface font = LEDView.createFont(inflater.getContext(), "digital-7.ttf", Typeface.NORMAL);
         mTxtTitle.setTypeface(font);
         mTxtTitle.setText(getArguments().getString(TEXT_FRAGMENT));
+        final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
+        SmallImageCard card = new SmallImageCard(rootView.getContext());
+        card.setDescription("description");
+        card.setTitle("title");
+        card.setDrawable(R.drawable.ic_launcher);
 
-        rootView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT ));
+        mListView.add(card);
+        rootView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         return rootView;
     }
 
@@ -98,25 +122,9 @@ public class FragmentMain extends Fragment {
         return true;
     }
 
-    private SearchView.OnQueryTextListener onQuerySearchView = new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextSubmit(String s) {
-            return false;
-        }
-
-        @Override
-        public boolean onQueryTextChange(String s) {
-            if (mSearchCheck){
-                // implement your search here
-            }
-            return false;
-        }
-    };
-
     /*
             LED显示的问题......
          */
-
 
     @SuppressLint("NewApi")
 
@@ -129,7 +137,7 @@ public class FragmentMain extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if(ledView != null) {
+        if (ledView != null) {
             ledView.stop();
         }
     }
