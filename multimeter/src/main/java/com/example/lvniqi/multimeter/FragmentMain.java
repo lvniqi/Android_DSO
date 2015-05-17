@@ -3,6 +3,7 @@ package com.example.lvniqi.multimeter;
 /**
  * Created by lvniqi on 2015-05-16.
  */
+import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,7 +25,8 @@ public class FragmentMain extends Fragment {
 
     private boolean mSearchCheck;
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
-
+    //测试 LDE显示
+    private LEDView ledView;
     public FragmentMain newInstance(String text){
         FragmentMain mFragment = new FragmentMain();
         Bundle mBundle = new Bundle();
@@ -39,6 +41,7 @@ public class FragmentMain extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         TextView mTxtTitle = (TextView) rootView.findViewById(R.id.txtTitle);
+        ledView = (LEDView)rootView.findViewById(R.id.ledview);
         //测试使用数字字体
         final Typeface font = LEDView.createFont(inflater.getContext(),"digital-7.ttf", Typeface.NORMAL);
         mTxtTitle.setTypeface(font);
@@ -109,4 +112,25 @@ public class FragmentMain extends Fragment {
             return false;
         }
     };
+
+    /*
+            LED显示的问题......
+         */
+
+
+    @SuppressLint("NewApi")
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ledView.start();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(ledView != null) {
+            ledView.stop();
+        }
+    }
 }

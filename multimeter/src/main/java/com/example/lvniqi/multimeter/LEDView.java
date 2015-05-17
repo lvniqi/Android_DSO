@@ -24,7 +24,8 @@ public class LEDView extends LinearLayout {
 
     private TextView timeView;
     private TextView bgView;
-    private static final String FONT_DIGITAL_7 = "digital-7.ttf";
+    private static final String FONT_DIGITAL_7 = "fonts" + File.separator
+            + "digital-7.ttf";
 
     private static final String DATE_FORMAT = "%02d:%02d:%02d";
     private static final int REFRESH_DELAY = 500;
@@ -65,11 +66,11 @@ public class LEDView extends LinearLayout {
     private void init(Context context) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
 
-        View view = layoutInflater.inflate(R.layout.fragment_main, this);
-        timeView = (TextView) this.findViewById(R.id.ledview_clock_time);
-        bgView = (TextView) this.findViewById(R.id.ledview_clock_bg);
+        View view = layoutInflater.inflate(R.layout.ledview, this);
+        timeView = (TextView) view.findViewById(R.id.ledview_clock_time);
+        bgView = (TextView) view.findViewById(R.id.ledview_clock_bg);
         AssetManager assets = context.getAssets();
-        final Typeface font = this.createFont(context,FONT_DIGITAL_7,Typeface.NORMAL);
+        final Typeface font = Typeface.createFromAsset(assets, FONT_DIGITAL_7);
         timeView.setTypeface(font);// 设置字体
         bgView.setTypeface(font);// 设置字体
 
@@ -82,8 +83,6 @@ public class LEDView extends LinearLayout {
     public void stop() {
         mHandler.removeCallbacks(mTimeRefresher);
     }
-
-
     /**
      * Load font from assets font folder.
      */
