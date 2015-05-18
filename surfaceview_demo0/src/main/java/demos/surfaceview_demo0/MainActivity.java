@@ -3,6 +3,7 @@ package demos.surfaceview_demo0;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,11 +58,14 @@ public class MainActivity extends Activity {
         //信息
         final FloatingActionButton actionMessage = new FloatingActionButton(getBaseContext());
         actionMessage.setTitle(this.getString(R.string.message));
-
+        //测试使用数字字体
+        final Typeface font = DensityUtil.createFont(mContext, "digital-7.ttf", Typeface.NORMAL);
         //消息text
         messageCH1 = (TextView) findViewById(R.id.textView1);
+        messageCH1.setTypeface(font);
+        ((TextView) findViewById(R.id.textView2)).setTypeface(font);
         status = (RelativeLayout) findViewById(R.id.Status);
-        status.setVisibility(View.INVISIBLE);
+        //status.setVisibility(View.INVISIBLE);
         //触发方式
         final FloatingActionButton actionTriggerType = new FloatingActionButton(getBaseContext());
         final FloatingActionButton actionTrigger1 = (FloatingActionButton) findViewById(R.id.action_trigger1);

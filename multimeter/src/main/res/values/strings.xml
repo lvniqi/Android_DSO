@@ -34,5 +34,7 @@
     <string name="open_settings">Open settings</string>
     <string name="others_show">others</string>
     <string name="Value">0V</string>
+    <string name="welcome">WELCOME!</string>
+    <string name="welcome_description">Slide To Dismiss</string>
 
 </resources>

@@ -122,11 +122,13 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                     break;
 
                 case 1:
-                    menu.findItem(R.id.menu_add).setVisible(!visible);
-                    menu.findItem(R.id.menu_search).setVisible(!visible);
+                    //menu.findItem(R.id.menu_add).setVisible(!visible);
+                    //menu.findItem(R.id.menu_search).setVisible(!visible);
+
                     break;
                 case 3:
-                    startActivity(new Intent(this, SettingsActivity.class));
+                    //startActivity(new Intent(this, SettingsActivity.class));
+                    Utils.changeToTheme(this, Utils.THEME_WARNNING);
                     break;
             }
             position_last = position;
@@ -153,5 +155,10 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
             audio.stop();
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
 
+        Utils.onActivityCreateSetTheme(this);
+        super.onCreate(savedInstanceState);
+    }
 }

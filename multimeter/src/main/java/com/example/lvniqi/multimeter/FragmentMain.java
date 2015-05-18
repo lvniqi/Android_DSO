@@ -5,6 +5,7 @@ package com.example.lvniqi.multimeter;
  */
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,16 +18,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dexafree.materialList.cards.BasicListCard;
+import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.SmallImageCard;
+import com.dexafree.materialList.cards.WelcomeCard;
+import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
 
 public class FragmentMain extends Fragment {
 
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
     private boolean mSearchCheck;
+    private View rootView;
+
+    public View getRootView() {
+        return rootView;
+    }
     private SearchView.OnQueryTextListener onQuerySearchView = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String s) {
@@ -51,27 +62,14 @@ public class FragmentMain extends Fragment {
         mFragment.setArguments(mBundle);
         return mFragment;
     }
-
+    private Context mContext;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-        TextView mTxtTitle = (TextView) rootView.findViewById(R.id.txtTitle);
-        ledView = (LEDView) rootView.findViewById(R.id.ledview);
-        //测试使用数字字体
-        final Typeface font = LEDView.createFont(inflater.getContext(), "digital-7.ttf", Typeface.NORMAL);
-        mTxtTitle.setTypeface(font);
-        mTxtTitle.setText(getArguments().getString(TEXT_FRAGMENT));
-        final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
-        SmallImageCard card = new SmallImageCard(rootView.getContext());
-        card.setDescription("description");
-        card.setTitle("title");
-        card.setDrawable(R.drawable.ic_launcher);
-
-        mListView.add(card);
-        rootView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mContext = rootView.getContext();
+        showListView(rootView);
         return rootView;
     }
 
@@ -121,24 +119,54 @@ public class FragmentMain extends Fragment {
         }
         return true;
     }
+    public void showListView(View rootView){
 
-    /*
-            LED显示的问题......
-         */
+        //小图片 LIstView
+        final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
+        /*
+        SmallImageCard card = new SmallImageCard(rootView.getContext());
+        card.setDescription("description");
+        card.setTitle("title");
+        card.setDrawable(R.drawable.ic_launcher);
+        mListView.add(card);
+        //基本listview
+        BasicListCard listCard = new BasicListCard(rootView.getContext());
+        listCard.setDescription("description");
+        listCard.setTitle("title");
+        BasicListAdapter adapter = new BasicListAdapter(rootView.getContext());
+        adapter.add("Text1");
+        adapter.add("Text2");
+        adapter.add("Text3");
+        listCard.setTag("LIST_CARD");
+        listCard.setAdapter(adapter);
+        listCard.setDismissible(true);
+        mListView.add(listCard);*/
+        //welcome listview
 
-    @SuppressLint("NewApi")
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ledView.start();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (ledView != null) {
-            ledView.stop();
-        }
+        final WelcomeCard wCard = new WelcomeCard(rootView.getContext());
+        wCard.setTitle(getString(R.string.welcome));
+        wCard.setDescription(getString(R.string.welcome_description));
+        wCard.setTag("WELCOME_CARD");
+        wCard.setButtonText("Okay!");
+        wCard.setDismissible(true);
+        wCard.setOnButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card) {
+                Toast.makeText(mContext, "Welcome!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        wCard.setBackgroundColorRes(R.color.background_material_dark);
+        mListView.add(wCard);
+        //LED listview
+        BasicListCard listCard = new BasicListCard(rootView.getContext());
+        listCard.setDescription("description");
+        listCard.setTitle("title");
+        LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
+        ledListAdapter.add("Text1");
+        listCard.setTag("LED_LIST_CARD");
+        listCard.setAdapter(ledListAdapter);
+        listCard.setDismissible(true);
+        listCard.setBackgroundColorRes(R.color.background_material_dark);
+        mListView.add(listCard);
     }
 }

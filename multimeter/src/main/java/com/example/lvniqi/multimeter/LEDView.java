@@ -44,7 +44,6 @@ public class LEDView extends LinearLayout {
     private TextView timeView;
     private TextView bgView;
 
-    @SuppressLint("NewApi")
     public LEDView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
@@ -60,22 +59,6 @@ public class LEDView extends LinearLayout {
         init(context);
     }
 
-    /**
-     * Load font from assets font folder.
-     */
-    public static Typeface createFont(Context context, String font, int style) {
-        Typeface typeface;
-        try {
-            AssetManager assets = context.getAssets();
-            typeface = Typeface.createFromAsset(assets, "fonts" + File.separator + font);
-        } catch (RuntimeException e) {
-            // createFromAsset() will throw a RuntimeException in case of error.
-            Log.e("font", "Unable to create font: " + font, e);
-            typeface = Typeface.defaultFromStyle(style);
-        }
-        return typeface;
-    }
-
     private void init(Context context) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         if (this.isInEditMode()) return;
@@ -88,7 +71,6 @@ public class LEDView extends LinearLayout {
         final Typeface font = Typeface.createFromAsset(assets, FONT_DIGITAL_7);
         timeView.setTypeface(font);// 设置字体
         bgView.setTypeface(font);// 设置字体
-
     }
 
     public void start() {

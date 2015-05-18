@@ -24,6 +24,7 @@
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/_textView1_cencer"
             android:text=""
+            android:textSize="20dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -40,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/_textView1_cencer"
             android:text="CH2字符"
+            android:textSize="20dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </RelativeLayout>
 

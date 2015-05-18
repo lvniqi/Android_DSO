@@ -65,6 +65,7 @@
                 android:padding="6dip"
                 android:text="@string/splash"
                 android:textSize="13sp" />
+
             <com.gc.materialdesign.views.ProgressBarCircularIndeterminate
                 android:id="@+id/progressBarCircularIndeterminate"
                 android:layout_width="32dp"
