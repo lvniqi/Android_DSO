@@ -40,9 +40,15 @@ import br.liveo.navigationliveo.NavigationLiveo;
 public class MainActivity extends NavigationLiveo implements NavigationLiveoListener {
 
     public List<String> mListNameItem;
-    int position_last;
-    audioEncode audio;
+    static int menuPosition;
+    static audioEncode audio;
 
+    static public audioEncode getAudio() {
+        return audio;
+    }
+    static public int getMenuPosition() {
+        return menuPosition;
+    }
     @Override
     public void onUserInformation() {
         //User information here
@@ -61,64 +67,41 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
         if (savedInstanceState == null) {
             //First item of the position selected from the list
-            this.setDefaultStartPositionNavigation(1);
+            this.setDefaultStartPositionNavigation(0);
         }
 
         // name of the list items
         mListNameItem = new ArrayList<>();
-        mListNameItem.add(0, getString(R.string.voltage));
-        mListNameItem.add(1, getString(R.string.others_show));
-        mListNameItem.add(2, "这是分隔符..."); //This item will be a subHeader
-        mListNameItem.add(3, getString(R.string.connect_set));
-        mListNameItem.add(4, getString(R.string.update_fireware));
+        mListNameItem.add(0, getString(R.string.measure));
+        mListNameItem.add(1, ""); //This item will be a subHeader
+        mListNameItem.add(2,getString(R.string.settings));
+        mListNameItem.add(3,getString(R.string.tools));
         // icons list items
         List<Integer> mListIconItem = new ArrayList<>();
-        mListIconItem.add(0, R.drawable.ic_inbox_black_24dp);
-        mListIconItem.add(1, R.drawable.ic_star_black_24dp); //Item no icon set 0
-        mListIconItem.add(2, 0); //When the item is a subHeader the value of the icon 0
-        mListIconItem.add(3, R.drawable.ic_drafts_black_24dp);
-        mListIconItem.add(4, 0);
-        //{optional} - Among the names there is some subheader, you must indicate it here
+        mListIconItem.add(0, R.drawable.ic_star_black_24dp); //Item no icon set 0
+        mListIconItem.add(1, 0); //When the item is a subHeader the value of the icon 0
+        mListIconItem.add(2, R.drawable.ic_settings_black_24dp);
+        mListIconItem.add(3, R.drawable.abc_ic_commit_search_api_mtrl_alpha);
+                //{optional} - Among the names there is some subheader, you must indicate it here
         List<Integer> mListHeaderItem = new ArrayList<>();
-        mListHeaderItem.add(2);
+        mListHeaderItem.add(1);
 
         //{optional} - Among the names there is any item counter, you must indicate it (position) and the value here
         SparseIntArray mSparseCounterItem = new SparseIntArray(); //indicate all items that have a counter
         mSparseCounterItem.put(0, 2);
-        mSparseCounterItem.put(1, 123);
+        mSparseCounterItem.put(2, 123);
         //If not please use the FooterDrawer use the setFooterVisible(boolean visible) method with value false
-        this.setFooterInformationDrawer(R.string.settings, R.drawable.ic_settings_black_24dp);
+        //this.setFooterInformationDrawer(R.string.settings, R.drawable.ic_settings_black_24dp);
         this.setNavigationAdapter(mListNameItem, mListIconItem, mListHeaderItem, mSparseCounterItem);
-    }
-
-    @Override
-    public void onItemClickNavigation(int position, int layoutContainerId) {
-
-        FragmentManager mFragmentManager = getSupportFragmentManager();
-
-        Fragment mFragment = new FragmentMain().newInstance(mListNameItem.get(position));
-
-        if (mFragment != null) {
-            mFragmentManager.beginTransaction().replace(layoutContainerId, mFragment).commit();
-        }
     }
 
     @Override
     public void onPrepareOptionsMenuNavigation(Menu menu, int position, boolean visible) {
         //hide the menu when the navigation is opens
-        if (position_last != position) {
             switch (position) {
                 case 0:
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
-                    //测试用 音频播放
-                    if (audio == null) {
-                        audio = new audioEncode();
-                        audio.start();
-                    } else {
-                        audio.setFrequency(audio.getFrequency() * 1.5);
-                        Log.i("frequency", "" + audio.getFrequency());
-                    }
                     break;
 
                 case 1:
@@ -128,14 +111,41 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                     break;
                 case 3:
                     //startActivity(new Intent(this, SettingsActivity.class));
-                    Utils.changeToTheme(this, Utils.THEME_WARNNING);
+                    //Utils.changeToTheme(this, Utils.THEME_WARNNING);
                     break;
             }
-            position_last = position;
-        }
-        Log.i("position", "" + position);
     }
+    @Override //The "layoutContainerId" should be used in "beginTransaction (). Replace"
+    public void onItemClickNavigation(int position, int layoutContainerId) {
 
+        FragmentManager mFragmentManager = getSupportFragmentManager();
+        Fragment mFragment = new FragmentMain().newInstance(mListNameItem.get(position));
+        this.menuPosition = position;
+        switch (position) {
+            case 0:
+                //测试用 音频播放
+                if (audio == null) {
+                    audio = new audioEncode();
+                    audio.start();
+                } else {
+                    audio.setFrequency(audio.getFrequency() * 1.5);
+                    Log.i("frequency", "" + audio.getFrequency());
+                }
+                break;
+            //case 2:
+                //Utils.changeToTheme(this, Utils.THEME_WARNNING);
+                //break;
+            default:
+                if(audio != null){
+                    audio.stop();
+                    audio = null;
+                }
+                break;
+        }
+        if (mFragment != null){
+            mFragmentManager.beginTransaction().replace(layoutContainerId, mFragment).commit();
+        }
+    }
     @Override
     public void onClickUserPhotoNavigation(View v) {
         //user photo onClick
@@ -151,8 +161,6 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (audio != null)
-            audio.stop();
     }
 
     @Override

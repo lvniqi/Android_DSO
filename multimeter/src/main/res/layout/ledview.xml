@@ -8,11 +8,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:shadowColor="#ff0000"
+        android:shadowColor="#e5e5e5"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="10"
-        android:textColor="#ff0000"
+        android:textColor="#e5e5e5"
         android:textSize="80sp" />
 
     <TextView
@@ -22,7 +22,7 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:text="88:88:88"
-        android:textColor="#11ff0000"
+        android:textColor="#22e5e5e5"
         android:textSize="80sp" />
 
 

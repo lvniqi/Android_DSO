@@ -16,4 +16,6 @@
     <string name="Value"></string>
     <string name="welcome">欢迎</string>
     <string name="welcome_description">滑动删除选项卡</string>
+    <string name="measure">测量</string>
+    <string name="tools">工具</string>
 </resources>

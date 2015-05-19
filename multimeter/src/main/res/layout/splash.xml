@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#000000"
     android:orientation="vertical">
 
     <TextView
@@ -18,7 +17,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/blue_semi_transparent">
+        android:background="@color/nliveo_blue_colorPrimaryDark">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -72,7 +71,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="center"
-                android:background="@color/holo_red_light" />
+                android:background="@color/white" />
 
         </LinearLayout>
     </RelativeLayout>

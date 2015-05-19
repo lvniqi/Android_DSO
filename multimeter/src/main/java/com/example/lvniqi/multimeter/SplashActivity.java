@@ -40,7 +40,7 @@ public class SplashActivity extends Activity {
             mVersionNameText.setText(versionName);
         }
         new AsyncTask<Void, Void, Integer>() {
-            private static final int SHOW_TIME_MIN = 1000;
+            private static final int SHOW_TIME_MIN = 1500;
 
             @Override
             protected Integer doInBackground(Void... params) {

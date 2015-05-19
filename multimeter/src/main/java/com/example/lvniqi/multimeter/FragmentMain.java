@@ -4,9 +4,7 @@ package com.example.lvniqi.multimeter;
  * Created by lvniqi on 2015-05-16.
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
@@ -16,16 +14,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.dexafree.materialList.cards.BasicButtonsCard;
+import com.dexafree.materialList.cards.BasicCard;
 import com.dexafree.materialList.cards.BasicListCard;
 import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.SmallImageCard;
 import com.dexafree.materialList.cards.WelcomeCard;
+import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
 
@@ -123,27 +122,55 @@ public class FragmentMain extends Fragment {
 
         //小图片 LIstView
         final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
-        /*
-        SmallImageCard card = new SmallImageCard(rootView.getContext());
-        card.setDescription("description");
-        card.setTitle("title");
-        card.setDrawable(R.drawable.ic_launcher);
-        mListView.add(card);
-        //基本listview
-        BasicListCard listCard = new BasicListCard(rootView.getContext());
-        listCard.setDescription("description");
-        listCard.setTitle("title");
-        BasicListAdapter adapter = new BasicListAdapter(rootView.getContext());
-        adapter.add("Text1");
-        adapter.add("Text2");
-        adapter.add("Text3");
-        listCard.setTag("LIST_CARD");
-        listCard.setAdapter(adapter);
-        listCard.setDismissible(true);
-        mListView.add(listCard);*/
-        //welcome listview
 
-        final WelcomeCard wCard = new WelcomeCard(rootView.getContext());
+        switch(MainActivity.getMenuPosition()){
+            case 0:
+                mListView.add(getWelcomeCard(rootView.getContext(),mListView));
+                mListView.add(getLedCard(rootView.getContext()));
+                break;
+            case 2:
+                //连接选择卡
+                BasicButtonsCard basicCard = new BasicButtonsCard(rootView.getContext());
+                basicCard.setTitle(getString(R.string.connect_set));
+                basicCard.setDescription("Your description");
+                basicCard.setLeftButtonText("LEFT");
+                basicCard.setRightButtonText("RIGHT");
+                basicCard.setTag("connect_set");
+                mListView.add(basicCard);
+                //升级固件
+                basicCard = new BasicButtonsCard(rootView.getContext());
+                basicCard.setTitle(getString(R.string.update_fireware));
+                basicCard.setLeftButtonText("LEFT");
+                basicCard.setRightButtonText("RIGHT");
+                basicCard.setTag("update_fireware");
+                mListView.add(basicCard);
+                //基本listview
+                BasicListCard listCard2 = new BasicListCard(rootView.getContext());
+                listCard2.setDescription("description");
+                listCard2.setTitle("title");
+                BasicListAdapter adapter = new BasicListAdapter(rootView.getContext());
+                adapter.add("Text1");
+                adapter.add("Text2");
+                adapter.add("Text3");
+                listCard2.setTag("LIST_CARD");
+                listCard2.setAdapter(adapter);
+                listCard2.setDismissible(true);
+                mListView.add(listCard2);
+                break;
+            case 3:
+                //自添加测试card
+                SigCard temp = new SigCard(rootView.getContext());
+                LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
+                ledListAdapter.add("12");
+                temp.setTitle("信号发生器");
+                temp.setTag("TEMP_CARD");
+                mListView.add(temp);
+                break;
+        }
+    }
+    private Card getWelcomeCard(Context context,final MaterialListView mListView){
+        //welcome listview
+        WelcomeCard wCard = new WelcomeCard(context);
         wCard.setTitle(getString(R.string.welcome));
         wCard.setDescription(getString(R.string.welcome_description));
         wCard.setTag("WELCOME_CARD");
@@ -153,20 +180,29 @@ public class FragmentMain extends Fragment {
             @Override
             public void onButtonPressedListener(View view, Card card) {
                 Toast.makeText(mContext, "Welcome!", Toast.LENGTH_SHORT).show();
+                MaterialListAdapter adapter = (MaterialListAdapter)mListView.getAdapter();
+                Card temp = adapter.getCard("DC_CARD");
+                if(temp != null) {
+                    mListView.remove(temp);
+                }
+
             }
         });
-        wCard.setBackgroundColorRes(R.color.background_material_dark);
-        mListView.add(wCard);
+        wCard.setDescriptionColorRes(R.color.white);
+        wCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+        return wCard;
+    }
+    private Card getLedCard(Context context){
         //LED listview
-        BasicListCard listCard = new BasicListCard(rootView.getContext());
-        listCard.setDescription("description");
-        listCard.setTitle("title");
-        LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
+        BasicListCard listCard = new BasicListCard(context);
+        LedListAdapter ledListAdapter = new LedListAdapter(context);
+        listCard.setTag("DC_CARD");
         ledListAdapter.add("Text1");
-        listCard.setTag("LED_LIST_CARD");
+        listCard.setTitle(getString(R.string.voltage));
+        listCard.setTitleColorRes(R.color.white);
         listCard.setAdapter(ledListAdapter);
         listCard.setDismissible(true);
-        listCard.setBackgroundColorRes(R.color.background_material_dark);
-        mListView.add(listCard);
+        listCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+        return listCard;
     }
 }

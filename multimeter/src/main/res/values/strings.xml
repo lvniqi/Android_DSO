@@ -36,5 +36,7 @@
     <string name="Value">0V</string>
     <string name="welcome">WELCOME!</string>
     <string name="welcome_description">Slide To Dismiss</string>
+    <string name="measure">measure</string>
+    <string name="tools">tools</string>
 
 </resources>
