@@ -57,7 +57,7 @@ public class LEDView extends LinearLayout {
                 + "digital-7.ttf";
         final Typeface font = Typeface.createFromAsset(assets, FONT_DIGITAL_7);
         fgView.setTypeface(font);// 设置字体
-        setText(10000f, DefinedMessages.FREQ);
+        setText(0, DefinedMessages.UNKNOW);
         bgView.setTypeface(font);// 设置字体
     }
     public  void setText(float x,int type){
@@ -97,6 +97,8 @@ public class LEDView extends LinearLayout {
                     data += " Hz";
                 }
                 break;
+            case DefinedMessages.UNKNOW:
+                data = "?????";
         }
         fgView.setText(data);
         String back = createBgString(data);

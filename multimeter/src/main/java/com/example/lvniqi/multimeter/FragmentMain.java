@@ -21,7 +21,9 @@ import android.widget.Toast;
 
 import com.dexafree.materialList.cards.BasicButtonsCard;
 import com.dexafree.materialList.cards.BasicListCard;
+import com.dexafree.materialList.cards.BigImageCard;
 import com.dexafree.materialList.cards.OnButtonPressListener;
+import com.dexafree.materialList.cards.SmallImageCard;
 import com.dexafree.materialList.cards.WelcomeCard;
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.model.Card;
@@ -173,30 +175,7 @@ public class FragmentMain extends Fragment {
                 break;
         }
     }
-    private Card getWelcomeCard(Context context,final MaterialListView mListView){
-        //welcome listview
-        WelcomeCard wCard = new WelcomeCard(context);
-        wCard.setTitle(getString(R.string.welcome));
-        wCard.setDescription(getString(R.string.welcome_description));
-        wCard.setTag("WELCOME_CARD");
-        wCard.setButtonText("Okay!");
-        wCard.setDismissible(true);
-        wCard.setOnButtonPressedListener(new OnButtonPressListener() {
-            @Override
-            public void onButtonPressedListener(View view, Card card) {
-                Toast.makeText(mContext, "Welcome!", Toast.LENGTH_SHORT).show();
-                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
-                Card temp = adapter.getCard("DC_CARD");
-                if (temp != null) {
-                    mListView.remove(temp);
-                }
 
-            }
-        });
-        wCard.setDescriptionColorRes(R.color.white);
-        wCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
-        return wCard;
-    }
 }
 class Cards{
     ArrayList<Card> cards;
@@ -204,7 +183,9 @@ class Cards{
         cards = new ArrayList<Card>();
         switch (Tag) {
             case DefinedMessages.MESSURE:
+                cards.add(getWelcomeCard(context));
                 cards.add(getLedCard(context, "DC")) ;
+                cards.add(getLedCard(context, "AC")) ;
                 break;
             case DefinedMessages.TOOLS:
                 cards.add(getSigCard(context)) ;
@@ -213,13 +194,23 @@ class Cards{
     public ArrayList<Card> getCards() {
         return cards;
     }
-    private Card getLedCard(Context context,String Tag){
+    private Card getLedCard(Context context,String title){
         //LED listview
         LedCard ledCard = new LedCard(context);
         ledCard.setTitleColorRes(R.color.white);
         ledCard.setDismissible(true);
-        ledCard.setTag(Tag);
-        ledCard.setTitle(context.getString(R.string.voltage));
+        ledCard.setTag(title+"_CARD");
+        switch (title) {
+            case "DC":
+                ledCard.setTitle(context.getString(R.string.dc));
+                break;
+            case "AC":
+                ledCard.setTitle(context.getString(R.string.ac));
+                break;
+            default:
+                ledCard.setTitle("UN KNOW");
+                break;
+        }
         ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
         return ledCard;
     }
@@ -260,12 +251,39 @@ class Cards{
                 else{
                     ((SigCard) card).setBackgroundColorRes(R.color.white);
                     ((SigCard) card).setRightButtonText("开启");
-                    MainActivity.getAudio().stop();
-                    MainActivity.audio = null;
+                    if(MainActivity.audio != null) {
+                        MainActivity.audio.stop();
+                        MainActivity.audio = null;
+                    }
+                    ((SigCard) card).getLedView().setText(0,DefinedMessages.UNKNOW);
                     ((SigCard) card).getSeekBar().setOnSeekBarChangeListener(null);
                 }
             }
         });
         return temp;
+    }
+    private Card getWelcomeCard(Context context){
+        //welcome listview
+        SmallImageCard wCard = new SmallImageCard (context);
+        wCard.setTitle(context.getString(R.string.welcome));
+        wCard.setDescription(context.getString(R.string.welcome_description));
+        wCard.setTag("WELCOME_CARD");
+        //wCard.setButtonText("Okay!");
+        wCard.setDismissible(true);
+        /*wCard.setOnButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card) {
+                Toast.makeText(context, "Welcome!", Toast.LENGTH_SHORT).show();
+                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
+                Card temp = adapter.getCard("DC_CARD");
+                if (temp != null) {
+                    mListView.remove(temp);
+                }
+
+            }
+        });*/
+        wCard.setDescriptionColorRes(R.color.white);
+        wCard.setBackgroundColorRes(R.color.material_deep_teal_500);
+        return wCard;
     }
 }

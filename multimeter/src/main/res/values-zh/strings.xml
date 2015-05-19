@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">智能电压表 原始版</string>
-    <string name="voltage">电压</string>
+    <string name="dc">直流电压</string>
     <string name="update_fireware">固件升级</string>
     <string name="studio_name">by PIW工作室</string>
     <string name="splash">这是启动画面你信吗？</string>
@@ -18,4 +18,5 @@
     <string name="welcome_description">滑动删除选项卡</string>
     <string name="measure">测量</string>
     <string name="tools">工具</string>
+    <string name="ac">交流电压</string>
 </resources>
