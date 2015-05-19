@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,25 +16,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.dexafree.materialList.cards.BasicButtonsCard;
-import com.dexafree.materialList.cards.BasicCard;
 import com.dexafree.materialList.cards.BasicListCard;
 import com.dexafree.materialList.cards.OnButtonPressListener;
-import com.dexafree.materialList.cards.SmallImageCard;
 import com.dexafree.materialList.cards.WelcomeCard;
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
+import com.example.lvniqi.multimeter.Card.LedCard;
+import com.example.lvniqi.multimeter.Card.SigCard;
+
+import java.util.ArrayList;
 
 public class FragmentMain extends Fragment {
 
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
     private boolean mSearchCheck;
     private View rootView;
-
+    static Cards measureCards;
+    static Cards toolsCards;
+    public static Cards getMeasureCards() {
+        return measureCards;
+    }
     public View getRootView() {
         return rootView;
     }
@@ -125,8 +132,9 @@ public class FragmentMain extends Fragment {
 
         switch(MainActivity.getMenuPosition()){
             case 0:
-                mListView.add(getWelcomeCard(rootView.getContext(),mListView));
-                mListView.add(getLedCard(rootView.getContext()));
+                measureCards = new Cards(rootView.getContext(),DefinedMessages.MESSURE);
+                //mListView.add(getWelcomeCard(rootView.getContext(),mListView));
+                mListView.addAll(measureCards.getCards());
                 break;
             case 2:
                 //连接选择卡
@@ -158,13 +166,10 @@ public class FragmentMain extends Fragment {
                 mListView.add(listCard2);
                 break;
             case 3:
-                //自添加测试card
-                SigCard temp = new SigCard(rootView.getContext());
-                LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
-                ledListAdapter.add("12");
-                temp.setTitle("信号发生器");
-                temp.setTag("TEMP_CARD");
-                mListView.add(temp);
+                toolsCards = new Cards(rootView.getContext(),DefinedMessages.TOOLS);
+                mListView.addAll(toolsCards.getCards());
+                //LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
+                //ledListAdapter.add("12");
                 break;
         }
     }
@@ -180,9 +185,9 @@ public class FragmentMain extends Fragment {
             @Override
             public void onButtonPressedListener(View view, Card card) {
                 Toast.makeText(mContext, "Welcome!", Toast.LENGTH_SHORT).show();
-                MaterialListAdapter adapter = (MaterialListAdapter)mListView.getAdapter();
+                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
                 Card temp = adapter.getCard("DC_CARD");
-                if(temp != null) {
+                if (temp != null) {
                     mListView.remove(temp);
                 }
 
@@ -192,17 +197,75 @@ public class FragmentMain extends Fragment {
         wCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
         return wCard;
     }
-    private Card getLedCard(Context context){
+}
+class Cards{
+    ArrayList<Card> cards;
+    Cards(Context context,int Tag){
+        cards = new ArrayList<Card>();
+        switch (Tag) {
+            case DefinedMessages.MESSURE:
+                cards.add(getLedCard(context, "DC")) ;
+                break;
+            case DefinedMessages.TOOLS:
+                cards.add(getSigCard(context)) ;
+        }
+    }
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+    private Card getLedCard(Context context,String Tag){
         //LED listview
-        BasicListCard listCard = new BasicListCard(context);
-        LedListAdapter ledListAdapter = new LedListAdapter(context);
-        listCard.setTag("DC_CARD");
-        ledListAdapter.add("Text1");
-        listCard.setTitle(getString(R.string.voltage));
-        listCard.setTitleColorRes(R.color.white);
-        listCard.setAdapter(ledListAdapter);
-        listCard.setDismissible(true);
-        listCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
-        return listCard;
+        LedCard ledCard = new LedCard(context);
+        ledCard.setTitleColorRes(R.color.white);
+        ledCard.setDismissible(true);
+        ledCard.setTag(Tag);
+        ledCard.setTitle(context.getString(R.string.voltage));
+        ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+        return ledCard;
+    }
+    private Card getSigCard(Context context){
+        //自添加测试card
+        SigCard temp = new SigCard(context);
+        temp.setTitle("信号发生器");
+        temp.setTag("TEMP_CARD");
+        temp.setRightButtonText("开启");
+        temp.setOnRightButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card) {
+                final SigCard card2 = (SigCard)card;
+                //已启用
+                if (((SigCard) card).getBackgroundColor() != view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                    ((SigCard) card).setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+                    ((SigCard) card).setRightButtonText("关闭");
+                    ((SigCard) card).getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+                        int progress = 0;
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            card2.getLedView().setText(120*progress,DefinedMessages.FREQ);
+                            MainActivity.audio.setFrequency(120*progress);
+                        }
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+                            if (MainActivity.audio == null) {
+                                MainActivity.audio = new audioEncode();
+                                MainActivity.audio.start();
+                            }
+                        }
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+                                Log.i("frequency", "" + MainActivity.audio.getFrequency());
+                            }
+                    });
+                }
+                else{
+                    ((SigCard) card).setBackgroundColorRes(R.color.white);
+                    ((SigCard) card).setRightButtonText("开启");
+                    MainActivity.getAudio().stop();
+                    MainActivity.audio = null;
+                    ((SigCard) card).getSeekBar().setOnSeekBarChangeListener(null);
+                }
+            }
+        });
+        return temp;
     }
 }

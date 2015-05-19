@@ -2,6 +2,7 @@ package com.example.lvniqi.multimeter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -9,6 +10,11 @@ import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
+
+import com.dexafree.materialList.cards.BasicListCard;
+import com.dexafree.materialList.controller.MaterialListAdapter;
+import com.dexafree.materialList.model.Card;
+import com.dexafree.materialList.view.MaterialListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +48,17 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     public List<String> mListNameItem;
     static int menuPosition;
     static audioEncode audio;
-
+    static Message LEDmessage = new Message();
     static public audioEncode getAudio() {
         return audio;
     }
     static public int getMenuPosition() {
         return menuPosition;
     }
+    public static Message getLEDmessage() {
+        return LEDmessage;
+    }
+
     @Override
     public void onUserInformation() {
         //User information here
@@ -100,11 +110,14 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         //hide the menu when the navigation is opens
             switch (position) {
                 case 0:
+                    //BasicListCard card = (BasicListCard)FragmentMain.getMeasureCards().getCards().get(0);
+                    //((LedListAdapter)card.getAdapter()).
+                    //        getViewHolder().mLEDView.setText(12f,DefinedMessages.DC);
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
                     break;
 
-                case 1:
+                case 2:
                     //menu.findItem(R.id.menu_add).setVisible(!visible);
                     //menu.findItem(R.id.menu_search).setVisible(!visible);
 
@@ -128,7 +141,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                     audio = new audioEncode();
                     audio.start();
                 } else {
-                    audio.setFrequency(audio.getFrequency() * 1.5);
+                    audio.setFrequency(480);
                     Log.i("frequency", "" + audio.getFrequency());
                 }
                 break;
@@ -145,6 +158,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         if (mFragment != null){
             mFragmentManager.beginTransaction().replace(layoutContainerId, mFragment).commit();
         }
+
     }
     @Override
     public void onClickUserPhotoNavigation(View v) {
@@ -160,6 +174,10 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     @Override
     protected void onDestroy() {
+        if(audio != null){
+            audio.stop();
+            audio = null;
+        }
         super.onDestroy();
     }
 

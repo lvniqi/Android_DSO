@@ -4,44 +4,32 @@ package com.example.lvniqi.multimeter;
  * Created by lvniqi on 2015-05-17.
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class LEDView extends LinearLayout {
 
     private static final String DATE_FORMAT = "%02d:%02d:%02d";
     private static final int REFRESH_DELAY = 500;
-    private final Runnable mTimeRefresher = new Runnable() {
-
-        @Override
-        public void run() {
-            Calendar calendar = Calendar.getInstance(TimeZone
-                    .getTimeZone("GMT+8"));
-            final Date d = new Date();
-            calendar.setTime(d);
-
-            timeView.setText(String.format(DATE_FORMAT,
-                    calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE),
-                    calendar.get(Calendar.SECOND)));
-            mHandler.postDelayed(this, REFRESH_DELAY);
-        }
+    //服务程序
+    final private Handler mHandler = new Handler() {
     };
-    private final Handler mHandler = new Handler();
-    private TextView timeView;
+    public Handler getmHandler() {
+        return mHandler;
+    }
+
+    private TextView fgView;
     private TextView bgView;
 
     public LEDView(Context context, AttributeSet attrs, int defStyle) {
@@ -58,26 +46,73 @@ public class LEDView extends LinearLayout {
         super(context);
         init(context);
     }
-
     private void init(Context context) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         if (this.isInEditMode()) return;
         View view = layoutInflater.inflate(R.layout.ledview, this);
-        timeView = (TextView) view.findViewById(R.id.ledview_clock_time);
-        bgView = (TextView) view.findViewById(R.id.ledview_clock_bg);
+        fgView = (TextView) view.findViewById(R.id.ledview_fg);
+        bgView = (TextView) view.findViewById(R.id.ledview_bg);
         AssetManager assets = context.getAssets();
         final String FONT_DIGITAL_7 = "fonts" + File.separator
                 + "digital-7.ttf";
         final Typeface font = Typeface.createFromAsset(assets, FONT_DIGITAL_7);
-        timeView.setTypeface(font);// 设置字体
+        fgView.setTypeface(font);// 设置字体
+        setText(10000f, DefinedMessages.FREQ);
         bgView.setTypeface(font);// 设置字体
     }
+    public  void setText(float x,int type){
+        String data = "";
 
-    public void start() {
-        mHandler.post(mTimeRefresher);
+        switch (type){
+            case DefinedMessages.AC:
+            case DefinedMessages.DC:
+                if(x>=1000 || x<=-1000){
+                    x /= 1000;
+                    data = ""+x;
+                    data += "kV";
+                }
+                else if(x<=1 && x>=-1){
+                    x*=1000;
+                    data = ""+(int)x;
+                    data += "mV";
+                }
+                else{
+                    data = ""+(int)x;
+                    data += " V";
+                }
+                break;
+            case DefinedMessages.FREQ:
+                if(x>=1000 || x<=-1000){
+                    x /= 1000;
+                    data = ""+x;
+                    data += "kHz";
+                }
+                else if(x<=1 && x>=-1){
+                    x*=1000;
+                    data = ""+(int)x;
+                    data += "mHz";
+                }
+                else{
+                    data = ""+(int)x;
+                    data += " Hz";
+                }
+                break;
+        }
+        fgView.setText(data);
+        String back = createBgString(data);
+        bgView.setText(back);
     }
-
-    public void stop() {
-        mHandler.removeCallbacks(mTimeRefresher);
+    private String createBgString(String data){
+        byte [] array = data.getBytes();
+        String back = "";
+        for(int i=0;i<array.length;i++){
+            if(array[i] <='9'&& array[i] >= '0') {
+                back += "8";
+            }
+            else{
+                back += " ";
+            }
+        }
+        return back;
     }
 }
