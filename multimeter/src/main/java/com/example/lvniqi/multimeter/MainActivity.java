@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dexafree.materialList.cards.BasicListCard;
+import com.dexafree.materialList.controller.MaterialListAdapter;
+import com.dexafree.materialList.view.MaterialListView;
+import com.example.lvniqi.multimeter.Card.LedCard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,9 +110,19 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         //hide the menu when the navigation is opens
             switch (position) {
                 case 0:
-                    //BasicListCard card = (BasicListCard)FragmentMain.getMeasureCards().getCards().get(0);
-                    //((LedListAdapter)card.getAdapter()).
+                    //FragmentManager mFragmentManager = getSupportFragmentManager();
+                    //FragmentMain mFragment = (FragmentMain)mFragmentManager.getFragments().get(0);
+                    //LedCard card = (LedCard)mFragment.getMeasureCards().getCards().get(1);
+                    //card.getLedView().setText(12,DefinedMessages.DC);
                     //        getViewHolder().mLEDView.setText(12f,DefinedMessages.DC);
+
+                    View  rootView = FragmentMain.getRootView();
+                    final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
+                    MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
+                    LedCard ledCard =  (LedCard)adapter.getCard("DC_CARD");
+                    if(ledCard != null){
+                        ledCard.setLedValue(12);
+                    }
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
                     break;

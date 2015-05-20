@@ -27,24 +27,22 @@ import com.dexafree.materialList.cards.SmallImageCard;
 import com.dexafree.materialList.cards.WelcomeCard;
 import com.dexafree.materialList.controller.IMaterialListAdapter;
 import com.dexafree.materialList.controller.MaterialListAdapter;
+import com.dexafree.materialList.controller.OnDismissCallback;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
 import com.example.lvniqi.multimeter.Card.LedCard;
 import com.example.lvniqi.multimeter.Card.SigCard;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FragmentMain extends Fragment {
 
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
     private boolean mSearchCheck;
-    private View rootView;
-    static Cards measureCards;
-    static Cards toolsCards;
-    public static Cards getMeasureCards() {
-        return measureCards;
-    }
-    public View getRootView() {
+    private static View rootView;
+    static public View getRootView() {
         return rootView;
     }
     private SearchView.OnQueryTextListener onQuerySearchView = new SearchView.OnQueryTextListener() {
@@ -71,14 +69,13 @@ public class FragmentMain extends Fragment {
         mFragment.setArguments(mBundle);
         return mFragment;
     }
-    private Context mContext;
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // TODO Auto-generated method stub
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        mContext = rootView.getContext();
+        rootView = inflater.inflate(R.layout.fragment_main, container, false);
         showListView(rootView);
+
         return rootView;
     }
 
@@ -135,9 +132,29 @@ public class FragmentMain extends Fragment {
 
         switch(MainActivity.getMenuPosition()){
             case 0:
-                measureCards = new Cards(rootView.getContext(),DefinedMessages.MESSURE);
                 //mListView.add(getWelcomeCard(rootView.getContext(),mListView));
-                mListView.addAll(measureCards.getCards());
+                mListView.addAll(new Cards(rootView.getContext(),DefinedMessages.MESSURE).getCards());
+                mListView.setOnDismissCallback(new OnDismissCallback(){
+                    @Override
+                    public void onDismiss(Card card, int position) {
+                        switch (position){
+                            case 0:
+                                if(card.getTag() == "WELCOME_CARD"){
+                                    LedCard ledCard = (LedCard)((MaterialListAdapter)card.getcAdapter()).getCard("DC_CARD");
+                                    if(ledCard != null) {
+                                        ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimary);
+                                        ledCard.setLedAll(0, DefinedMessages.DC);
+                                    }
+                                    ledCard = (LedCard)((MaterialListAdapter)card.getcAdapter()).getCard("AC_CARD");
+                                    if(ledCard != null) {
+                                        ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimary);
+                                        ledCard.setLedAll(0, DefinedMessages.DC);
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                });
                 break;
             case 2:
                 //连接选择卡
@@ -169,8 +186,7 @@ public class FragmentMain extends Fragment {
                 mListView.add(listCard2);
                 break;
             case 3:
-                toolsCards = new Cards(rootView.getContext(),DefinedMessages.TOOLS);
-                mListView.addAll(toolsCards.getCards());
+                mListView.addAll(new Cards(rootView.getContext(),DefinedMessages.TOOLS).getCards());
                 //LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
                 //ledListAdapter.add("12");
                 break;
@@ -212,7 +228,7 @@ class Cards{
                 ledCard.setTitle("UN KNOW");
                 break;
         }
-        ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+        ledCard.setBackgroundColorRes(R.color.nliveo_red_colorPrimaryDark);
         return ledCard;
     }
     private Card getSigCard(Context context){
@@ -238,14 +254,14 @@ class Cards{
                         progress = 1;
                     }
                     card.getSeekBar().setProgress(progress);
-                    card.getLedView().setText(120*progress,DefinedMessages.FREQ);
+                    card.setLedAll(120*progress,DefinedMessages.FREQ);
                     MainActivity.audio.setFrequency(120*progress);
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                     card.setRightButtonText("关闭");
                     card.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            card.getLedView().setText(120*progress,DefinedMessages.FREQ);
+                            card.setLedValue(120*progress);
                             MainActivity.audio.setFrequency(120*progress);
                         }
                         @Override
@@ -264,7 +280,7 @@ class Cards{
                         MainActivity.audio.stop();
                         MainActivity.audio = null;
                     }
-                    card.getLedView().setText(0,DefinedMessages.UNKNOW);
+                    card.setLedAll(0,DefinedMessages.UNKNOW);
                     card.getSeekBar().setOnSeekBarChangeListener(null);
                 }
             }

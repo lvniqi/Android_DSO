@@ -57,7 +57,6 @@ public class LEDView extends LinearLayout {
                 + "digital-7.ttf";
         final Typeface font = Typeface.createFromAsset(assets, FONT_DIGITAL_7);
         fgView.setTypeface(font);// 设置字体
-        setText(0, DefinedMessages.UNKNOW);
         bgView.setTypeface(font);// 设置字体
     }
     public  void setText(float x,int type){

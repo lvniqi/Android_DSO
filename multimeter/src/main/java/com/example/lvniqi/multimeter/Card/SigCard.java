@@ -20,6 +20,8 @@ public class SigCard extends SimpleCard {
     protected boolean fullWidthDivider = false;
     protected SeekBar seekBar;
     protected LEDView ledView;
+    protected int LED_TYPE;
+    protected float LED_VALUE;
     public SigCard(Context context) {
         super(context);
     }
@@ -82,6 +84,19 @@ public class SigCard extends SimpleCard {
         this.onRightButtonPressedListener = onRightButtonPressedListener;
 
     }
+    public void setLedValue(float LED_VALUE) {
+        this.LED_VALUE = LED_VALUE;
+        if(ledView != null){
+            ledView.setText(LED_VALUE,LED_TYPE);
+        }
+    }
+    public void setLedAll(float value,int type) {
+        this.LED_TYPE = type;
+        this.LED_VALUE = value;
+        if(ledView != null){
+            ledView.setText(LED_VALUE,LED_TYPE);
+        }
+    }
     public void setSeekBar(SeekBar seekBar) {
         this.seekBar = seekBar;
     }
@@ -90,8 +105,5 @@ public class SigCard extends SimpleCard {
     }
     public void setLedView(LEDView ledView) {
         this.ledView = ledView;
-    }
-    public LEDView getLedView() {
-        return ledView;
     }
 }

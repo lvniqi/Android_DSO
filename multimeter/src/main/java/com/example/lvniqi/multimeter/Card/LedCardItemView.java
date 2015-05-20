@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.dexafree.materialList.cards.internal.BaseCardItemView;
+import com.example.lvniqi.multimeter.LEDView;
 import com.example.lvniqi.multimeter.R;
 
 public class LedCardItemView extends BaseCardItemView<LedCard> {
@@ -28,6 +29,12 @@ public class LedCardItemView extends BaseCardItemView<LedCard> {
         title.setText(card.getTitle());
         if (card.getTitleColor() != -1) {
             title.setTextColor(card.getTitleColor());
+        }
+        //LEDview
+        LEDView ledview = (LEDView)findViewById(R.id.ledview);
+        if(ledview != null) {
+            ledview.setText(card.LED_VALUE, card.LED_TYPE);
+            card.setLedView(ledview);
         }
     }
 }

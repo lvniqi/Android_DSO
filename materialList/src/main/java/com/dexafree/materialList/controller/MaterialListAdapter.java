@@ -104,7 +104,7 @@ public class MaterialListAdapter extends RecyclerView.Adapter<MaterialListAdapte
 
     public Card getCard(java.lang.Object tag){
         for(Card x:mCardList){
-            if(x.getTag() == tag){
+            if(x.getTag().equals(tag)){
                 return x;
             }
         }

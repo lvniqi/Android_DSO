@@ -25,8 +25,12 @@
                 android:textSize="@dimen/bigger_title_size"
                 tools:text="This is the title"/>
             <com.example.lvniqi.multimeter.LEDView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:id="@+id/ledview"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_below="@+id/titleTextView"
+                android:layout_gravity="center"/>
             <View
                 android:id="@+id/cardDivider"
                 android:layout_width="match_parent"
