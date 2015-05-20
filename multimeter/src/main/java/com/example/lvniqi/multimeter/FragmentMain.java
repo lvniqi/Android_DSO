@@ -25,6 +25,7 @@ import com.dexafree.materialList.cards.BigImageCard;
 import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.SmallImageCard;
 import com.dexafree.materialList.cards.WelcomeCard;
+import com.dexafree.materialList.controller.IMaterialListAdapter;
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
@@ -218,29 +219,37 @@ class Cards{
         //自添加测试card
         SigCard temp = new SigCard(context);
         temp.setTitle("信号发生器");
-        temp.setTag("TEMP_CARD");
+        temp.setTag("SIG_CARD");
         temp.setRightButtonText("开启");
         temp.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
-            public void onButtonPressedListener(View view, Card card) {
-                final SigCard card2 = (SigCard)card;
+            public void onButtonPressedListener(View view, Card card2) {
+                final SigCard card1 = (SigCard)card2;
+                final SigCard card = (SigCard)((IMaterialListAdapter)card1.getcAdapter()).getCard("SIG_CARD");
                 //已启用
-                if (((SigCard) card).getBackgroundColor() != view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
-                    ((SigCard) card).setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
-                    ((SigCard) card).setRightButtonText("关闭");
-                    ((SigCard) card).getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-                        int progress = 0;
+                if (card.getBackgroundColor() !=
+                        view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                    if (MainActivity.audio == null) {
+                        MainActivity.audio = new audioEncode();
+                        MainActivity.audio.start();
+                    }
+                    int progress = card.getSeekBar().getProgress();
+                    if(progress == 0){
+                        progress = 1;
+                    }
+                    card.getSeekBar().setProgress(progress);
+                    card.getLedView().setText(120*progress,DefinedMessages.FREQ);
+                    MainActivity.audio.setFrequency(120*progress);
+                    card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+                    card.setRightButtonText("关闭");
+                    card.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            card2.getLedView().setText(120*progress,DefinedMessages.FREQ);
+                            card.getLedView().setText(120*progress,DefinedMessages.FREQ);
                             MainActivity.audio.setFrequency(120*progress);
                         }
                         @Override
                         public void onStartTrackingTouch(SeekBar seekBar) {
-                            if (MainActivity.audio == null) {
-                                MainActivity.audio = new audioEncode();
-                                MainActivity.audio.start();
-                            }
                         }
                         @Override
                         public void onStopTrackingTouch(SeekBar seekBar) {
@@ -249,14 +258,14 @@ class Cards{
                     });
                 }
                 else{
-                    ((SigCard) card).setBackgroundColorRes(R.color.white);
-                    ((SigCard) card).setRightButtonText("开启");
+                    card.setBackgroundColorRes(R.color.white);
+                    card.setRightButtonText("开启");
                     if(MainActivity.audio != null) {
                         MainActivity.audio.stop();
                         MainActivity.audio = null;
                     }
-                    ((SigCard) card).getLedView().setText(0,DefinedMessages.UNKNOW);
-                    ((SigCard) card).getSeekBar().setOnSeekBarChangeListener(null);
+                    card.getLedView().setText(0,DefinedMessages.UNKNOW);
+                    card.getSeekBar().setOnSeekBarChangeListener(null);
                 }
             }
         });

@@ -12,9 +12,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dexafree.materialList.cards.BasicListCard;
-import com.dexafree.materialList.controller.MaterialListAdapter;
-import com.dexafree.materialList.model.Card;
-import com.dexafree.materialList.view.MaterialListView;
 
 import java.util.ArrayList;
 import java.util.List;

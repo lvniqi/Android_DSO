@@ -97,6 +97,7 @@ public class MaterialListAdapter extends RecyclerView.Adapter<MaterialListAdapte
 		return mCardList.get(position);
 	}
 
+
 	public int getPosition(Card card) {
 		return mCardList.indexOf(card);
 	}

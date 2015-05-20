@@ -18,6 +18,6 @@ public interface IMaterialListAdapter {
 	boolean isEmpty();
 
 	Card getCard(int position);
-
+    Card getCard(java.lang.Object tag);
 	int getPosition(Card card);
 }

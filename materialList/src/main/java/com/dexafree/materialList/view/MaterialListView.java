@@ -120,6 +120,7 @@ public class MaterialListView extends RecyclerView {
 	}
 
     public void add(Card card) {
+        card.setcAdapter(getAdapter());
 		((IMaterialListAdapter) getAdapter()).add(card);
     }
 
@@ -132,6 +133,9 @@ public class MaterialListView extends RecyclerView {
     }
 
     public void addAll(Collection<Card> cards) {
+        for(Card x:cards){
+            x.setcAdapter(getAdapter());
+        }
 		((IMaterialListAdapter) getAdapter()).addAll(cards);
     }
 
