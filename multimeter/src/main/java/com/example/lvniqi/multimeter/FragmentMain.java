@@ -30,6 +30,7 @@ import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.controller.OnDismissCallback;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
+import com.example.lvniqi.multimeter.Card.GraphCard;
 import com.example.lvniqi.multimeter.Card.LedCard;
 import com.example.lvniqi.multimeter.Card.SigCard;
 
@@ -206,6 +207,8 @@ class Cards{
                 break;
             case DefinedMessages.TOOLS:
                 cards.add(getSigCard(context)) ;
+                cards.add(getGraphCard(context)) ;
+                break;
         }
     }
     public ArrayList<Card> getCards() {
@@ -310,5 +313,14 @@ class Cards{
         wCard.setDescriptionColorRes(R.color.white);
         wCard.setBackgroundColorRes(R.color.material_deep_teal_500);
         return wCard;
+    }
+    private Card getGraphCard(Context context){
+        GraphCard graphCard = new GraphCard(context);
+        graphCard.setTitle("GraphCard");
+        graphCard.setTag("Graph_Card");
+        graphCard.setDismissible(true);
+        graphCard.setDescriptionColorRes(R.color.white);
+        graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
+        return graphCard;
     }
 }
