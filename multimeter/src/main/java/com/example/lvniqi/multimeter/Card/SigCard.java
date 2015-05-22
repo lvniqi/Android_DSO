@@ -27,7 +27,7 @@ public class SigCard extends SimpleCard {
     }
     @Override
     public int getLayout(){
-        return R.layout.sigcard;
+        return R.layout.sig_card;
     }
 
     public String getRightButtonText() {

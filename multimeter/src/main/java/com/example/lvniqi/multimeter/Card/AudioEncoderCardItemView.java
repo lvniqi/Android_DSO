@@ -1,36 +1,32 @@
 package com.example.lvniqi.multimeter.Card;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.internal.BaseCardItemView;
 import com.example.lvniqi.multimeter.R;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
-public class GraphCardItemView extends BaseCardItemView<GraphCard> {
+public class AudioEncoderCardItemView extends BaseCardItemView<AudioEncoderCard> {
     private final static int DIVIDER_MARGIN_DP = 16;
-    public GraphCardItemView(Context context) {
+    public AudioEncoderCardItemView(Context context) {
         super(context);
     }
 
-    public GraphCardItemView(Context context, AttributeSet attrs) {
+    public AudioEncoderCardItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public GraphCardItemView(Context context, AttributeSet attrs, int defStyle) {
+    public AudioEncoderCardItemView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
     @Override
-    public void build(final GraphCard card) {
+    public void build(final AudioEncoderCard card) {
         super.build(card);
         // Title
         TextView title = (TextView) findViewById(R.id.titleTextView);
@@ -85,36 +81,10 @@ public class GraphCardItemView extends BaseCardItemView<GraphCard> {
                 );
             }
         }
-        //GraphView
-        GraphView graphView = (GraphView) findViewById(R.id.graph);
-        if(graphView != null) {
-            DataPoint[] temp = new DataPoint[0];
-            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(temp);
-            series.setColor(Color.RED);
-            if(graphView.getSeries().size() == 0){
-                graphView.addSeries(series);
-
-                graphView.getGridLabelRenderer().setGridColor(Color.WHITE);
-                graphView.getGridLabelRenderer().setHighlightZeroLines(false);
-                graphView.getGridLabelRenderer()
-                        .setHorizontalLabelsColor(getResources().
-                                getColor(R.color.white));
-                graphView.getGridLabelRenderer()
-                        .setVerticalLabelsColor(getResources().
-                                getColor(R.color.white));
-                graphView.getViewport().setXAxisBoundsManual(true);
-                graphView.getViewport().setYAxisBoundsManual(true);
-                graphView.getViewport().setMinY(-32767);
-                graphView.getViewport().setMaxY(32767);
-                graphView.getViewport().setMinX(0);
-                graphView.getViewport().setMaxX(100);
-                graphView.getViewport().setScalable(false);
-                graphView.getViewport().setScrollable(false);
-                graphView.getLegendRenderer().setVisible(false);
-                card.setGraphView(graphView);
-                //graphView.removeAllSeries();
-            }
-
+        //Textedit
+        EditText editText = (EditText)findViewById(R.id.encoder_view);
+        if(editText != null) {
+            card.setEditText(editText);
         }
     }
 }

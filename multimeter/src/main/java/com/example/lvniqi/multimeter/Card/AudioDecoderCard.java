@@ -1,53 +1,54 @@
 package com.example.lvniqi.multimeter.Card;
 
 import android.content.Context;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.SimpleCard;
 import com.dexafree.materialList.events.BusProvider;
 import com.example.lvniqi.multimeter.DefinedMessages;
 import com.example.lvniqi.multimeter.R;
-import com.jjoe64.graphview.GraphView;
 
-public class GraphCard extends SimpleCard {
-    private GraphView graphView;
-    private boolean isShowGraphView=false;
+/**
+ * Created by lvniqi on 2015-05-21.
+ */
+public class AudioDecoderCard extends SimpleCard {
     protected String rightButtonText;
     protected int mRightButtonTextColor = -1;
     protected OnButtonPressListener onRightButtonPressedListener;
     protected boolean dividerVisible = false;
     protected boolean fullWidthDivider = false;
-    public GraphCard(final Context context){
+    protected TextView textView;
+    public AudioDecoderCard(final Context context){
         super(context);
     }
     @Override
     public int getLayout() {
-        return R.layout.graphview;
+        return R.layout.audio_decoder_card;
     }
 
-    public boolean isShowGraphView() {
-        return isShowGraphView;
+    public void setTextView(TextView textView) {
+        this.textView = textView;
     }
 
-    public void setShowGraphView(boolean isShowGraphView) {
-        this.isShowGraphView = isShowGraphView;
+    public TextView getTextView() {
+        return textView;
     }
 
-    public void setGraphView(GraphView graphView) {
-        this.graphView = graphView;
-    }
-
-    public GraphView getGraphView() {
-        if(isShowGraphView){
-            return graphView;
-        }
-        else{
-            return null;
+    public void setText(String value) {
+        if(textView != null){
+            textView.setText(value);
         }
     }
     public String getRightButtonText() {
         return rightButtonText;
     }
+
+    public void setRightButtonText(int rightButtonTextId) {
+        setRightButtonText(getString(rightButtonTextId));
+    }
+
     public void setRightButtonText(String rightButtonText) {
         this.rightButtonText = rightButtonText;
         BusProvider.dataSetChanged();
@@ -95,5 +96,3 @@ public class GraphCard extends SimpleCard {
 
     }
 }
-
-

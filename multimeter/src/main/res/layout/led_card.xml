@@ -25,7 +25,7 @@
                 android:textSize="@dimen/bigger_title_size"
                 tools:text="This is the title"/>
             <com.example.lvniqi.multimeter.LEDView
-                android:id="@+id/ledview"
+                android:id="@+id/led_view"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"

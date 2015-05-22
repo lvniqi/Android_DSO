@@ -21,22 +21,25 @@ import android.widget.Toast;
 
 import com.dexafree.materialList.cards.BasicButtonsCard;
 import com.dexafree.materialList.cards.BasicListCard;
-import com.dexafree.materialList.cards.BigImageCard;
 import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.SmallImageCard;
-import com.dexafree.materialList.cards.WelcomeCard;
-import com.dexafree.materialList.controller.IMaterialListAdapter;
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.controller.OnDismissCallback;
 import com.dexafree.materialList.model.Card;
 import com.dexafree.materialList.view.MaterialListView;
+import com.example.lvniqi.multimeter.Audio.AudioDecoder;
+import com.example.lvniqi.multimeter.Audio.AudioEncoder;
+import com.example.lvniqi.multimeter.Audio.AudioReceiver;
+import com.example.lvniqi.multimeter.Audio.AudioSender;
+import com.example.lvniqi.multimeter.Card.AudioDecoderCard;
+import com.example.lvniqi.multimeter.Card.AudioEncoderCard;
 import com.example.lvniqi.multimeter.Card.GraphCard;
 import com.example.lvniqi.multimeter.Card.LedCard;
 import com.example.lvniqi.multimeter.Card.SigCard;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FragmentMain extends Fragment {
 
@@ -208,6 +211,8 @@ class Cards{
             case DefinedMessages.TOOLS:
                 cards.add(getSigCard(context)) ;
                 cards.add(getGraphCard(context)) ;
+                cards.add(getAudioDecoderCard(context)) ;
+                cards.add(getAudioEncoderCard(context));
                 break;
         }
     }
@@ -243,14 +248,14 @@ class Cards{
         temp.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
             public void onButtonPressedListener(View view, Card card2) {
-                final SigCard card1 = (SigCard)card2;
-                final SigCard card = (SigCard)((IMaterialListAdapter)card1.getcAdapter()).getCard("SIG_CARD");
-                //已启用
+                final SigCard card = (SigCard)card2;
+                //final SigCard card = (SigCard)((IMaterialListAdapter)card1.getcAdapter()).getCard("SIG_CARD");
+                //未启用
                 if (card.getBackgroundColor() !=
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
-                    if (MainActivity.audio == null) {
-                        MainActivity.audio = new audioEncode();
-                        MainActivity.audio.start();
+                    if (MainActivity.audioSender == null) {
+                        MainActivity.audioSender = new AudioSender();
+                        MainActivity.audioSender.start();
                     }
                     int progress = card.getSeekBar().getProgress();
                     if(progress == 0){
@@ -258,30 +263,30 @@ class Cards{
                     }
                     card.getSeekBar().setProgress(progress);
                     card.setLedAll(120*progress,DefinedMessages.FREQ);
-                    MainActivity.audio.setFrequency(120*progress);
+                    MainActivity.audioSender.setFrequency(120*progress);
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                     card.setRightButtonText("关闭");
                     card.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             card.setLedValue(120*progress);
-                            MainActivity.audio.setFrequency(120*progress);
+                            MainActivity.audioSender.setFrequency(120*progress);
                         }
                         @Override
                         public void onStartTrackingTouch(SeekBar seekBar) {
                         }
                         @Override
                         public void onStopTrackingTouch(SeekBar seekBar) {
-                                Log.i("frequency", "" + MainActivity.audio.getFrequency());
+                                Log.i("frequency", "" + MainActivity.audioSender.getFrequency());
                             }
                     });
                 }
                 else{
                     card.setBackgroundColorRes(R.color.white);
                     card.setRightButtonText("开启");
-                    if(MainActivity.audio != null) {
-                        MainActivity.audio.stop();
-                        MainActivity.audio = null;
+                    if(MainActivity.audioSender != null) {
+                        MainActivity.audioSender.stop();
+                        MainActivity.audioSender = null;
                     }
                     card.setLedAll(0,DefinedMessages.UNKNOW);
                     card.getSeekBar().setOnSeekBarChangeListener(null);
@@ -317,10 +322,108 @@ class Cards{
     private Card getGraphCard(Context context){
         GraphCard graphCard = new GraphCard(context);
         graphCard.setTitle("GraphCard");
-        graphCard.setTag("Graph_Card");
+        graphCard.setTitleColorRes(R.color.nliveo_black);
+        graphCard.setTag("Graph_CARD");
+        graphCard.setRightButtonText("测试");
         graphCard.setDismissible(true);
-        graphCard.setDescriptionColorRes(R.color.white);
-        graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
+        graphCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card2) {
+                final GraphCard card = (GraphCard)card2;
+                //已启用
+                if (card.getBackgroundColor() ==
+                        view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                    card.setBackgroundColorRes(R.color.white);
+                    LineGraphSeries<DataPoint> series  =
+                            (LineGraphSeries<DataPoint>) card.getGraphView().getSeries().get(0);
+                    series.resetData(new DataPoint[0]);
+                    if(MainActivity.audioReceiver != null){
+                        MainActivity.audioReceiver.stop();
+                        MainActivity.audioReceiver = null;
+                    }
+                    card.setShowGraphView(false);
+                }
+                else {
+                    if(MainActivity.audioReceiver == null) {
+                        MainActivity.audioReceiver = new AudioReceiver();
+                        MainActivity.audioReceiver.start();
+                    }
+                    card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+                    card.setShowGraphView(true);
+                }
+            }
+        });
+        //graphCard.setDescriptionColorRes(R.color.white);
+        //graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
         return graphCard;
     }
+    private Card getAudioDecoderCard(Context context){
+        AudioDecoderCard audioDecoderCard = new AudioDecoderCard(context);
+        audioDecoderCard.setTitle("AudioDecoderCard");
+        audioDecoderCard.setTitleColorRes(R.color.nliveo_black);
+        audioDecoderCard.setTag("AudioRec_CARD");
+        audioDecoderCard.setDismissible(true);
+        audioDecoderCard.setRightButtonText("测试");
+        audioDecoderCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card2) {
+                final AudioDecoderCard card = (AudioDecoderCard)card2;
+                //已启用
+                if (card.getBackgroundColor() ==
+                        view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                    card.setBackgroundColorRes(R.color.white);
+                    if(MainActivity.audioDecoder != null){
+                        MainActivity.audioDecoder.stop();
+                        MainActivity.audioDecoder = null;
+                    }
+                }
+                else {
+                    if(MainActivity.audioDecoder == null) {
+                        MainActivity.audioDecoder = new AudioDecoder();
+                        MainActivity.audioDecoder.start();
+                    }
+                    card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+                }
+            }
+        });
+        //graphCard.setDescriptionColorRes(R.color.white);
+        //graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
+        return audioDecoderCard;
+    }
+    private Card getAudioEncoderCard(Context context){
+        AudioEncoderCard audioEncoderCard = new AudioEncoderCard(context);
+        audioEncoderCard.setTitle("AudioEncoderCard");
+        audioEncoderCard.setTitleColorRes(R.color.nliveo_black);
+        audioEncoderCard.setTag("AudioRec_CARD");
+        audioEncoderCard.setRightButtonText("测试");
+        audioEncoderCard.setDismissible(true);
+        audioEncoderCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
+            @Override
+            public void onButtonPressedListener(View view, Card card2) {
+                final AudioEncoderCard card = (AudioEncoderCard)card2;
+                //已启用
+                if (card.getBackgroundColor() ==
+                        view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                    card.setBackgroundColorRes(R.color.white);
+                    if(MainActivity.audioEncoder != null){
+                        MainActivity.audioEncoder.stop();
+                    }
+                    MainActivity.audioEncoder = null;
+                }
+                else {
+                    if(MainActivity.audioEncoder != null){
+                        MainActivity.audioEncoder.stop();
+                    }
+                    MainActivity.audioEncoder = new AudioEncoder();
+                    MainActivity.audioEncoder.start();
+                    MainActivity.audioEncoder.adddatas(255);
+                    card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+                }
+            }
+        });
+        //graphCard.setDescriptionColorRes(R.color.white);
+        //graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
+        return audioEncoderCard;
+    }
+
 }

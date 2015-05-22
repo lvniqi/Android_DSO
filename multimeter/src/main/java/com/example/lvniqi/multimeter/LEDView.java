@@ -7,9 +7,7 @@ package com.example.lvniqi.multimeter;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +47,7 @@ public class LEDView extends LinearLayout {
     private void init(Context context) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         if (this.isInEditMode()) return;
-        View view = layoutInflater.inflate(R.layout.ledview, this);
+        View view = layoutInflater.inflate(R.layout.led_view, this);
         fgView = (TextView) view.findViewById(R.id.ledview_fg);
         bgView = (TextView) view.findViewById(R.id.ledview_bg);
         AssetManager assets = context.getAssets();

@@ -21,7 +21,7 @@ public class LedCard extends SimpleCard {
     }
     @Override
     public int getLayout() {
-        return R.layout.ledcard;
+        return R.layout.led_card;
     }
     public void setLedView(LEDView ledView) {
         this.ledView = ledView;
@@ -32,6 +32,10 @@ public class LedCard extends SimpleCard {
         if(ledView != null){
             ledView.setText(LED_VALUE,LED_TYPE);
         }
+    }
+
+    public float getLED_VALUE() {
+        return LED_VALUE;
     }
 
     public void setLedAll(float value,int type) {

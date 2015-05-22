@@ -17,9 +17,9 @@ public class LedListAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.ledcard, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.led_card, parent, false);
             viewHolder = new ViewHolder();
-            viewHolder.mLEDView = (LEDView) convertView.findViewById(R.id.ledview);
+            viewHolder.mLEDView = (LEDView) convertView.findViewById(R.id.led_view);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();

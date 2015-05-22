@@ -151,23 +151,5 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private class ToastMessageTask extends AsyncTask<String, String, String> {
-        String toastMessage;
 
-        @Override
-        protected String doInBackground(String... params) {
-            toastMessage = params[0];
-            return toastMessage;
-        }
-
-        protected void OnProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-        }
-
-        // 这是执行在GUI线程context
-        protected void onPostExecute(String result) {
-            Toast toast = Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
 }

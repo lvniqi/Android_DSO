@@ -31,7 +31,7 @@ public class LedCardItemView extends BaseCardItemView<LedCard> {
             title.setTextColor(card.getTitleColor());
         }
         //LEDview
-        LEDView ledview = (LEDView)findViewById(R.id.ledview);
+        LEDView ledview = (LEDView)findViewById(R.id.led_view);
         if(ledview != null) {
             ledview.setText(card.LED_VALUE, card.LED_TYPE);
             card.setLedView(ledview);

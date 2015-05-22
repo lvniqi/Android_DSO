@@ -87,6 +87,6 @@ public class SigCardItemView extends BaseCardItemView<SigCard> {
             }
         }
         card.setSeekBar((SeekBar)findViewById(R.id.seekBar));
-        card.setLedView((LEDView)findViewById(R.id.ledview));
+        card.setLedView((LEDView)findViewById(R.id.led_view));
     }
 }

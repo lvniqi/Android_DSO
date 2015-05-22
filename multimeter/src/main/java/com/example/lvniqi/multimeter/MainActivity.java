@@ -1,6 +1,10 @@
 package com.example.lvniqi.multimeter;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -11,17 +15,25 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
-import com.dexafree.materialList.cards.BasicListCard;
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.view.MaterialListView;
+import com.example.lvniqi.multimeter.Audio.AudioDecoder;
+import com.example.lvniqi.multimeter.Audio.AudioEncoder;
+import com.example.lvniqi.multimeter.Audio.AudioSender;
+import com.example.lvniqi.multimeter.Audio.AudioReceiver;
+import com.example.lvniqi.multimeter.Card.AudioDecoderCard;
+import com.example.lvniqi.multimeter.Card.GraphCard;
 import com.example.lvniqi.multimeter.Card.LedCard;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import br.liveo.interfaces.NavigationLiveoListener;
 import br.liveo.navigationliveo.NavigationLiveo;
-
 /**
  * Created by lvniqi on 2015-05-16.
  */
@@ -47,10 +59,23 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     public List<String> mListNameItem;
     static int menuPosition;
-    static audioEncode audio;
+    public static AudioEncoder audioEncoder;
+    public static AudioSender audioSender;
+    public static AudioDecoder audioDecoder;
+    public static AudioReceiver audioReceiver;
     static Message LEDmessage = new Message();
-    static public audioEncode getAudio() {
-        return audio;
+
+    public static AudioDecoder getAudioDecoder() {
+        return audioDecoder;
+    }
+    public static AudioEncoder getAudioEncoder() {
+        return audioEncoder;
+    }
+    public static AudioReceiver getAudioReceiver() {
+        return audioReceiver;
+    }
+    static public AudioSender getAudioSender() {
+        return audioSender;
     }
     static public int getMenuPosition() {
         return menuPosition;
@@ -58,7 +83,9 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     public static Message getLEDmessage() {
         return LEDmessage;
     }
-
+    //测试用
+    private TimerTask task;
+    final Timer timer = new Timer();
     @Override
     public void onUserInformation() {
         //User information here
@@ -103,6 +130,18 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         //If not please use the FooterDrawer use the setFooterVisible(boolean visible) method with value false
         //this.setFooterInformationDrawer(R.string.settings, R.drawable.ic_settings_black_24dp);
         this.setNavigationAdapter(mListNameItem, mListIconItem, mListHeaderItem, mSparseCounterItem);
+        final Context temp = getBaseContext();
+        new ToastMessageTask().execute("Welcome!");
+        //测试用 定时器
+        /*task = new TimerTask() {
+            @Override
+            public void run() {
+                new GraphCardTask().execute(0f);
+            }
+        };*/
+
+        //timer.schedule(task, 2000, 50);
+
     }
 
     @Override
@@ -116,13 +155,13 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                     //card.getLedView().setText(12,DefinedMessages.DC);
                     //        getViewHolder().mLEDView.setText(12f,DefinedMessages.DC);
 
-                    View  rootView = FragmentMain.getRootView();
+                    /*View  rootView = FragmentMain.getRootView();
                     final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
                     MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
                     LedCard ledCard =  (LedCard)adapter.getCard("DC_CARD");
                     if(ledCard != null){
                         ledCard.setLedValue(12);
-                    }
+                    }*/
                     menu.findItem(R.id.menu_add).setVisible(!visible);
                     menu.findItem(R.id.menu_search).setVisible(!visible);
                     break;
@@ -147,21 +186,21 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         switch (position) {
             case 0:
                 //测试用 音频播放
-                if (audio == null) {
-                    audio = new audioEncode();
-                    audio.start();
+                if (audioSender == null) {
+                    audioSender = new AudioSender();
+                    audioSender.start();
                 } else {
-                    audio.setFrequency(480);
-                    Log.i("frequency", "" + audio.getFrequency());
+                    audioSender.setFrequency(480);
+                    Log.i("frequency", "" + audioSender.getFrequency());
                 }
                 break;
             //case 2:
                 //Utils.changeToTheme(this, Utils.THEME_WARNNING);
                 //break;
             default:
-                if(audio != null){
-                    audio.stop();
-                    audio = null;
+                if(audioSender != null){
+                    audioSender.stop();
+                    audioSender = null;
                 }
                 break;
         }
@@ -184,9 +223,9 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     @Override
     protected void onDestroy() {
-        if(audio != null){
-            audio.stop();
-            audio = null;
+        if(audioSender != null){
+            audioSender.stop();
+            audioSender = null;
         }
         super.onDestroy();
     }
@@ -196,5 +235,155 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
         Utils.onActivityCreateSetTheme(this);
         super.onCreate(savedInstanceState);
+    }
+    private class ToastMessageTask extends AsyncTask<String, String, String> {
+        String toastMessage;
+
+        @Override
+        protected String doInBackground(String... params) {
+            toastMessage = params[0];
+            return toastMessage;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(String result) {
+            Toast toast = Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+    static class MeasureCardsTask extends AsyncTask<Float, String, Float> {
+        Float value;
+
+        @Override
+        protected Float doInBackground(Float... params) {
+            value = params[0];
+            return value;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(Float result) {
+            View rootview = FragmentMain.getRootView();
+            final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
+            if(mListView != null){
+                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
+                if(adapter != null){
+                    LedCard dcCard = (LedCard)adapter.getCard("DC_CARD");
+                    if(dcCard != null){
+                        dcCard.setLedValue(dcCard.getLED_VALUE()+1);
+                    }
+                }
+            }
+        }
+    }
+    public static class GraphCardTask extends AsyncTask<short[], String, short[]> {
+        short[] value;
+
+        @Override
+        protected short[] doInBackground(short[]... params) {
+            value = params[0];
+            return value;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(short[] result) {
+            View rootview = FragmentMain.getRootView();
+            final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
+            if(mListView != null){
+                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
+                if(adapter != null){
+                    //图形绘制
+                    GraphCard graphCard = (GraphCard)adapter.getCard("Graph_CARD");
+                    if(graphCard != null &&graphCard.getGraphView() != null){
+                        List temp = graphCard.getGraphView().getSeries();
+                        if(temp != null && temp.size() != 0){
+                            LineGraphSeries<DataPoint> series  = (LineGraphSeries<DataPoint>) temp.get(0);
+                            DataPoint[] temp2 = new DataPoint[100];
+                            for(int i=0;i<temp2.length;i++){
+                                temp2[i] = new DataPoint(i,result[i]);
+                            }
+                            series.resetData(temp2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static class DecoderCardTask extends AsyncTask<String, String, String> {
+        String value;
+
+        @Override
+        protected String doInBackground(String... params) {
+            value = params[0];
+            return value;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(String result) {
+            View rootview = FragmentMain.getRootView();
+            final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
+            if(mListView != null){
+                MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
+                if(adapter != null){
+                    //测试频率译码
+                    AudioDecoderCard audioDecoderCard = (AudioDecoderCard)adapter.getCard("AudioRec_CARD");
+                    if(audioDecoderCard != null && audioDecoderCard.getTextView() != null){
+                        audioDecoderCard.setText(result);
+                    }
+                }
+            }
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //屏蔽线控
+        MediaButtonDisabler.unregister(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //屏蔽线控
+        MediaButtonDisabler.register(this);
+    }
+}
+//屏蔽线控
+class MediaButtonDisabler extends BroadcastReceiver {
+
+    private static final String TAG = "MediaButtonDisabler";
+
+    private static final BroadcastReceiver INSTANCE = new MediaButtonDisabler();
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d(TAG, "Intercepted media button.");
+
+        abortBroadcast();
+    }
+
+    public static void register(Context context) {
+        IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+        filter.setPriority(Integer.MAX_VALUE);
+        context.registerReceiver(INSTANCE, filter);
+    }
+
+    public static void unregister(Context context) {
+        context.unregisterReceiver(INSTANCE);
     }
 }
