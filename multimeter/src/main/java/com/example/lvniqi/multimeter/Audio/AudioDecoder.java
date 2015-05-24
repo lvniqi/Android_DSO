@@ -13,7 +13,7 @@ public class AudioDecoder extends AudioReceiver {
     static int count_1, count_2;
     private ArrayList<Integer> lastSave = new ArrayList<Integer>(FRAMES);
     private int saveLen = 0;
-
+    private String tostring = new String();
     @Override
     protected void Loop() {
         // Read a buffer of data
@@ -28,17 +28,26 @@ public class AudioDecoder extends AudioReceiver {
         }
         System.arraycopy(buffer, 0, data, saveLen, size);
         ArrayList<Integer> temp = getDatasFrimPcm(data);
+
         if (temp != null) {
-            for (Integer x : temp) {
+            /*for (Integer x : temp) {
                 if (x == 255)
                     count_2++;
                 else {
                     count_1++;
                     Log.i("ERROR", x + "");
                 }
+            }*/
+
+            byte[] t = new byte[temp.size()];
+            for (int i = 0; i < temp.size(); i++) {
+                t[i] = (byte) (int) temp.get(i);
+                Log.i("ERROR", temp.get(i) + "");
             }
+            tostring += new String(t);
         }
-        new MainActivity.DecoderCardTask().execute("count_1:" + count_1 + "count_2:" + count_2);
+        //new MainActivity.DecoderCardTask().execute("count_1:" + count_1 + "count_2:" + count_2);
+        new MainActivity.DecoderCardTask().execute(tostring);
     }
 
     /**

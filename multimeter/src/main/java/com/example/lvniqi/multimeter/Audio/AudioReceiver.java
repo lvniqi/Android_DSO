@@ -162,7 +162,7 @@ public class AudioReceiver implements Runnable {
             if (data[i] > max) {
                 max = data[i];
             }
-            if (max > 500) {
+            if (max > 1000) {
                 result = true;
                 break;
             }

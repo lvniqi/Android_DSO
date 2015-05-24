@@ -417,9 +417,14 @@ class Cards{
                     }
                     MainActivity.audioSender = new AudioEncoder();
                     MainActivity.audioSender.start();
-                    for (int i = 0; i < 256; i++) {
-                        ((AudioEncoder) MainActivity.audioSender).adddatas(i);
+                    String texts = card.getEditText().getText().toString();
+                    byte b[] = texts.getBytes();
+                    for (byte x : b) {
+                        ((AudioEncoder) MainActivity.audioSender).adddatas((int) x);
                     }
+                    /*for(int i=0;i<256;i++){
+                        ((AudioEncoder) MainActivity.audioSender).adddatas((int)i);
+                    }*/
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                 }
             }
