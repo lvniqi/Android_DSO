@@ -10,10 +10,12 @@ import android.widget.ArrayAdapter;
  * Created by lvniqi on 2015-05-18.
  */
 public class LedListAdapter extends ArrayAdapter<String> {
+    private ViewHolder viewHolder;
+
     public LedListAdapter(final Context context) {
         super(context, android.R.layout.simple_list_item_1);
     }
-    private ViewHolder viewHolder;
+
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         if (convertView == null) {
@@ -26,7 +28,7 @@ public class LedListAdapter extends ArrayAdapter<String> {
         }
         //viewHolder.mLEDView.start();
         /*
-		viewHolder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        viewHolder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 				// Do something awesome!

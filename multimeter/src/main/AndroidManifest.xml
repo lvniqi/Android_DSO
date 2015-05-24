@@ -30,6 +30,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:priority="1000000000">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
         </activity>
 
         <activity

@@ -13,12 +13,12 @@ import com.example.lvniqi.multimeter.MainActivity;
  */
 public class AudioReceiver implements Runnable {
 
+    protected static final int FRAMES = 4096;
     protected int input;
     protected int sample;
     // Data
     protected Thread thread;
     protected short data[];
-    protected static final int FRAMES = 4096;
     protected AudioRecord audioRecord;
     protected short buffer[];
 
@@ -110,7 +110,8 @@ public class AudioReceiver implements Runnable {
             audioRecord.release();
         }
     }
-    protected void Loop(){
+
+    protected void Loop() {
         // Read a buffer of data
         int size = audioRecord.read(buffer, 0, FRAMES);
         data = new short[size];
@@ -118,46 +119,50 @@ public class AudioReceiver implements Runnable {
         if (size == 0) {
             thread = null;
         }
-        System.arraycopy(buffer, 0, data, 0,size);
+        System.arraycopy(buffer, 0, data, 0, size);
         short[] temp = new short[100];
-        int pos_1=0,pos_2=0;
-        pos_1 = find_posedge(data,0);
-        if(pos_1 != -1) {
-            for (int i = pos_1, j = 0; j < 100&&i<data.length; j++, i++) {
+        int pos_1 = 0, pos_2 = 0;
+        pos_1 = find_posedge(data, 0);
+        if (pos_1 != -1) {
+            for (int i = pos_1, j = 0; j < 100 && i < data.length; j++, i++) {
                 temp[j] = data[i];
             }
             new MainActivity.GraphCardTask().execute(temp);
         }
     }
-    protected int find_posedge(short [] data,int start ){
+
+    protected int find_posedge(short[] data, int start) {
         int pos;
-        for (int i = start; i < data.length-1; i++) {
-            if (data[i] < 0 && data[i + 1] > 0) {
+        for (int i = start; i < data.length - 1; i++) {
+            if (data[i] <= 0 && data[i + 1] > 0) {
                 pos = i;
                 return pos;
             }
         }
         return -1;
     }
-    protected int find_posedge_reverse(short [] data,int end){
+
+    protected int find_posedge_reverse(short[] data, int end) {
         int pos;
-        for(int i=end-1;i>0;i--){
-            if (data[i] < 0 && data[i+1] > 0) {
+        for (int i = end - 1; i > 0; i--) {
+            if (data[i] <= 0 && data[i + 1] > 0) {
                 pos = i;
                 return pos;
             }
         }
         return -1;
     }
-    protected boolean isTypical(short []data,int start, int end){
+
+    protected boolean isTypical(short[] data, int start, int end) {
         boolean result = false;
-        if(end-start > 50){
+        if (end - start > 50) {
             return false;
         }
-        for(int max=0,i=start;i<end;i++){
-            if(data[i]>max){
+        for (int max = 0, i = start; i < end; i++) {
+            if (data[i] > max) {
                 max = data[i];
-            }if(max>5000){
+            }
+            if (max > 500) {
                 result = true;
                 break;
             }

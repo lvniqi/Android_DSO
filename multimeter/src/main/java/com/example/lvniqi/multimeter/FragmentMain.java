@@ -44,11 +44,8 @@ import java.util.ArrayList;
 public class FragmentMain extends Fragment {
 
     private static final String TEXT_FRAGMENT = "TEXT_FRAGMENT";
-    private boolean mSearchCheck;
     private static View rootView;
-    static public View getRootView() {
-        return rootView;
-    }
+    private boolean mSearchCheck;
     private SearchView.OnQueryTextListener onQuerySearchView = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String s) {
@@ -65,6 +62,10 @@ public class FragmentMain extends Fragment {
     };
     //测试 LDE显示
     private LEDView ledView;
+
+    static public View getRootView() {
+        return rootView;
+    }
 
     public FragmentMain newInstance(String text) {
         FragmentMain mFragment = new FragmentMain();
@@ -372,15 +373,15 @@ class Cards{
                 if (card.getBackgroundColor() ==
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
                     card.setBackgroundColorRes(R.color.white);
-                    if(MainActivity.audioDecoder != null){
-                        MainActivity.audioDecoder.stop();
-                        MainActivity.audioDecoder = null;
+                    if (MainActivity.audioReceiver != null) {
+                        MainActivity.audioReceiver.stop();
+                        MainActivity.audioReceiver = null;
                     }
                 }
                 else {
-                    if(MainActivity.audioDecoder == null) {
-                        MainActivity.audioDecoder = new AudioDecoder();
-                        MainActivity.audioDecoder.start();
+                    if (MainActivity.audioReceiver == null) {
+                        MainActivity.audioReceiver = new AudioDecoder();
+                        MainActivity.audioReceiver.start();
                     }
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                 }
@@ -394,7 +395,7 @@ class Cards{
         AudioEncoderCard audioEncoderCard = new AudioEncoderCard(context);
         audioEncoderCard.setTitle("AudioEncoderCard");
         audioEncoderCard.setTitleColorRes(R.color.nliveo_black);
-        audioEncoderCard.setTag("AudioRec_CARD");
+        audioEncoderCard.setTag("AudioSend_CARD");
         audioEncoderCard.setRightButtonText("测试");
         audioEncoderCard.setDismissible(true);
         audioEncoderCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
@@ -405,18 +406,20 @@ class Cards{
                 if (card.getBackgroundColor() ==
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
                     card.setBackgroundColorRes(R.color.white);
-                    if(MainActivity.audioEncoder != null){
-                        MainActivity.audioEncoder.stop();
+                    if (MainActivity.audioSender != null) {
+                        MainActivity.audioSender.stop();
                     }
-                    MainActivity.audioEncoder = null;
+                    MainActivity.audioSender = null;
                 }
                 else {
-                    if(MainActivity.audioEncoder != null){
-                        MainActivity.audioEncoder.stop();
+                    if (MainActivity.audioSender != null) {
+                        MainActivity.audioSender.stop();
                     }
-                    MainActivity.audioEncoder = new AudioEncoder();
-                    MainActivity.audioEncoder.start();
-                    MainActivity.audioEncoder.adddatas(255);
+                    MainActivity.audioSender = new AudioEncoder();
+                    MainActivity.audioSender.start();
+                    for (int i = 0; i < 256; i++) {
+                        ((AudioEncoder) MainActivity.audioSender).adddatas(i);
+                    }
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                 }
             }

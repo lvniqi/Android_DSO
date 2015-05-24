@@ -17,10 +17,8 @@ import android.widget.Toast;
 
 import com.dexafree.materialList.controller.MaterialListAdapter;
 import com.dexafree.materialList.view.MaterialListView;
-import com.example.lvniqi.multimeter.Audio.AudioDecoder;
-import com.example.lvniqi.multimeter.Audio.AudioEncoder;
-import com.example.lvniqi.multimeter.Audio.AudioSender;
 import com.example.lvniqi.multimeter.Audio.AudioReceiver;
+import com.example.lvniqi.multimeter.Audio.AudioSender;
 import com.example.lvniqi.multimeter.Card.AudioDecoderCard;
 import com.example.lvniqi.multimeter.Card.GraphCard;
 import com.example.lvniqi.multimeter.Card.LedCard;
@@ -57,35 +55,31 @@ import br.liveo.navigationliveo.NavigationLiveo;
 
 public class MainActivity extends NavigationLiveo implements NavigationLiveoListener {
 
-    public List<String> mListNameItem;
-    static int menuPosition;
-    public static AudioEncoder audioEncoder;
     public static AudioSender audioSender;
-    public static AudioDecoder audioDecoder;
     public static AudioReceiver audioReceiver;
+    static int menuPosition;
     static Message LEDmessage = new Message();
+    final Timer timer = new Timer();
+    public List<String> mListNameItem;
+    //测试用
+    private TimerTask task;
 
-    public static AudioDecoder getAudioDecoder() {
-        return audioDecoder;
-    }
-    public static AudioEncoder getAudioEncoder() {
-        return audioEncoder;
-    }
     public static AudioReceiver getAudioReceiver() {
         return audioReceiver;
     }
+
     static public AudioSender getAudioSender() {
         return audioSender;
     }
+
     static public int getMenuPosition() {
         return menuPosition;
     }
+
     public static Message getLEDmessage() {
         return LEDmessage;
     }
-    //测试用
-    private TimerTask task;
-    final Timer timer = new Timer();
+
     @Override
     public void onUserInformation() {
         //User information here
@@ -236,25 +230,21 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         Utils.onActivityCreateSetTheme(this);
         super.onCreate(savedInstanceState);
     }
-    private class ToastMessageTask extends AsyncTask<String, String, String> {
-        String toastMessage;
 
-        @Override
-        protected String doInBackground(String... params) {
-            toastMessage = params[0];
-            return toastMessage;
-        }
-
-        protected void OnProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-        }
-
-        // 这是执行在GUI线程context
-        protected void onPostExecute(String result) {
-            Toast toast = Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT);
-            toast.show();
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //屏蔽线控
+        MediaButtonDisabler.unregister(this);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //屏蔽线控
+        MediaButtonDisabler.register(this);
+    }
+
     static class MeasureCardsTask extends AsyncTask<Float, String, Float> {
         Float value;
 
@@ -272,17 +262,18 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         protected void onPostExecute(Float result) {
             View rootview = FragmentMain.getRootView();
             final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
-            if(mListView != null){
+            if (mListView != null) {
                 MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
-                if(adapter != null){
-                    LedCard dcCard = (LedCard)adapter.getCard("DC_CARD");
-                    if(dcCard != null){
-                        dcCard.setLedValue(dcCard.getLED_VALUE()+1);
+                if (adapter != null) {
+                    LedCard dcCard = (LedCard) adapter.getCard("DC_CARD");
+                    if (dcCard != null) {
+                        dcCard.setLedValue(dcCard.getLED_VALUE() + 1);
                     }
                 }
             }
         }
     }
+
     public static class GraphCardTask extends AsyncTask<short[], String, short[]> {
         short[] value;
 
@@ -300,18 +291,18 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         protected void onPostExecute(short[] result) {
             View rootview = FragmentMain.getRootView();
             final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
-            if(mListView != null){
+            if (mListView != null) {
                 MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
-                if(adapter != null){
+                if (adapter != null) {
                     //图形绘制
-                    GraphCard graphCard = (GraphCard)adapter.getCard("Graph_CARD");
-                    if(graphCard != null &&graphCard.getGraphView() != null){
+                    GraphCard graphCard = (GraphCard) adapter.getCard("Graph_CARD");
+                    if (graphCard != null && graphCard.getGraphView() != null) {
                         List temp = graphCard.getGraphView().getSeries();
-                        if(temp != null && temp.size() != 0){
-                            LineGraphSeries<DataPoint> series  = (LineGraphSeries<DataPoint>) temp.get(0);
+                        if (temp != null && temp.size() != 0) {
+                            LineGraphSeries<DataPoint> series = (LineGraphSeries<DataPoint>) temp.get(0);
                             DataPoint[] temp2 = new DataPoint[100];
-                            for(int i=0;i<temp2.length;i++){
-                                temp2[i] = new DataPoint(i,result[i]);
+                            for (int i = 0; i < temp2.length; i++) {
+                                temp2[i] = new DataPoint(i, result[i]);
                             }
                             series.resetData(temp2);
                         }
@@ -320,6 +311,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
             }
         }
     }
+
     public static class DecoderCardTask extends AsyncTask<String, String, String> {
         String value;
 
@@ -349,18 +341,25 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
             }
         }
     }
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //屏蔽线控
-        MediaButtonDisabler.unregister(this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //屏蔽线控
-        MediaButtonDisabler.register(this);
+    private class ToastMessageTask extends AsyncTask<String, String, String> {
+        String toastMessage;
+
+        @Override
+        protected String doInBackground(String... params) {
+            toastMessage = params[0];
+            return toastMessage;
+        }
+
+        protected void OnProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        // 这是执行在GUI线程context
+        protected void onPostExecute(String result) {
+            Toast toast = Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }
 //屏蔽线控
@@ -370,13 +369,6 @@ class MediaButtonDisabler extends BroadcastReceiver {
 
     private static final BroadcastReceiver INSTANCE = new MediaButtonDisabler();
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Intercepted media button.");
-
-        abortBroadcast();
-    }
-
     public static void register(Context context) {
         IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
         filter.setPriority(Integer.MAX_VALUE);
@@ -385,5 +377,13 @@ class MediaButtonDisabler extends BroadcastReceiver {
 
     public static void unregister(Context context) {
         context.unregisterReceiver(INSTANCE);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d(TAG, "Intercepted media button.");
+        abortBroadcast();
+
+        Log.v(TAG, " call MediaButtonBroadcastReceiver");
     }
 }
