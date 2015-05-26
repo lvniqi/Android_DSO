@@ -1,9 +1,7 @@
 package com.example.lvniqi.multimeter;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
@@ -32,6 +30,7 @@ import java.util.TimerTask;
 
 import br.liveo.interfaces.NavigationLiveoListener;
 import br.liveo.navigationliveo.NavigationLiveo;
+
 /**
  * Created by lvniqi on 2015-05-16.
  */
@@ -105,15 +104,15 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         mListNameItem = new ArrayList<>();
         mListNameItem.add(0, getString(R.string.measure));
         mListNameItem.add(1, ""); //This item will be a subHeader
-        mListNameItem.add(2,getString(R.string.settings));
-        mListNameItem.add(3,getString(R.string.tools));
+        mListNameItem.add(2, getString(R.string.settings));
+        mListNameItem.add(3, getString(R.string.tools));
         // icons list items
         List<Integer> mListIconItem = new ArrayList<>();
         mListIconItem.add(0, R.drawable.ic_star_black_24dp); //Item no icon set 0
         mListIconItem.add(1, 0); //When the item is a subHeader the value of the icon 0
         mListIconItem.add(2, R.drawable.ic_settings_black_24dp);
         mListIconItem.add(3, R.drawable.abc_ic_commit_search_api_mtrl_alpha);
-                //{optional} - Among the names there is some subheader, you must indicate it here
+        //{optional} - Among the names there is some subheader, you must indicate it here
         List<Integer> mListHeaderItem = new ArrayList<>();
         mListHeaderItem.add(1);
 
@@ -141,13 +140,13 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     @Override
     public void onPrepareOptionsMenuNavigation(Menu menu, int position, boolean visible) {
         //hide the menu when the navigation is opens
-            switch (position) {
-                case 0:
-                    //FragmentManager mFragmentManager = getSupportFragmentManager();
-                    //FragmentMain mFragment = (FragmentMain)mFragmentManager.getFragments().get(0);
-                    //LedCard card = (LedCard)mFragment.getMeasureCards().getCards().get(1);
-                    //card.getLedView().setText(12,DefinedMessages.DC);
-                    //        getViewHolder().mLEDView.setText(12f,DefinedMessages.DC);
+        switch (position) {
+            case 0:
+                //FragmentManager mFragmentManager = getSupportFragmentManager();
+                //FragmentMain mFragment = (FragmentMain)mFragmentManager.getFragments().get(0);
+                //LedCard card = (LedCard)mFragment.getMeasureCards().getCards().get(1);
+                //card.getLedView().setText(12,DefinedMessages.DC);
+                //        getViewHolder().mLEDView.setText(12f,DefinedMessages.DC);
 
                     /*View  rootView = FragmentMain.getRootView();
                     final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
@@ -156,21 +155,22 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                     if(ledCard != null){
                         ledCard.setLedValue(12);
                     }*/
-                    menu.findItem(R.id.menu_add).setVisible(!visible);
-                    menu.findItem(R.id.menu_search).setVisible(!visible);
-                    break;
+                menu.findItem(R.id.menu_add).setVisible(!visible);
+                menu.findItem(R.id.menu_search).setVisible(!visible);
+                break;
 
-                case 2:
-                    //menu.findItem(R.id.menu_add).setVisible(!visible);
-                    //menu.findItem(R.id.menu_search).setVisible(!visible);
+            case 2:
+                //menu.findItem(R.id.menu_add).setVisible(!visible);
+                //menu.findItem(R.id.menu_search).setVisible(!visible);
 
-                    break;
-                case 3:
-                    //startActivity(new Intent(this, SettingsActivity.class));
-                    //Utils.changeToTheme(this, Utils.THEME_WARNNING);
-                    break;
-            }
+                break;
+            case 3:
+                //startActivity(new Intent(this, SettingsActivity.class));
+                //Utils.changeToTheme(this, Utils.THEME_WARNNING);
+                break;
+        }
     }
+
     @Override //The "layoutContainerId" should be used in "beginTransaction (). Replace"
     public void onItemClickNavigation(int position, int layoutContainerId) {
 
@@ -189,20 +189,21 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                 }
                 break;
             //case 2:
-                //Utils.changeToTheme(this, Utils.THEME_WARNNING);
-                //break;
+            //Utils.changeToTheme(this, Utils.THEME_WARNNING);
+            //break;
             default:
-                if(audioSender != null){
+                if (audioSender != null) {
                     audioSender.stop();
                     audioSender = null;
                 }
                 break;
         }
-        if (mFragment != null){
+        if (mFragment != null) {
             mFragmentManager.beginTransaction().replace(layoutContainerId, mFragment).commit();
         }
 
     }
+
     @Override
     public void onClickUserPhotoNavigation(View v) {
         //user photo onClick
@@ -217,7 +218,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     @Override
     protected void onDestroy() {
-        if(audioSender != null){
+        if (audioSender != null) {
             audioSender.stop();
             audioSender = null;
         }
@@ -227,8 +228,9 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Utils.onActivityCreateSetTheme(this);
+        //Utils.onActivityCreateSetTheme(this);
         super.onCreate(savedInstanceState);
+        MediaButtonDisabler.register(this);
     }
 
     @Override
@@ -329,12 +331,12 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         protected void onPostExecute(String result) {
             View rootview = FragmentMain.getRootView();
             final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
-            if(mListView != null){
+            if (mListView != null) {
                 MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
-                if(adapter != null){
+                if (adapter != null) {
                     //测试频率译码
-                    AudioDecoderCard audioDecoderCard = (AudioDecoderCard)adapter.getCard("AudioRec_CARD");
-                    if(audioDecoderCard != null && audioDecoderCard.getTextView() != null){
+                    AudioDecoderCard audioDecoderCard = (AudioDecoderCard) adapter.getCard("AudioRec_CARD");
+                    if (audioDecoderCard != null && audioDecoderCard.getTextView() != null) {
                         audioDecoderCard.setText(result);
                     }
                 }
@@ -360,30 +362,5 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
             Toast toast = Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT);
             toast.show();
         }
-    }
-}
-//屏蔽线控
-class MediaButtonDisabler extends BroadcastReceiver {
-
-    private static final String TAG = "MediaButtonDisabler";
-
-    private static final BroadcastReceiver INSTANCE = new MediaButtonDisabler();
-
-    public static void register(Context context) {
-        IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
-        filter.setPriority(Integer.MAX_VALUE);
-        context.registerReceiver(INSTANCE, filter);
-    }
-
-    public static void unregister(Context context) {
-        context.unregisterReceiver(INSTANCE);
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Intercepted media button.");
-        abortBroadcast();
-
-        Log.v(TAG, " call MediaButtonBroadcastReceiver");
     }
 }

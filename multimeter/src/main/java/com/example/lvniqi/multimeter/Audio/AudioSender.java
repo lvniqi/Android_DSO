@@ -2,7 +2,6 @@ package com.example.lvniqi.multimeter.Audio;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.util.Log;
 
@@ -10,11 +9,11 @@ import android.util.Log;
  * Created by lvniqi on 2015-05-16.
  */
 public class AudioSender implements Runnable {
+    protected static byte[] sinData;
     protected AudioTrack audioTrack;
-    private double frequency = 480;
     protected Thread thread;
     protected int size = 0;
-    protected static byte[] sinData;
+    private double frequency = 480;
     public AudioSender(){
         //构造正弦函数
         if(sinData == null) {
@@ -99,13 +98,15 @@ public class AudioSender implements Runnable {
         audioTrack.release();
     }
     void Loop(int rate,byte [] buffer,float pos){
-        float t_n = (float)(rate / frequency);
-        //步进
-        float x = 4096 / t_n;
-        for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = sinData[(int)pos];
-            pos = (pos + x) % 4096;
+        while (thread != null) {
+            float t_n = (float) (rate / frequency);
+            //步进
+            float x = 4096 / t_n;
+            for (int i = 0; i < buffer.length; i++) {
+                buffer[i] = sinData[(int) pos];
+                pos = (pos + x) % 4096;
+            }
+            audioTrack.write(buffer, 0, buffer.length);
         }
-        audioTrack.write(buffer, 0, buffer.length);
     }
 }

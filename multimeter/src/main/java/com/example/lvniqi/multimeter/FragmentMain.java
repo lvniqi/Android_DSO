@@ -254,10 +254,12 @@ class Cards{
                 //未启用
                 if (card.getBackgroundColor() !=
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
-                    if (MainActivity.audioSender == null) {
-                        MainActivity.audioSender = new AudioSender();
-                        MainActivity.audioSender.start();
+                    if (MainActivity.audioSender != null) {
+                        MainActivity.audioSender.stop();
+                        MainActivity.audioSender = null;
                     }
+                    MainActivity.audioSender = new AudioSender();
+                    MainActivity.audioSender.start();
                     int progress = card.getSeekBar().getProgress();
                     if(progress == 0){
                         progress = 1;
@@ -418,12 +420,9 @@ class Cards{
                     MainActivity.audioSender = new AudioEncoder();
                     MainActivity.audioSender.start();
                     String texts = card.getEditText().getText().toString();
-                    byte b[] = texts.getBytes();
-                    for (byte x : b) {
-                        ((AudioEncoder) MainActivity.audioSender).adddatas((int) x);
-                    }
+                    ((AudioEncoder) MainActivity.audioSender).addDatas(texts);
                     /*for(int i=0;i<256;i++){
-                        ((AudioEncoder) MainActivity.audioSender).adddatas((int)i);
+                        ((AudioEncoder) MainActivity.audioSender).addData((int)i);
                     }*/
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                 }

@@ -127,7 +127,10 @@ public class AudioReceiver implements Runnable {
             for (int i = pos_1, j = 0; j < 100 && i < data.length; j++, i++) {
                 temp[j] = data[i];
             }
-            new MainActivity.GraphCardTask().execute(temp);
+            //if(isTypical(data,pos_1,pos_1+5))
+            {
+                new MainActivity.GraphCardTask().execute(temp);
+            }
         }
     }
 

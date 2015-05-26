@@ -8,13 +8,13 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class AudioEncoder extends AudioSender {
-    static int PREPARE_DIV = 4;
-    static int START_DIV = 6;
+    static final int PREPARE_DIV = 5;
+    static final int START_DIV = 6;
     public boolean isFinish;
     protected int buffer_index = 0;
     //数据锁
     private ReentrantLock lock = new ReentrantLock();
-    private ArrayList<Integer> datas = new ArrayList<Integer>();
+    private ArrayList<BaseData> datas = new ArrayList<BaseData>();
 
     /**
      * 先使用6~21分频
@@ -73,7 +73,7 @@ public class AudioEncoder extends AudioSender {
     byte[] getDiv(int div) {
         byte[] result = new byte[div];
         for (int i = 0; i < div; i++) {
-            result[i] = sinData[(int) (4096.0 / div * i) % 4096];
+            result[i] = sinData[(4096 * i / div) % 4096];
         }
         return result;
     }
@@ -84,35 +84,86 @@ public class AudioEncoder extends AudioSender {
         int dsize = datas.size();
         lock.unlock();
         if (dsize != 0) {
+            boolean isFirst = true;
             lock.lock();
-            while (datas.size() != 0 && buffer_index < size) {
-                byte[] buffer_temp = setPcm(datas.get(0), true);
-                datas.remove(0);
+            BaseData data = datas.get(0);
+            while (data.getSize() != 0 && buffer_index < size * 2 - 200) {
+                //byte[] buffer_temp = setPcm(data.get(), isFirst);
+                byte[] buffer_temp = setPcm(data.get(), true);
+                isFirst = false;
                 for (int i = 0; i < buffer_temp.length; i++, buffer_index++) {
                     buffer[buffer_index] = buffer_temp[i];
                 }
             }
+            datas.remove(0);
             while (buffer_index < size) {
-                buffer[buffer_index] = (byte) 126;
-                buffer_index++;
+                buffer[buffer_index++] = 127;
             }
             lock.unlock();
         } else {
-            while (buffer_index < size + 1) {
-                buffer[buffer_index] = (byte) 126;
-                buffer_index++;
+            while (buffer_index < size) {
+                buffer[buffer_index++] = 127;
             }
         }
         audioTrack.write(buffer, 0, buffer_index);
         buffer_index = 0;
     }
 
-    public void adddatas(int in) {
+    public void addData(int in) {
         lock.lock();
-        //if(datas.size() <20)
-        {
-            datas.add(in);
-        }
+        datas.add(new BaseData(in));
         lock.unlock();
+    }
+
+    public void addDatas(byte[] a) {
+        lock.lock();
+        datas.add(new BaseData(a));
+        lock.unlock();
+    }
+
+    public void addDatas(String a) {
+        lock.lock();
+        datas.add(new BaseData(a));
+        lock.unlock();
+    }
+}
+
+class BaseData {
+    private ArrayList<Byte> arrayList;
+
+    BaseData(byte in) {
+        arrayList = new ArrayList<>();
+        arrayList.add(in);
+    }
+
+    BaseData(int in) {
+        arrayList = new ArrayList<>();
+        arrayList.add((byte) ((0xff00 & in) >> 8));
+        arrayList.add((byte) (0x00ff & in));
+    }
+
+    BaseData(byte[] in) {
+        arrayList = new ArrayList<>();
+        for (byte x : in) {
+            arrayList.add(x);
+        }
+    }
+
+    BaseData(String in) {
+        arrayList = new ArrayList<>();
+        byte[] in_t = in.getBytes();
+        for (byte x : in_t) {
+            arrayList.add(x);
+        }
+    }
+
+    int getSize() {
+        return arrayList.size();
+    }
+
+    int get() {
+        int result = 0xff & arrayList.get(0);
+        arrayList.remove(0);
+        return result;
     }
 }

@@ -30,22 +30,28 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:priority="1000000000">
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
         </activity>
-
+        <!-- Broadcast Receivers -->
+        <receiver android:name=".MediaButtonDisabler">
+            <intent-filter android:priority="1000000000">
+                <action
+                    android:name="android.intent.action.HEADSET_PLUG"
+                    android:enabled="true" />
+                <action
+                    android:name="android.intent.action.MEDIA_BUTTON"
+                    android:enabled="true" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/nLiveoDrawer"></activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings"></activity>
 
     </application>
 
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-permission android:name="android.permission.S" />
 </manifest>
