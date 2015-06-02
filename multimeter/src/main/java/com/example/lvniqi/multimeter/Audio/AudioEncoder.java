@@ -8,8 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class AudioEncoder extends AudioSender {
-    static final int PREPARE_DIV = 5;
+    static final int PREPARE_DIV = 4;
     static final int START_DIV = 6;
+    static final int END_DIV = 30;
     public boolean isFinish;
     protected int buffer_index = 0;
     //数据锁
@@ -23,7 +24,7 @@ public class AudioEncoder extends AudioSender {
      * @param data
      * @return
      */
-    byte[] setPcm(int data, boolean isPrepare) {
+    byte[] setPcm(int data, boolean isPrepare, boolean isEnd) {
         int data_low = data % 16;
         int len_low = data_low + START_DIV;
         int data_high = data / 16;
@@ -36,6 +37,8 @@ public class AudioEncoder extends AudioSender {
             for (int count = 0; count < PREPARE_DIV; count++, i++) {
                 result[i] = prepare[count];
             }
+        } else if (isEnd) {
+            result = new byte[len_low + len_high + END_DIV];
         } else {
             result = new byte[len_low + len_high];
         }
@@ -46,6 +49,12 @@ public class AudioEncoder extends AudioSender {
         byte[] low = getDiv(len_low);
         for (int count = 0; count < len_low; count++, i++) {
             result[i] = low[count];
+        }
+        if (isEnd) {
+            byte[] end = getDiv(END_DIV);
+            for (int count = 0; count < len_low; count++, i++) {
+                result[i] = end[count];
+            }
         }
         return result;
     }
@@ -85,11 +94,16 @@ public class AudioEncoder extends AudioSender {
         lock.unlock();
         if (dsize != 0) {
             boolean isFirst = true;
+            boolean isEnd = false;
             lock.lock();
             BaseData data = datas.get(0);
             while (data.getSize() != 0 && buffer_index < size * 2 - 200) {
-                //byte[] buffer_temp = setPcm(data.get(), isFirst);
-                byte[] buffer_temp = setPcm(data.get(), true);
+                if (data.getSize() == 1) {
+                    isEnd = true;
+                }
+                byte[] buffer_temp = setPcm(data.get(), isFirst, isEnd);
+                //byte[] buffer_temp = setPcm(data.get(), true,false);
+
                 isFirst = false;
                 for (int i = 0; i < buffer_temp.length; i++, buffer_index++) {
                     buffer[buffer_index] = buffer_temp[i];
