@@ -31,6 +31,7 @@ import com.example.lvniqi.multimeter.Audio.AudioDecoder;
 import com.example.lvniqi.multimeter.Audio.AudioEncoder;
 import com.example.lvniqi.multimeter.Audio.AudioReceiver;
 import com.example.lvniqi.multimeter.Audio.AudioSender;
+import com.example.lvniqi.multimeter.Audio.MessageDecoder;
 import com.example.lvniqi.multimeter.Card.AudioDecoderCard;
 import com.example.lvniqi.multimeter.Card.AudioEncoderCard;
 import com.example.lvniqi.multimeter.Card.GraphCard;
@@ -74,6 +75,7 @@ public class FragmentMain extends Fragment {
         mFragment.setArguments(mBundle);
         return mFragment;
     }
+
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -130,28 +132,34 @@ public class FragmentMain extends Fragment {
         }
         return true;
     }
-    public void showListView(View rootView){
+
+    public void showListView(View rootView) {
 
         //小图片 LIstView
         final MaterialListView mListView = (MaterialListView) rootView.findViewById(R.id.material_listview);
 
-        switch(MainActivity.getMenuPosition()){
+        switch (MainActivity.getMenuPosition()) {
             case 0:
                 //mListView.add(getWelcomeCard(rootView.getContext(),mListView));
-                mListView.addAll(new Cards(rootView.getContext(),DefinedMessages.MESSURE).getCards());
-                mListView.setOnDismissCallback(new OnDismissCallback(){
+                mListView.addAll(new Cards(rootView.getContext(), DefinedMessages.MESSURE).getCards());
+                mListView.setOnDismissCallback(new OnDismissCallback() {
                     @Override
                     public void onDismiss(Card card, int position) {
-                        switch (position){
+                        switch (position) {
                             case 0:
-                                if(card.getTag() == "WELCOME_CARD"){
-                                    LedCard ledCard = (LedCard)((MaterialListAdapter)card.getcAdapter()).getCard("DC_CARD");
-                                    if(ledCard != null) {
+                                if (card.getTag() == "WELCOME_CARD") {
+                                    if (MainActivity.audioReceiver != null) {
+                                        MainActivity.audioReceiver.stop();
+                                    }
+                                    MainActivity.audioReceiver = new MessageDecoder();
+                                    MainActivity.audioReceiver.start();
+                                    LedCard ledCard = (LedCard) ((MaterialListAdapter) card.getcAdapter()).getCard("DC_CARD");
+                                    if (ledCard != null) {
                                         ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimary);
                                         ledCard.setLedAll(0, DefinedMessages.DC);
                                     }
-                                    ledCard = (LedCard)((MaterialListAdapter)card.getcAdapter()).getCard("AC_CARD");
-                                    if(ledCard != null) {
+                                    ledCard = (LedCard) ((MaterialListAdapter) card.getcAdapter()).getCard("AC_CARD");
+                                    if (ledCard != null) {
                                         ledCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimary);
                                         ledCard.setLedAll(0, DefinedMessages.DC);
                                     }
@@ -191,7 +199,7 @@ public class FragmentMain extends Fragment {
                 mListView.add(listCard2);
                 break;
             case 3:
-                mListView.addAll(new Cards(rootView.getContext(),DefinedMessages.TOOLS).getCards());
+                mListView.addAll(new Cards(rootView.getContext(), DefinedMessages.TOOLS).getCards());
                 //LedListAdapter ledListAdapter = new LedListAdapter(rootView.getContext());
                 //ledListAdapter.add("12");
                 break;
@@ -199,33 +207,37 @@ public class FragmentMain extends Fragment {
     }
 
 }
-class Cards{
+
+class Cards {
     ArrayList<Card> cards;
-    Cards(Context context,int Tag){
+
+    Cards(Context context, int Tag) {
         cards = new ArrayList<Card>();
         switch (Tag) {
             case DefinedMessages.MESSURE:
                 cards.add(getWelcomeCard(context));
-                cards.add(getLedCard(context, "DC")) ;
-                cards.add(getLedCard(context, "AC")) ;
+                cards.add(getLedCard(context, "DC"));
+                cards.add(getLedCard(context, "AC"));
                 break;
             case DefinedMessages.TOOLS:
-                cards.add(getSigCard(context)) ;
-                cards.add(getGraphCard(context)) ;
-                cards.add(getAudioDecoderCard(context)) ;
+                cards.add(getSigCard(context));
+                cards.add(getGraphCard(context));
+                cards.add(getAudioDecoderCard(context));
                 cards.add(getAudioEncoderCard(context));
                 break;
         }
     }
+
     public ArrayList<Card> getCards() {
         return cards;
     }
-    private Card getLedCard(Context context,String title){
+
+    private Card getLedCard(Context context, String title) {
         //LED listview
         LedCard ledCard = new LedCard(context);
         ledCard.setTitleColorRes(R.color.white);
         ledCard.setDismissible(true);
-        ledCard.setTag(title+"_CARD");
+        ledCard.setTag(title + "_CARD");
         switch (title) {
             case "DC":
                 ledCard.setTitle(context.getString(R.string.dc));
@@ -240,7 +252,8 @@ class Cards{
         ledCard.setBackgroundColorRes(R.color.nliveo_red_colorPrimaryDark);
         return ledCard;
     }
-    private Card getSigCard(Context context){
+
+    private Card getSigCard(Context context) {
         //自添加测试card
         SigCard temp = new SigCard(context);
         temp.setTitle("信号发生器");
@@ -249,7 +262,7 @@ class Cards{
         temp.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
             public void onButtonPressedListener(View view, Card card2) {
-                final SigCard card = (SigCard)card2;
+                final SigCard card = (SigCard) card2;
                 //final SigCard card = (SigCard)((IMaterialListAdapter)card1.getcAdapter()).getCard("SIG_CARD");
                 //未启用
                 if (card.getBackgroundColor() !=
@@ -261,46 +274,48 @@ class Cards{
                     MainActivity.audioSender = new AudioSender();
                     MainActivity.audioSender.start();
                     int progress = card.getSeekBar().getProgress();
-                    if(progress == 0){
+                    if (progress == 0) {
                         progress = 1;
                     }
                     card.getSeekBar().setProgress(progress);
-                    card.setLedAll(120*progress,DefinedMessages.FREQ);
-                    MainActivity.audioSender.setFrequency(120*progress);
+                    card.setLedAll(120 * progress, DefinedMessages.FREQ);
+                    MainActivity.audioSender.setFrequency(120 * progress);
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                     card.setRightButtonText("关闭");
-                    card.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+                    card.getSeekBar().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            card.setLedValue(120*progress);
-                            MainActivity.audioSender.setFrequency(120*progress);
+                            card.setLedValue(120 * progress);
+                            MainActivity.audioSender.setFrequency(120 * progress);
                         }
+
                         @Override
                         public void onStartTrackingTouch(SeekBar seekBar) {
                         }
+
                         @Override
                         public void onStopTrackingTouch(SeekBar seekBar) {
-                                Log.i("frequency", "" + MainActivity.audioSender.getFrequency());
-                            }
+                            Log.i("frequency", "" + MainActivity.audioSender.getFrequency());
+                        }
                     });
-                }
-                else{
+                } else {
                     card.setBackgroundColorRes(R.color.white);
                     card.setRightButtonText("开启");
-                    if(MainActivity.audioSender != null) {
+                    if (MainActivity.audioSender != null) {
                         MainActivity.audioSender.stop();
                         MainActivity.audioSender = null;
                     }
-                    card.setLedAll(0,DefinedMessages.UNKNOW);
+                    card.setLedAll(0, DefinedMessages.UNKNOW);
                     card.getSeekBar().setOnSeekBarChangeListener(null);
                 }
             }
         });
         return temp;
     }
-    private Card getWelcomeCard(Context context){
+
+    private Card getWelcomeCard(Context context) {
         //welcome listview
-        SmallImageCard wCard = new SmallImageCard (context);
+        SmallImageCard wCard = new SmallImageCard(context);
         wCard.setTitle(context.getString(R.string.welcome));
         wCard.setDescription(context.getString(R.string.welcome_description));
         wCard.setTag("WELCOME_CARD");
@@ -322,7 +337,8 @@ class Cards{
         wCard.setBackgroundColorRes(R.color.material_deep_teal_500);
         return wCard;
     }
-    private Card getGraphCard(Context context){
+
+    private Card getGraphCard(Context context) {
         GraphCard graphCard = new GraphCard(context);
         graphCard.setTitle("GraphCard");
         graphCard.setTitleColorRes(R.color.nliveo_black);
@@ -332,25 +348,25 @@ class Cards{
         graphCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
             public void onButtonPressedListener(View view, Card card2) {
-                final GraphCard card = (GraphCard)card2;
+                final GraphCard card = (GraphCard) card2;
                 //已启用
                 if (card.getBackgroundColor() ==
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
                     card.setBackgroundColorRes(R.color.white);
-                    LineGraphSeries<DataPoint> series  =
+                    LineGraphSeries<DataPoint> series =
                             (LineGraphSeries<DataPoint>) card.getGraphView().getSeries().get(0);
                     series.resetData(new DataPoint[0]);
-                    if(MainActivity.audioReceiver != null){
+                    if (MainActivity.audioReceiver != null) {
                         MainActivity.audioReceiver.stop();
                         MainActivity.audioReceiver = null;
                     }
                     card.setShowGraphView(false);
-                }
-                else {
-                    if(MainActivity.audioReceiver == null) {
-                        MainActivity.audioReceiver = new AudioReceiver();
-                        MainActivity.audioReceiver.start();
+                } else {
+                    if (MainActivity.audioReceiver != null) {
+                        MainActivity.audioReceiver.stop();
                     }
+                    MainActivity.audioReceiver = new AudioReceiver();
+                    MainActivity.audioReceiver.start();
                     card.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
                     card.setShowGraphView(true);
                 }
@@ -360,7 +376,8 @@ class Cards{
         //graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
         return graphCard;
     }
-    private Card getAudioDecoderCard(Context context){
+
+    private Card getAudioDecoderCard(Context context) {
         AudioDecoderCard audioDecoderCard = new AudioDecoderCard(context);
         audioDecoderCard.setTitle("AudioDecoderCard");
         audioDecoderCard.setTitleColorRes(R.color.nliveo_black);
@@ -370,7 +387,7 @@ class Cards{
         audioDecoderCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
             public void onButtonPressedListener(View view, Card card2) {
-                final AudioDecoderCard card = (AudioDecoderCard)card2;
+                final AudioDecoderCard card = (AudioDecoderCard) card2;
                 //已启用
                 if (card.getBackgroundColor() ==
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
@@ -379,8 +396,7 @@ class Cards{
                         MainActivity.audioReceiver.stop();
                         MainActivity.audioReceiver = null;
                     }
-                }
-                else {
+                } else {
                     if (MainActivity.audioReceiver == null) {
                         MainActivity.audioReceiver = new AudioDecoder();
                         MainActivity.audioReceiver.start();
@@ -393,7 +409,8 @@ class Cards{
         //graphCard.setBackgroundColorRes(R.color.material_deep_teal_500);
         return audioDecoderCard;
     }
-    private Card getAudioEncoderCard(Context context){
+
+    private Card getAudioEncoderCard(Context context) {
         AudioEncoderCard audioEncoderCard = new AudioEncoderCard(context);
         audioEncoderCard.setTitle("AudioEncoderCard");
         audioEncoderCard.setTitleColorRes(R.color.nliveo_black);
@@ -403,7 +420,7 @@ class Cards{
         audioEncoderCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
             @Override
             public void onButtonPressedListener(View view, Card card2) {
-                final AudioEncoderCard card = (AudioEncoderCard)card2;
+                final AudioEncoderCard card = (AudioEncoderCard) card2;
                 //已启用
                 if (card.getBackgroundColor() ==
                         view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
@@ -412,8 +429,7 @@ class Cards{
                         MainActivity.audioSender.stop();
                     }
                     MainActivity.audioSender = null;
-                }
-                else {
+                } else {
                     if (MainActivity.audioSender != null) {
                         MainActivity.audioSender.stop();
                     }

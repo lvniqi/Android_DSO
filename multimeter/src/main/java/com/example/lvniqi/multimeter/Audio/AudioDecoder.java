@@ -1,12 +1,14 @@
 package com.example.lvniqi.multimeter.Audio;
 
-import android.util.Log;
-
 import com.example.lvniqi.multimeter.MainActivity;
 
 import java.util.ArrayList;
 
+import static com.example.lvniqi.multimeter.Audio.AudioEncoder.DIV_RANGE;
+import static com.example.lvniqi.multimeter.Audio.AudioEncoder.DIV_STEP;
+import static com.example.lvniqi.multimeter.Audio.AudioEncoder.DIV_TOLERANCE;
 import static com.example.lvniqi.multimeter.Audio.AudioEncoder.END_DIV;
+import static com.example.lvniqi.multimeter.Audio.AudioEncoder.PREPARE_DIV;
 import static com.example.lvniqi.multimeter.Audio.AudioEncoder.START_DIV;
 
 /**
@@ -35,26 +37,14 @@ public class AudioDecoder extends AudioReceiver {
         savedArrayData = getDatasFrimPcm(data, savedArrayData);
         if (!isStart) {
             if (savedArrayData != null) {
-            /*for (Integer x : temp) {
-                if (x == 255)
-                    count_2++;
-                else {
-                    count_1++;
-                    Log.i("ERROR", x + "");
-                }
-            }*/
-
                 byte[] t = new byte[savedArrayData.size()];
                 for (int i = 0; i < savedArrayData.size(); i++) {
                     t[i] = savedArrayData.get(i);
-                    Log.i("ERROR", savedArrayData.get(i) + "");
                 }
-                tostring = new String(t);
+                dataProcress(t);
             }
             savedArrayData = null;
         }
-        //new MainActivity.DecoderCardTask().execute("count_1:" + count_1 + "count_2:" + count_2);
-        new MainActivity.DecoderCardTask().execute(tostring);
     }
 
     /**
@@ -66,7 +56,7 @@ public class AudioDecoder extends AudioReceiver {
      * @return
      */
     int prepare(short[] data, int start) {
-        int pos_1 = 0, pos_2 = 0;
+        int pos_1, pos_2;
         pos_1 = find_posedge(data, start);
         while (true) {
             pos_2 = find_posedge(data, pos_1 + 1);
@@ -74,8 +64,9 @@ public class AudioDecoder extends AudioReceiver {
                 return -1;
             }
             if (isTypical(data, pos_1, pos_2)
-                    && (pos_2 - pos_1 == 4 ||
-                    pos_2 - pos_1 == 5)) {
+                    && (pos_2 - pos_1 == PREPARE_DIV - 1 ||
+                    pos_2 - pos_1 == PREPARE_DIV ||
+                    pos_2 - pos_1 == PREPARE_DIV + 1)) {
                 return pos_2;
             }
             pos_1 = pos_2;
@@ -83,35 +74,45 @@ public class AudioDecoder extends AudioReceiver {
     }
 
     int getDataFromPcm(short[] data, int start, boolean isStart) {
-        int pos_1, pos_2, pos_3;
-
-        float pos_1_real, pos_2_real, pos_3_real;
+        int[] pos = new int[DIV_RANGE + 1];
+        float[] pos_real = new float[DIV_RANGE + 1];
         if (isStart) {
-            pos_1 = start;
-            pos_1_real = start;
+            pos[0] = start;
+            pos_real[0] = start;
         } else {
-            pos_1 = find_posedge(data, start);
-            if (pos_1 < 0)
+            pos[0] = find_posedge(data, start);
+            if (pos[0] < 0)
                 return -1;
             else
-                pos_1_real = pos_1 + (-data[pos_1]) / (data[pos_1 + 1] - data[pos_1]);
+                pos_real[0] = pos[0] + (-data[pos[0]]) / (data[pos[0] + 1] - data[pos[0]]);
         }
-        pos_2 = find_posedge(data, pos_1 + 1);
-        if (pos_2 < 0)
-            return -1;
-        else
-            pos_2_real = pos_2 + (-data[pos_2]) / (data[pos_2 + 1] - data[pos_2]);
-        pos_3 = find_posedge(data, pos_2 + 1);
-        if (pos_3 < 0)
-            return -1;
-        else
-            pos_3_real = pos_3 + (-data[pos_3]) / (data[pos_3 + 1] - data[pos_3]);
-        if (pos_2 - pos_1 < START_DIV || pos_3 - pos_2 < START_DIV)
-            return -1;
-        if (pos_2 - pos_1 > START_DIV + 16 || pos_3 - pos_2 > START_DIV + 16)
-            return -1;
-        return (((Math.round(pos_2_real - pos_1_real) - START_DIV) << 4) +
-                (Math.round(pos_3_real - pos_2_real) - START_DIV));
+        for (int i = 1; i < DIV_RANGE + 1; i++) {
+            pos[i] = find_posedge(data, pos[i - 1] + 1);
+            if (pos[i] < 0)
+                return -1;
+            else
+                pos_real[i] = pos[i] + (-data[pos[i]]) / (data[pos[i] + 1] - data[pos[i]]);
+            if (pos[i] - pos[i - 1] < START_DIV)
+                return -1;
+            if (pos[i] - pos[i - 1] > START_DIV + (DIV_RANGE - DIV_TOLERANCE) * DIV_STEP)
+                return -2;
+        }
+        int temp = 0;
+        for (int i = DIV_RANGE; i > 0; i--) {
+            temp *= 4;
+            temp += (Math.round(pos_real[i] - pos_real[i - 1] - START_DIV) + 1) / DIV_STEP;
+        }
+        /*if(temp ==100) {
+            short[] temp_show = new short[150];
+            for (int i = pos[0]-25>0?pos[0]-25:0, j = 0; j < 150 && i < data.length; j++, i++) {
+                temp_show[j] = data[i];
+            }
+            //if(isTypical(data,pos_1,pos_1+5))
+            {
+                new MainActivity.GraphCardTask().execute(temp_show);
+            }
+        }*/
+        return temp;
     }
 
     ArrayList<Byte> getDatasFrimPcm(short[] data, ArrayList<Byte> last) {
@@ -137,7 +138,12 @@ public class AudioDecoder extends AudioReceiver {
             int temp = getDataFromPcm(data, start, false);
             if (temp >= 0) {
                 result.add((byte) temp);
-                last_end = start + START_DIV * 2 + temp / 16 + temp % 16;
+                int temp_temp = temp;
+                last_end = start;
+                for (int i = 0; i < DIV_RANGE; i++) {
+                    last_end += START_DIV + ((temp_temp % DIV_RANGE) * DIV_STEP);
+                    temp_temp /= DIV_RANGE;
+                }
                 start = last_end;
                 //start = prepare(data, start);
                 if (start < 0) {
@@ -146,13 +152,17 @@ public class AudioDecoder extends AudioReceiver {
                     last_end = start;
                 }
             } else {
+                if (temp == -2) {
+                    isStart = false;
+                }
                 break;
             }
 
         }
         //int saveOos = find_posedge_reverse(data,data.length-1);
         int savePos;
-        if (last_end >= 0 && data.length - last_end < 15 * 2 + START_DIV * 2 + END_DIV) {
+        if (last_end >= 0 && data.length - last_end <
+                (DIV_RANGE) * ((DIV_RANGE - 1) * DIV_STEP + START_DIV) + END_DIV) {
             savePos = last_end;
         } else {
             savePos = data.length;
@@ -167,5 +177,12 @@ public class AudioDecoder extends AudioReceiver {
         }
 
         return result;
+    }
+
+    protected void dataProcress(byte[] t) {
+        if (t != null) {
+            tostring = new String(t);
+            new MainActivity.DecoderCardTask().execute(tostring);
+        }
     }
 }

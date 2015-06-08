@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.dexafree.materialList.controller.MaterialListAdapter;
@@ -230,6 +231,8 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
         //Utils.onActivityCreateSetTheme(this);
         super.onCreate(savedInstanceState);
+        //保持亮屏
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //应用运行时，保持屏幕高亮，不锁屏
         MediaButtonDisabler.register(this);
     }
 
@@ -247,11 +250,11 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         MediaButtonDisabler.register(this);
     }
 
-    static class MeasureCardsTask extends AsyncTask<Float, String, Float> {
-        Float value;
+    public static class MeasureCardsTask extends AsyncTask<Float[], String, Float[]> {
+        Float[] value;
 
         @Override
-        protected Float doInBackground(Float... params) {
+        protected Float[] doInBackground(Float[]... params) {
             value = params[0];
             return value;
         }
@@ -261,15 +264,19 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
         }
 
         // 这是执行在GUI线程context
-        protected void onPostExecute(Float result) {
+        protected void onPostExecute(Float[] result) {
             View rootview = FragmentMain.getRootView();
             final MaterialListView mListView = (MaterialListView) rootview.findViewById(R.id.material_listview);
-            if (mListView != null) {
+            if (result != null && mListView != null) {
                 MaterialListAdapter adapter = (MaterialListAdapter) mListView.getAdapter();
                 if (adapter != null) {
                     LedCard dcCard = (LedCard) adapter.getCard("DC_CARD");
                     if (dcCard != null) {
-                        dcCard.setLedValue(dcCard.getLED_VALUE() + 1);
+                        dcCard.setLedValue(result[0]);
+                    }
+                    LedCard acCard = (LedCard) adapter.getCard("AC_CARD");
+                    if (acCard != null) {
+                        acCard.setLedValue(result[1]);
                     }
                 }
             }
@@ -302,7 +309,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
                         List temp = graphCard.getGraphView().getSeries();
                         if (temp != null && temp.size() != 0) {
                             LineGraphSeries<DataPoint> series = (LineGraphSeries<DataPoint>) temp.get(0);
-                            DataPoint[] temp2 = new DataPoint[100];
+                            DataPoint[] temp2 = new DataPoint[150];
                             for (int i = 0; i < temp2.length; i++) {
                                 temp2[i] = new DataPoint(i, result[i]);
                             }

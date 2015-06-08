@@ -9,8 +9,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class AudioEncoder extends AudioSender {
     static final int PREPARE_DIV = 4;
-    static final int START_DIV = 6;
-    static final int END_DIV = 30;
+    static final int START_DIV = 7;
+    static final int DIV_RANGE = 4;
+    static final int DIV_STEP = 3;
+    static final int DIV_TOLERANCE = (DIV_STEP - 1) / 2;
+    static final int END_DIV = 20;
     public boolean isFinish;
     protected int buffer_index = 0;
     //数据锁
@@ -25,34 +28,44 @@ public class AudioEncoder extends AudioSender {
      * @return
      */
     byte[] setPcm(int data, boolean isPrepare, boolean isEnd) {
-        int data_low = data % 16;
-        int len_low = data_low + START_DIV;
-        int data_high = data / 16;
-        int len_high = data_high + START_DIV;
+
+        int[] data_len = new int[DIV_RANGE];
+        int sum = 0;
+        {
+            int data_temp = data;
+            for (int i = 0; i < DIV_RANGE; i++) {
+                int len = START_DIV + (data_temp % 4) * DIV_STEP;
+                sum += len;
+                data_len[i] = len;
+                data_temp /= 4;
+            }
+        }
         byte[] result;
         int i = 0;
         if (isPrepare) {
-            result = new byte[PREPARE_DIV + len_low + len_high];
+            if (isEnd) {
+                result = new byte[PREPARE_DIV + sum + END_DIV];
+            } else {
+                result = new byte[PREPARE_DIV + sum];
+            }
             byte[] prepare = prepare();
             for (int count = 0; count < PREPARE_DIV; count++, i++) {
                 result[i] = prepare[count];
             }
         } else if (isEnd) {
-            result = new byte[len_low + len_high + END_DIV];
+            result = new byte[sum + END_DIV];
         } else {
-            result = new byte[len_low + len_high];
+            result = new byte[sum];
         }
-        byte[] high = getDiv(len_high);
-        for (int count = 0; count < len_high; count++, i++) {
-            result[i] = high[count];
-        }
-        byte[] low = getDiv(len_low);
-        for (int count = 0; count < len_low; count++, i++) {
-            result[i] = low[count];
+        for (int j = 0; j < DIV_RANGE; j++) {
+            byte[] sinData = getDiv(data_len[j]);
+            for (int count = 0; count < data_len[j]; count++, i++) {
+                result[i] = sinData[count];
+            }
         }
         if (isEnd) {
             byte[] end = getDiv(END_DIV);
-            for (int count = 0; count < len_low; count++, i++) {
+            for (int count = 0; count < END_DIV; count++, i++) {
                 result[i] = end[count];
             }
         }
@@ -97,6 +110,9 @@ public class AudioEncoder extends AudioSender {
             boolean isEnd = false;
             lock.lock();
             BaseData data = datas.get(0);
+            if (data.isContinue()) {
+                isFirst = false;
+            }
             while (data.getSize() != 0 && buffer_index < size * 2 - 200) {
                 if (data.getSize() == 1) {
                     isEnd = true;
@@ -109,7 +125,9 @@ public class AudioEncoder extends AudioSender {
                     buffer[buffer_index] = buffer_temp[i];
                 }
             }
-            datas.remove(0);
+            if (data.getSize() == 0) {
+                datas.remove(0);
+            }
             while (buffer_index < size) {
                 buffer[buffer_index++] = 127;
             }
@@ -144,7 +162,7 @@ public class AudioEncoder extends AudioSender {
 
 class BaseData {
     private ArrayList<Byte> arrayList;
-
+    private boolean isContinue = false;
     BaseData(byte in) {
         arrayList = new ArrayList<>();
         arrayList.add(in);
@@ -169,6 +187,10 @@ class BaseData {
         for (byte x : in_t) {
             arrayList.add(x);
         }
+    }
+
+    public boolean isContinue() {
+        return isContinue;
     }
 
     int getSize() {

@@ -11,12 +11,12 @@ import com.dexafree.materialList.cards.OnButtonPressListener;
 import com.dexafree.materialList.cards.internal.BaseCardItemView;
 import com.example.lvniqi.multimeter.R;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class GraphCardItemView extends BaseCardItemView<GraphCard> {
     private final static int DIVIDER_MARGIN_DP = 16;
+
     public GraphCardItemView(Context context) {
         super(context);
     }
@@ -44,7 +44,7 @@ public class GraphCardItemView extends BaseCardItemView<GraphCard> {
 
         int rightColor = card.getRightButtonTextColor();
 
-        if(rightColor != -1){
+        if (rightColor != -1) {
             rightText.setTextColor(rightColor);
         }
 
@@ -56,7 +56,7 @@ public class GraphCardItemView extends BaseCardItemView<GraphCard> {
             @Override
             public void onClick(View view) {
                 OnButtonPressListener listener = card.getOnRightButtonPressedListener();
-                if(listener != null) {
+                if (listener != null) {
                     listener.onButtonPressedListener(rightText, card);
                 }
             }
@@ -87,11 +87,11 @@ public class GraphCardItemView extends BaseCardItemView<GraphCard> {
         }
         //GraphView
         GraphView graphView = (GraphView) findViewById(R.id.graph);
-        if(graphView != null) {
+        if (graphView != null) {
             DataPoint[] temp = new DataPoint[0];
             LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(temp);
             series.setColor(Color.RED);
-            if(graphView.getSeries().size() == 0){
+            if (graphView.getSeries().size() == 0) {
                 graphView.addSeries(series);
 
                 graphView.getGridLabelRenderer().setGridColor(Color.WHITE);
@@ -107,7 +107,7 @@ public class GraphCardItemView extends BaseCardItemView<GraphCard> {
                 graphView.getViewport().setMinY(-32767);
                 graphView.getViewport().setMaxY(32767);
                 graphView.getViewport().setMinX(0);
-                graphView.getViewport().setMaxX(100);
+                graphView.getViewport().setMaxX(150);
                 graphView.getViewport().setScalable(false);
                 graphView.getViewport().setScrollable(false);
                 graphView.getLegendRenderer().setVisible(false);

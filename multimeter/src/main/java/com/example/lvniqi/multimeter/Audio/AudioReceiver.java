@@ -120,18 +120,18 @@ public class AudioReceiver implements Runnable {
             thread = null;
         }
         System.arraycopy(buffer, 0, data, 0, size);
-        short[] temp = new short[100];
+        short[] temp = new short[150];
         int pos_1 = 0;
         pos_1 = find_posedge(data, 0);
-        /*while (pos_1 != -1 ){
+        while (pos_1 != -1) {
             if(isTypical(data,pos_1,pos_1+5)){
                 break;
             }else{
                 pos_1 = find_posedge(data, pos_1+1);
             }
-        }*/
+        }
         if (pos_1 != -1) {
-            for (int i = pos_1, j = 0; j < 100 && i < data.length; j++, i++) {
+            for (int i = pos_1, j = 0; j < 150 && i < data.length; j++, i++) {
                 temp[j] = data[i];
             }
             //if(isTypical(data,pos_1,pos_1+5))

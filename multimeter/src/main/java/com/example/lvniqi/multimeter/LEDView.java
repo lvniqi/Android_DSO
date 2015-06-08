@@ -23,10 +23,6 @@ public class LEDView extends LinearLayout {
     //服务程序
     final private Handler mHandler = new Handler() {
     };
-    public Handler getmHandler() {
-        return mHandler;
-    }
-
     private TextView fgView;
     private TextView bgView;
 
@@ -44,6 +40,11 @@ public class LEDView extends LinearLayout {
         super(context);
         init(context);
     }
+
+    public Handler getmHandler() {
+        return mHandler;
+    }
+
     private void init(Context context) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         if (this.isInEditMode()) return;
@@ -74,7 +75,8 @@ public class LEDView extends LinearLayout {
                     data += "mV";
                 }
                 else{
-                    data = ""+(int)x;
+                    float t = (float) (Math.round(x * 1000)) / 1000;
+                    data = "" + t;
                     data += " V";
                 }
                 break;
