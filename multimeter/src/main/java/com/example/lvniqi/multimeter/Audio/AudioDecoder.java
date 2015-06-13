@@ -92,9 +92,9 @@ public class AudioDecoder extends AudioReceiver {
                 return -1;
             else
                 pos_real[i] = pos[i] + (-data[pos[i]]) / (data[pos[i] + 1] - data[pos[i]]);
-            if (pos[i] - pos[i - 1] < START_DIV)
+            if (pos[i] - pos[i - 1] < START_DIV - DIV_TOLERANCE)
                 return -1;
-            if (pos[i] - pos[i - 1] > START_DIV + (DIV_RANGE - DIV_TOLERANCE) * DIV_STEP)
+            if (pos[i] - pos[i - 1] > START_DIV + (DIV_RANGE - 1) * (DIV_STEP) + 1 + DIV_TOLERANCE)
                 return -2;
         }
         int temp = 0;
@@ -141,16 +141,11 @@ public class AudioDecoder extends AudioReceiver {
                 int temp_temp = temp;
                 last_end = start;
                 for (int i = 0; i < DIV_RANGE; i++) {
-                    last_end += START_DIV + ((temp_temp % DIV_RANGE) * DIV_STEP);
+                    last_end += START_DIV + ((temp_temp % DIV_RANGE) * DIV_STEP) - 1;
                     temp_temp /= DIV_RANGE;
                 }
+                last_end = find_posedge(data, last_end);
                 start = last_end;
-                //start = prepare(data, start);
-                if (start < 0) {
-                    break;
-                } else {
-                    last_end = start;
-                }
             } else {
                 if (temp == -2) {
                     isStart = false;

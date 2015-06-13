@@ -146,7 +146,15 @@ public class AudioReceiver implements Runnable {
         for (int i = start; i < data.length - 1; i++) {
             if (data[i] <= 0 && data[i + 1] > 0) {
                 pos = i;
-                return pos;
+                for (int max = 0, t = pos; t < data.length && t - pos < 10; t++) {
+                    if (data[t] > max) {
+                        max = data[t];
+                        if (max > 300) {
+                            return pos;
+                        }
+                    }
+                }
+
             }
         }
         return -1;
