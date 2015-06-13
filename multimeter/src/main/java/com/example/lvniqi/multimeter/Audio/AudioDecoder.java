@@ -94,7 +94,7 @@ public class AudioDecoder extends AudioReceiver {
                 pos_real[i] = pos[i] + (-data[pos[i]]) / (data[pos[i] + 1] - data[pos[i]]);
             if (pos[i] - pos[i - 1] < START_DIV - DIV_TOLERANCE)
                 return -1;
-            if (pos[i] - pos[i - 1] > START_DIV + (DIV_RANGE - 1) * (DIV_STEP) + 1 + DIV_TOLERANCE)
+            if (pos[i] - pos[i - 1] > START_DIV + (DIV_RANGE - 1) * (DIV_STEP) + DIV_TOLERANCE)
                 return -2;
         }
         int temp = 0;
