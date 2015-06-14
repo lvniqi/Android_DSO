@@ -153,6 +153,12 @@ public class AudioEncoder extends AudioSender {
         lock.unlock();
     }
 
+    public void addDatas(Byte[] a) {
+        lock.lock();
+        datas.add(new BaseData(a));
+        lock.unlock();
+    }
+
     public void addDatas(String a) {
         lock.lock();
         datas.add(new BaseData(a));
@@ -181,6 +187,12 @@ class BaseData {
         }
     }
 
+    BaseData(Byte[] in) {
+        arrayList = new ArrayList<>();
+        for (Byte x : in) {
+            arrayList.add(x);
+        }
+    }
     BaseData(String in) {
         arrayList = new ArrayList<>();
         byte[] in_t = in.getBytes();

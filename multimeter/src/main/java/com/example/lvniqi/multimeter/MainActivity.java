@@ -57,6 +57,7 @@ public class MainActivity extends NavigationLiveo implements NavigationLiveoList
 
     public static AudioSender audioSender;
     public static AudioReceiver audioReceiver;
+    public static String SDPATH;
     static int menuPosition;
     static Message LEDmessage = new Message();
     final Timer timer = new Timer();

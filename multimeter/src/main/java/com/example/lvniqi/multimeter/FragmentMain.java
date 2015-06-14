@@ -31,6 +31,7 @@ import com.example.lvniqi.multimeter.Audio.AudioDecoder;
 import com.example.lvniqi.multimeter.Audio.AudioEncoder;
 import com.example.lvniqi.multimeter.Audio.AudioReceiver;
 import com.example.lvniqi.multimeter.Audio.AudioSender;
+import com.example.lvniqi.multimeter.Audio.Mcu_Updater;
 import com.example.lvniqi.multimeter.Audio.MessageDecoder;
 import com.example.lvniqi.multimeter.Card.AudioDecoderCard;
 import com.example.lvniqi.multimeter.Card.AudioEncoderCard;
@@ -179,12 +180,30 @@ public class FragmentMain extends Fragment {
                 basicCard.setTag("connect_set");
                 mListView.add(basicCard);
                 //升级固件
-                basicCard = new BasicButtonsCard(rootView.getContext());
-                basicCard.setTitle(getString(R.string.update_fireware));
-                basicCard.setLeftButtonText("LEFT");
-                basicCard.setRightButtonText("RIGHT");
-                basicCard.setTag("update_fireware");
-                mListView.add(basicCard);
+                final BasicButtonsCard updateCard = new BasicButtonsCard(rootView.getContext());
+                updateCard.setTitle(getString(R.string.update_fireware));
+                updateCard.setLeftButtonText("    ");
+                updateCard.setRightButtonText("RIGHT");
+                updateCard.setOnRightButtonPressedListener(new OnButtonPressListener() {
+                    Mcu_Updater updater;
+
+                    @Override
+                    public void onButtonPressedListener(View view, Card card) {
+                        //未启用
+                        if (updateCard.getBackgroundColor() !=
+                                view.getResources().getColor(R.color.nliveo_blue_colorPrimaryDark)) {
+                            updater = new Mcu_Updater(view.getContext());
+                            updater.start();
+                            updateCard.setBackgroundColorRes(R.color.nliveo_blue_colorPrimaryDark);
+
+                        } else {
+                            updater.stop();
+                            updateCard.setBackgroundColorRes(R.color.white);
+                        }
+                    }
+                });
+                updateCard.setTag("update_fireware");
+                mListView.add(updateCard);
                 //基本listview
                 BasicListCard listCard2 = new BasicListCard(rootView.getContext());
                 listCard2.setDescription("description");
