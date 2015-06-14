@@ -37,9 +37,8 @@ public class Mcu_Updater implements Runnable {
         String path = binFilesDir.getAbsolutePath();
         Log.i("binFilesDir", "path:" + path);
         File file = new File(path + "/1.bin");
-        FileInputStream in = null;
-
         try {
+            FileInputStream in;
             in = new FileInputStream(file);
             byte[] t = new byte[1024 + 4];
             int length = 0;
@@ -118,7 +117,6 @@ public class Mcu_Updater implements Runnable {
         byte[] t = new byte[1];
         t[0] = 'd';
         ((AudioEncoder) audioSender).addDatas(t);
-
         while (true) {
             int d = ((McuReceiver) audioReceiver).getByte();
             if (d == 'o') {
@@ -142,12 +140,28 @@ public class Mcu_Updater implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (binArray.size() > 0) {
+        while (binArray.size() > 0) {
+            ((McuReceiver) audioReceiver).clear();
             ((AudioEncoder) audioSender).addDatas(binArray.get(0));
+            while (true) {
+                int d = ((McuReceiver) audioReceiver).getByte();
+                if (d == 'o') {
+                    break;
+                } else if (d != -1) {
+                    Log.i("ERROR_RECEIVE", d + "");
+                } else {
+                    try {
+                        thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            binArray.remove(0);
         }
         while (thread != null) {
             try {
-                thread.sleep(5);
+                thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
